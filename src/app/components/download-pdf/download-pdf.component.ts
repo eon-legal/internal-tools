@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import jsPDF from 'jspdf';
 import { ButtonModule } from 'primeng/button';
-import { FileUploadModule } from 'primeng/fileupload';
+import {
+  FileUpload,
+  FileUploadModule,
+} from 'primeng/fileupload';
 import { TableModule } from 'primeng/table';
 import { FileSizePipe } from '../../core/directives/file-size/file-size.pipe';
-
 
 @Component({
   selector: 'app-download-pdf',
@@ -14,7 +16,10 @@ import { FileSizePipe } from '../../core/directives/file-size/file-size.pipe';
   styleUrl: './download-pdf.component.scss',
 })
 export class DownloadPdfComponent {
-  acceptedFiles: string = '.jpeg, .jpg, .gif, .png';
+  listPagination = [5, 10, 20];
+  @ViewChild('fileUpload') fileUpload!: FileUpload;
+  acceptedFiles: string = '.jpg,.jpeg,.png,.gif';
+  messagesFiles: string = 'Solo se aceptan imágenes.';
   myFiles: File[] = [];
   products = [
     {
@@ -30,6 +35,9 @@ export class DownloadPdfComponent {
       rating: 5,
     },
   ];
+  uploadedFiles: any[] = [];
+  constructor(private cd: ChangeDetectorRef) {}
+
   uploadFilesImages(event: { files: File[] }) {
     const files: File[] = event.files;
 
@@ -138,13 +146,32 @@ export class DownloadPdfComponent {
 
         doc.save(filename);
         this.myFiles = [];
+        this.fileUpload.clear();
       })
       .catch((error) => {
         console.error('Error procesando imágenes:', error);
         this.myFiles = [];
+        this.fileUpload.clear();
       });
   }
-  removeFile(fileToRemove: File) {
-    this.myFiles = this.myFiles.filter((file) => file !== fileToRemove);
+  deletefile(file: File, event: Event) {
+    const index = this.fileUpload.files.findIndex(
+      (f) =>
+        f.name === file.name &&
+        f.size === file.size &&
+        f.lastModified === file.lastModified
+    );
+    if (index !== -1) {
+      this.fileUpload.remove(event, index);
+      if (!this.fileUpload.files.length) this.fileUpload.clear();
+      this.cd.detectChanges();
+    }
+  }
+  extension(data: string){
+    const sub = 'image/';
+    if(data.includes(sub)){
+      return data.split(sub)[1].toLocaleUpperCase();
+    }
+    return 'N/A';
   }
 }
