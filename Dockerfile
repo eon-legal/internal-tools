@@ -1,29 +1,13 @@
-# Usar imagen base de Node  
-FROM node:22-alpine AS build  
+# Stage 1: Build the Angular application
+FROM node:22.9.0 AS builder
+WORKDIR /app
+COPY package*.json .
+RUN npm install
+COPY . .
+RUN npm run build
 
-# Establecer directorio de trabajo  
-WORKDIR /app  
-
-# Copiar archivos de dependencias  
-COPY package*.json ./  
-
-# Instalar dependencias  
-RUN npm install  
-
-# Copiar código fuente  
-COPY . .  
-
-# Construir proyecto para producción  
-RUN npm run build  
-
-# Imagen final con servidor nginx  
-FROM nginx:alpine  
-
-# Copiar dist de Angular a nginx  
-COPY --from=build /app/dist/create_images_pdf /usr/share/nginx/html  
-
-# Configurar puerto por defecto  
-EXPOSE 80  
-
-# Comando por defecto  
+# Stage 2: Serve with Nginx
+FROM nginx:stable
+COPY --from=builder /app/dist/internal-tools/browser /usr/share/nginx/html
+EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

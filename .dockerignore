@@ -5,5 +5,8 @@ dist
 .gitignore
 Dockerfile
 .dockerignore
+.DS_Store
 README.md
 npm-debug.log
+.angular
+

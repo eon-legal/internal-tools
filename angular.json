@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "create_images_pdf": {
+    "internal-tools": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/create_images_pdf",
+            "outputPath": "dist/internal-tools",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -37,10 +37,10 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-               "jspdf",
-               "core-js",
-               "raf",
-               "rgbcolor"
+              "jspdf",
+              "core-js",
+              "raf",
+              "rgbcolor"
             ]
           },
           "configurations": {
@@ -71,10 +71,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "create_images_pdf:build:production"
+              "buildTarget": "internal-tools:build:production"
             },
             "development": {
-              "buildTarget": "create_images_pdf:build:development"
+              "buildTarget": "internal-tools:build:development"
             }
           },
           "defaultConfiguration": "development"

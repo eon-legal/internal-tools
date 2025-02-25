@@ -14,16 +14,18 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'create_images_pdf' title`, () => {
+  it(`should have the 'internal-tools' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('create_images_pdf');
+    expect(app.title).toEqual('internal-tools');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, create_images_pdf');
+    expect(compiled.querySelector('h1')?.textContent).toContain(
+      'Hello, internal-tools'
+    );
   });
 });
