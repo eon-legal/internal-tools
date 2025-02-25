@@ -1,0 +1,16 @@
+services:
+  frontend:
+    container_name: angular-app
+    build:
+      context: .  # Directorio donde está el Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"  # Puerto host:contenedor
+    restart: unless-stopped
+    networks:
+      - angular-network
+
+# Red para comunicación entre servicios (opcional)
+networks:
+  angular-network:
+    driver: bridge
