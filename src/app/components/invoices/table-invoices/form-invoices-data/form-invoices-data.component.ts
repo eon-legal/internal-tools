@@ -69,7 +69,7 @@ export class FormInvoicesDataComponent {
   ref: DynamicDialogRef<DataInvoicesTable | null> = inject(DynamicDialogRef);
   accept() {
     if (this.formTable.formValid()) {
-      this.ref.close(this.formTable.getDataFormComlete());
+      this.ref.close(this.formTable.getDataFormComplete());
     }
     this.formTable.doMarkField();
   }

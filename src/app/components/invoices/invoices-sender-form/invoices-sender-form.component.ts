@@ -1,4 +1,10 @@
-import { AfterViewInit, Component, inject, OnDestroy, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  inject,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import { FormGenericComponent } from '../../../shared/components/form-generic/form-generic.component';
 import { Validators } from '@angular/forms';
 import { FormField } from '../../../core/interfaces/form-field';
@@ -9,7 +15,7 @@ import { InvoicesStore } from '../../../app.component.store';
   standalone: true,
   imports: [FormGenericComponent],
   templateUrl: './invoices-sender-form.component.html',
-  styleUrl: './invoices-sender-form.component.scss'
+  styleUrl: './invoices-sender-form.component.scss',
 })
 export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
   readonly store = inject(InvoicesStore);
@@ -171,19 +177,20 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
         }
       });
   }
-  changeData(data: object){
+  changeData(data: object) {
     this.formSenderGenericComponent.establishDataParams(data);
   }
   ngOnDestroy(): void {
-    this.store.updateFirstForm(this.formSenderGenericComponent.getDataFormComlete());
-    if(this.formSenderGenericComponent.formValid()){
+    this.store.updateFirstForm(
+      this.formSenderGenericComponent.getDataFormComplete()
+    );
+    if (this.formSenderGenericComponent.formValid()) {
       this.store.updateValidFirstForm(true);
-    }
-    else{
+    } else {
       this.store.updateValidFirstForm(false);
     }
   }
-  getFirstFormStore(){
-   return  this.store.getFirstForm();
+  getFirstFormStore() {
+    return this.store.getFirstForm();
   }
 }

@@ -18,6 +18,7 @@ type InvoicesState = {
   isValidSecondForm: boolean;
   touchedFirstForm: boolean;
   touchedSecondForm: boolean;
+  iva: number;
 };
 
 const initialState: InvoicesState = {
@@ -40,6 +41,7 @@ const initialState: InvoicesState = {
     nif: '',
   },
   tableContain: [],
+  iva: 0,
   isValidFirstForm: false,
   isValidSecondForm: false,
   touchedFirstForm: false,
@@ -58,8 +60,10 @@ export const InvoicesStore = signalStore(
       isValidSecondForm,
       touchedFirstForm,
       touchedSecondForm,
+      iva
     }) => ({
       getFirstForm: computed(() => firstForm()),
+      getIVA: computed(() => iva()),
       getIsValidFirstForm: computed(() => isValidFirstForm()),
       getIsSecondForm: computed(() => isValidSecondForm()),
       getSeconfForm: computed(() => second()),
@@ -69,6 +73,9 @@ export const InvoicesStore = signalStore(
     })
   ),
   withMethods((store) => ({
+    updateIVA(iva: number): void {
+      patchState(store, (state) => ({ ...state, iva }));
+    },
     updateFirstForm(firstForm: FisrtForm): void {
       patchState(store, (state) => ({ ...state, firstForm }));
     },

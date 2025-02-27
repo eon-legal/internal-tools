@@ -67,7 +67,7 @@ export class InvoicesDestinationFormComponent implements OnDestroy {
   ];
   ngOnDestroy(): void {
     this.store.updateSecondForm(
-      this.formDestinationGenericComponent.getDataFormComlete()
+      this.formDestinationGenericComponent.getDataFormComplete()
     );
     if (this.formDestinationGenericComponent.formValid()) {
       this.store.updateValidSecondForm(true);

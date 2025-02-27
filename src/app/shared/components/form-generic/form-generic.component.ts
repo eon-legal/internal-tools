@@ -80,7 +80,7 @@ export class FormGenericComponent implements OnInit {
     return this.form.get(name);
   }
 
-  getDataFormComlete() {
+  getDataFormComplete() {
     return this.form.getRawValue();
   }
 

@@ -1,4 +1,11 @@
-import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import {
   DialogService,
   DynamicDialog,
@@ -31,7 +38,9 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './contain-invoices.component.scss',
   providers: [DialogService],
 })
-export class ContainInvoicesComponent implements OnDestroy, OnInit {
+export class ContainInvoicesComponent
+  implements AfterViewInit, OnDestroy, OnInit
+{
   readonly store = inject(InvoicesStore);
   dialogService: DialogService = inject(DialogService);
   listPagination = [5, 10, 20];
@@ -48,7 +57,7 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
       name: 'iva',
       label: 'IVA Neto',
       type: 'number_currency',
-      initialData: 0,
+      initialData: this.store.getIVA() || 0,
     },
   ];
 
@@ -98,14 +107,23 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
   @ViewChild('formIVA') formIVA!: FormGenericComponent;
   ref: DynamicDialogRef | undefined;
 
+  ngAfterViewInit(): void {
+    this.formIVA
+      ?.getFormControl('iva')
+      ?.valueChanges.subscribe((value: number | null) => {
+        const positionIVA = this.rowTable.findIndex(
+          (r) => r.perCentIva === DataInvoicesConstant.IVA
+        );
+        if (positionIVA !== -1) {
+          this.rowTable[positionIVA].total = value ? value : 0;
+        }
+      });
+  }
+
   ngOnInit() {
-    this.formIVA?.registerListener((formValue) => {
-      alert('yaaa');
-      // Aquí puedes ejecutar cualquier lógica necesaria
-    });
     this.rowTable = this.store.getTableContain();
     if (
-      !this.rowTable.length &&
+      !this.rowTable.length ||
       this.rowTable.some(
         (v) =>
           v.perCentIva === DataInvoicesConstant.TOTAL &&
@@ -127,6 +145,10 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
         total: 0,
       });
     }
+    const posIVA = this.rowTable.findIndex(
+      (v) => v.perCentIva === DataInvoicesConstant.IVA
+    );
+    this.rowTable[posIVA].total = this.store.getIVA() || 0,
     this.updateFieldTable();
   }
 
@@ -190,10 +212,15 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
     const positionTotal = this.rowTable.findIndex(
       (r) => r.perCentIva === DataInvoicesConstant.TOTAL
     );
-    const todoMenosTotal = this.rowTable.filter(
-      (r) => r.perCentIva !== DataInvoicesConstant.TOTAL
+    const todoMenosTotalAndIVA = this.rowTable.filter(
+      (r) =>
+        r.perCentIva !== DataInvoicesConstant.TOTAL &&
+        r.perCentIva !== DataInvoicesConstant.IVA
     );
-    const total = getSumAttribute<DataInvoicesTable>(todoMenosTotal, 'total');
+    const total = getSumAttribute<DataInvoicesTable>(
+      todoMenosTotalAndIVA,
+      'total'
+    );
     if (positionTotal !== -1) {
       const getDataPosTotal = this.rowTable[positionTotal];
       this.rowTable[positionTotal] = { ...getDataPosTotal, total };
@@ -223,5 +250,10 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
       this.ref.close();
     }
     this.store.updateTable(this.rowTable);
+    this.store.updateIVA(
+      this.formIVA?.getDataFormComplete().iva
+        ? this.formIVA?.getDataFormComplete().iva
+        : 0
+    );
   }
 }
