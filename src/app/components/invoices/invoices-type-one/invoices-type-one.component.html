@@ -1,0 +1,74 @@
+<div class="card">
+  <p-stepper [value]="1">
+    <p-step-list>
+      <p-step [value]="1">Remitente - Fechas</p-step>
+      <p-step [value]="2">Contenido Factura</p-step>
+      <p-step [value]="3">Destino - Generar PDF</p-step>
+    </p-step-list>
+    <p-step-panels>
+      <p-step-panel [value]="1">
+        <ng-template #content let-activateCallback="activateCallback">
+          <div class="flex flex-col h-48">
+            <app-invoices-sender-form #invoicesSenderFormComponent />
+          </div>
+          <div class="flex pt-6 justify-content-between">
+            <p-button
+              label="Limpiar Todo"
+              severity="warn"
+              icon="pi pi-trash"
+              (click)="cleanDataStep()"
+            />
+            <p-button
+              label="Siguiente"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              (onClick)="activateCallback(2)"
+            />
+          </div>
+        </ng-template>
+      </p-step-panel>
+
+      <p-step-panel [value]="2">
+        <ng-template #content let-activateCallback="activateCallback">
+          <app-contain-invoices />
+          <div class="flex pt-6 justify-content-between">
+            <p-button
+              label="Atrás"
+              severity="secondary"
+              icon="pi pi-arrow-left"
+              (onClick)="activateCallback(1)"
+            />
+            <p-button
+              label="Siguiente"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              (onClick)="activateCallback(3)"
+            />
+          </div>
+        </ng-template>
+      </p-step-panel>
+
+      <p-step-panel [value]="3">
+        <ng-template #content let-activateCallback="activateCallback">
+          <div class="flex flex-col h-48">
+            <app-invoices-destination-form #invoicesDestinationFormComponent />
+          </div>
+          <div class="flex pt-6 justify-content-between">
+            <p-button
+              label="Atrás"
+              icon="pi pi-arrow-left"
+              iconPos="right"
+              (onClick)="activateCallback(2)"
+            />
+            <p-button
+              label="Generar Factura"
+              icon="pi pi-arrow-left"
+              iconPos="right"
+              (onClick)="generateAvoices()"
+            />
+          </div>
+        </ng-template>
+      </p-step-panel>
+    </p-step-panels>
+  </p-stepper>
+</div>

@@ -15,8 +15,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     providePrimeNG({
       theme: {
-          preset: Aura
-      }
-  })
+        preset: Aura,
+      },
+    }),
+    //provideStore({ user: userReducer }),
   ],
 };

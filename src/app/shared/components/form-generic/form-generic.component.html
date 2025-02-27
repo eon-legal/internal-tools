@@ -1,0 +1,180 @@
+<form [formGroup]="form">
+  <div class="grid" style="box-sizing: border-box">
+    @for(field of formConfig; track field.name){ @if(field?.showComponent !==
+    false){
+    <div class="col-12 md:col-{{ field.cols }}">
+      <div class="field">
+        <label
+          [for]="field.name"
+          class="block font-medium mb-2"
+          [ngClass]="
+            getFormControl(field.name)?.invalid &&
+            getFormControl(field.name)?.touched
+              ? 'p-error'
+              : 'text-900'
+          "
+          >{{ field.label }}
+        </label>
+
+        <!-- Input Text -->
+        @if(field.type === 'input'){
+        <input
+          class="w-full"
+          [style]="{ width: '100%' }"
+          styleClass="w-full"
+          [ngClass]="{
+            'ng-invalid ng-dirty':
+              getFormControl(field.name)?.invalid &&
+              getFormControl(field.name)?.touched
+          }"
+          pInputText
+          [id]="field.name"
+          [formControlName]="field.name"
+          [placeholder]="field.primeNgConfig?.placeholder || ''"
+        />
+        }
+
+        <!-- Input Number -->
+        @if(field.type === 'number'){
+        <p-inputnumber
+          class="w-full"
+          [style]="{ width: '100%' }"
+          styleClass="w-full"
+          [ngClass]="{
+            'ng-invalid ng-dirty':
+              getFormControl(field.name)?.invalid &&
+              getFormControl(field.name)?.touched
+          }"
+          [id]="field.name"
+          [formControlName]="field.name"
+          [placeholder]="field.primeNgConfig?.placeholder || ''"
+        />
+        }
+
+        <!-- Input Number EUR -->
+        @if(field.type === 'number_currency'){
+        <p-inputnumber
+          class="w-full"
+          [style]="{ width: '100%' }"
+          styleClass="w-full"
+          [ngClass]="{
+            'ng-invalid ng-dirty':
+              getFormControl(field.name)?.invalid &&
+              getFormControl(field.name)?.touched
+          }"
+          mode="currency"
+          inputId="currency-germany"
+          currency="EUR"
+          locale="de-DE"
+          [id]="field.name"
+          [formControlName]="field.name"
+          [placeholder]="field.primeNgConfig?.placeholder || ''"
+        />
+        }
+
+        <!-- Input Number percent -->
+        @if(field.type === 'number_percent'){
+          <p-inputnumber
+            class="w-full"
+            [style]="{ width: '100%' }"
+            styleClass="w-full"
+            [ngClass]="{
+              'ng-invalid ng-dirty':
+                getFormControl(field.name)?.invalid &&
+                getFormControl(field.name)?.touched
+            }"
+            
+            inputId="percent"
+            prefix="%"
+            [id]="field.name"
+            [formControlName]="field.name"
+            [placeholder]="field.primeNgConfig?.placeholder || ''"
+          />
+          }
+
+        <!-- Dropdown -->
+        @if(field.type === 'dropdown'){
+        <p-select
+          class="w-full"
+          [ngClass]="{
+            'ng-invalid ng-dirty':
+              getFormControl(field.name)?.invalid &&
+              getFormControl(field.name)?.touched
+          }"
+          [options]="field.primeNgConfig?.options || []"
+          [formControlName]="field.name"
+          [optionLabel]="field.primeNgConfig?.optionLabel || 'label'"
+          [placeholder]="field.primeNgConfig?.placeholder || ''"
+        >
+        </p-select>
+        }
+
+        <!-- Calendar -->
+        @if(field.type === 'calendar'){
+        <p-datepicker
+          class="p-datepicker-input"
+          [ngClass]="{
+            'ng-invalid ng-dirty':
+              getFormControl(field.name)?.invalid &&
+              getFormControl(field.name)?.touched
+          }"
+          [formControlName]="field.name"
+          [dateFormat]="field.primeNgConfig?.dateFormat || 'dd/mm/yy'"
+          [showIcon]="true"
+        >
+        </p-datepicker>
+        }
+
+        <!-- Textarea -->
+        @if(field.type === 'textarea'){
+        <textarea
+          pInputTextarea
+          class="w-full"
+          [ngClass]="{
+            'ng-invalid ng-dirty':
+              getFormControl(field.name)?.invalid &&
+              getFormControl(field.name)?.touched
+          }"
+          [formControlName]="field.name"
+          [rows]="field.primeNgConfig?.rows || 3"
+        >
+        </textarea>
+        } @if(field.type === 'toggle'){
+        <p-toggleswitch
+          [ngClass]="{
+            'ng-invalid ng-dirty':
+              getFormControl(field.name)?.invalid &&
+              getFormControl(field.name)?.touched
+          }"
+          [formControlName]="field.name"
+        />
+        }
+        <!-- Checkbox -->
+        @if(field.type === 'checkbox'){
+        <p-checkbox
+          [binary]="true"
+          [ngClass]="{
+            'ng-invalid ng-dirty':
+              getFormControl(field.name)?.invalid &&
+              getFormControl(field.name)?.touched
+          }"
+          [formControlName]="field.name"
+        >
+        </p-checkbox>
+        }
+        <!-- Mensajes de error -->
+        @if(getFormControl(field.name)?.invalid &&
+        getFormControl(field.name)?.touched){
+        <div class="p-error">
+          @if(getFormControl(field.name)?.errors?.['required']){
+          <div>Campo requerido</div>
+          } @if(getFormControl(field.name)?.errors?.['email']){
+          <div>Email inválido</div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+    } }
+  </div>
+</form>

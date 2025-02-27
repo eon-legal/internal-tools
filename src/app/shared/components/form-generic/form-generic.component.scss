@@ -1,0 +1,10 @@
+.p-error {
+    color: var(--p-inputtext-invalid-border-color);
+}
+::ng-deep .p-datepicker {  
+    width: 100% !important;  
+  }  
+  /*
+  ::ng-deep .p-inputtext {  
+    width: 100%;  
+  }  */

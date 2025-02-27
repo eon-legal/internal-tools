@@ -19,7 +19,7 @@
     [paginator]="true"
     [totalRecords]="fileUpload.files.length"
     [rowsPerPageOptions]="listPagination"
-    [rows]="listPagination[0]"
+    [rows]="listPagination.length ? listPagination[0] : 5"
     [responsive]="true"
     styleClass="p-datatable-striped"
   >

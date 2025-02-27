@@ -1,0 +1,42 @@
+@if(getHeaderKeys(headerData).length){
+<p-table
+  [value]="dataTable"
+  [paginator]="true"
+  [totalRecords]="dataTable.length"
+  [rowsPerPageOptions]="listPagination.length ? listPagination : [5]"
+  [rows]="listPagination.length ? listPagination[0] : 5"
+  [responsive]="true"
+  styleClass="p-datatable-striped"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      @for( header of getHeaderEntries(headerData) ; track header[0]){
+      <th>{{ header[1] }}</th>
+      } @if(operation.length && getHeaderKeys(headerData).length){
+      <th>Acciones</th>
+      }
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-file let-rowIndex="rowIndex">
+    <tr>
+      @for(obj of getHeaderKeys(headerData); track obj){
+        <!--{{ file[obj] || "" }} -->
+      <td>{{ getFormattedValue(obj, file) }}</td>
+      } @for(op of operation; track op){ @if(!op?.hideDependsFunction(file)){
+      <td>
+        <p-button
+          [icon]="op?.icon"
+          [label]="op?.label"
+          [rounded]="true"
+          [severity]="op.severity"
+          [disabled]="isDisabled(op, file)"
+          (click)="isDisabled(op, file) ? null : op.action(file)"
+        />
+      </td>
+      } @else{
+      <td></td>
+      } }
+    </tr>
+  </ng-template>
+</p-table>
+}

@@ -1,12 +1,24 @@
 /* You can add global styles to this file, and also import other style files */
-html, body { height: 100%; background-color: #34495E; }
+html, body { height: 100%; 
+    background-color: #F5F7FA;
+     }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 @import "primeicons/primeicons.css";
+/* Mejoras para móviles */
+/*@media (max-width: 768px) {
+    .app-header {
+      padding: 0 1rem;
+      
+      .app-title {
+        font-size: 1.2rem;
+      }
+    }
+  }*/
 /**
 yaml
 - Fondo Principal: #F5F7FA (Gris Claro)  
 - Color Primario: #2C3E50 (Azul Marino Oscuro)  
-- Color Secundario: #34495E (Azul Grisáceo)  
+- Color Secundario: #34495E (Azul Grisáceo)  OK
 - Accent 1: #3498DB (Azul Brillante)  
 - Accent 2: #2980B9 (Azul Medio)  
 Paleta 2 (Tonos Neutros Modernos):

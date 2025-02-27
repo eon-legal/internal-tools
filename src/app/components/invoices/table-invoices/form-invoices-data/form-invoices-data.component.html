@@ -1,0 +1,15 @@
+<app-form-generic [formConfig]="formConfig" #formTable />
+<div class="flex pt-6 justify-content-between">
+  <p-button
+    icon="pi pi-trash"
+    label="Cerrar"
+    severity="danger"
+    (click)="close()"
+  />
+  <p-button
+    icon="pi pi-check"
+    label="Agregar"
+    severity="primary"
+    (click)="accept()"
+  />
+</div>

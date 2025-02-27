@@ -1,0 +1,19 @@
+<div class="flex justify-content-between">
+  <app-form-generic [formConfig]="formConfig" #formIVA />
+  <p-button
+    icon="pi pi-check"
+    label="Agregar Dato Facturas"
+    severity="primary"
+    (click)="show()"
+  />
+  <br />
+</div>
+
+<div class="flex flex-col h-48">
+  <app-table-generic
+    [formatOptions]="formatOptions"
+    [dataTable]="rowTable"
+    [headerData]="headerData"
+    [operation]="operation"
+  />
+</div>

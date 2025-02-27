@@ -1,0 +1,47 @@
+<div class="app-container">
+    <!-- Cabecera -->
+    <header class="app-header">
+      <div class="header-left">
+        <button pButton 
+                icon="pi pi-bars" 
+                class="p-button-rounded p-button-text mobile-menu-btn"
+                (click)="toggleMobileSidebar()"
+                *ngIf="isMobile"></button>
+        <span class="app-title">DocPro</span>
+      </div>
+      
+      <!--
+      <div class="header-right">
+        <p-splitButton label="Bienvenido" 
+                       icon="pi pi-user"
+                       [model]="profileItems"
+                       styleClass="p-button-text"
+                       [menuStyle]="{ 'min-width': '200px' }"></p-splitButton>
+      </div> -->
+    </header>
+  
+    <!-- Overlay móvil -->
+    <div class="mobile-sidebar-overlay" 
+         [class.active]="sidebarMobileVisible && isMobile"
+         (click)="closeMobileSidebar()"></div>
+  
+    <!-- Sidebar -->
+    <aside class="app-sidebar" 
+           [class.collapsed]="!sidebarVisible && !isMobile"
+           [class.mobile-visible]="sidebarMobileVisible">
+      <p-panelMenu [model]="menuItems" 
+                   [multiple]="false"
+                   styleClass="w-full sidebar-menu"></p-panelMenu>
+    </aside>
+  
+    <!-- Contenido Principal -->
+    <main class="app-content" 
+          [class.full-width]="!sidebarVisible"
+          [class.mobile-pushed]="sidebarMobileVisible"
+          (click)="closeMobileSidebar()">
+      <div class="content-wrapper">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+  
