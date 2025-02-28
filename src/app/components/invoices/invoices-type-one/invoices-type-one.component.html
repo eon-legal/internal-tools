@@ -113,8 +113,8 @@
         let-index="index"
       >
         <app-contain-invoices />
-       <!-- <div class="flex pt-4 justify-content-between"> -->
-          <div class="flex pt-6 justify-content-between">
+        <!-- <div class="flex pt-4 justify-content-between"> -->
+        <div class="flex pt-6 justify-content-between">
           <p-button
             label="Atrás"
             icon="pi pi-arrow-left"
@@ -145,11 +145,12 @@
             icon="pi pi-arrow-left"
             (onClick)="prevCallback.emit()"
           />
+
           <p-button
             label="Generar Factura"
             icon="pi pi-file-pdf"
             iconPos="right"
-            (onClick)="generateAvoices()"
+            (onClick)="notAllowedShowPdf()"
           />
         </div>
       </ng-template>

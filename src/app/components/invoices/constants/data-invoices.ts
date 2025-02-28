@@ -1,4 +1,4 @@
 export const DataInvoicesConstant = {
-    IVA: 'IVA',
-    TOTAL: 'Total'
-}
+  IVA: 'IVA',
+  TOTAL: 'Total',
+};

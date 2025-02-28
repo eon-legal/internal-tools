@@ -3,6 +3,7 @@ import {
   Component,
   inject,
   OnDestroy,
+  OnInit,
   ViewChild,
 } from '@angular/core';
 import { FormGenericComponent } from '../../../shared/components/form-generic/form-generic.component';
@@ -17,7 +18,9 @@ import { InvoicesStore } from '../../../app.component.store';
   templateUrl: './invoices-sender-form.component.html',
   styleUrl: './invoices-sender-form.component.scss',
 })
-export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
+export class InvoicesSenderFormComponent
+  implements AfterViewInit, OnDestroy, OnInit
+{
   readonly store = inject(InvoicesStore);
   @ViewChild('formSenderGenericComponent')
   formSenderGenericComponent!: FormGenericComponent;
@@ -44,8 +47,10 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
       type: 'calendar',
       cols: 4,
       initialData: this.getFirstFormStore().date,
-      validators: [Validators.required],
-      showComponent: true,
+      validators: this.getFirstFormStore().dateOrDateRange
+        ? []
+        : [Validators.required],
+      showComponent: this.getFirstFormStore().dateOrDateRange ? false : true,
     },
     {
       name: 'rangeDates',
@@ -53,8 +58,10 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
       type: 'calendar',
       initialData: this.getFirstFormStore().rangeDates,
       cols: 4,
-      validators: [Validators.required],
-      showComponent: false,
+      validators: this.getFirstFormStore().dateOrDateRange
+        ? [Validators.required]
+        : [],
+      showComponent: this.getFirstFormStore().dateOrDateRange ? true : false,
       primeNgConfig: { selectionMode: 'multiple' },
     },
     {
@@ -78,8 +85,10 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
       type: 'input',
       cols: 4,
       initialData: this.getFirstFormStore().address,
-      validators: [Validators.required],
-      showComponent: true,
+      validators: this.getFirstFormStore().national
+        ? [Validators.required]
+        : [],
+      showComponent: this.getFirstFormStore().national ? true : false,
     },
     {
       name: 'passport',
@@ -87,12 +96,20 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
       type: 'input',
       cols: 4,
       initialData: this.getFirstFormStore().passport,
-      validators: [Validators.required],
-      showComponent: false,
+      validators: this.getFirstFormStore().national
+        ? []
+        : [Validators.required],
+      showComponent: this.getFirstFormStore().national ? false : true,
     },
   ];
 
+  ngOnInit(): void {
+
+  }
+
   ngAfterViewInit() {
+    const first = this.store.firstForm();
+    this.formSenderGenericComponent?.establishDataParams(first);
     // Escuchar cambios de valor
     this.setupConditionaDateRemitenteValidation();
     this.setupConditionalNationalRemitente();

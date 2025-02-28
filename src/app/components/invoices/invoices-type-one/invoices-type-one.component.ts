@@ -7,7 +7,9 @@ import { StepsModule } from 'primeng/steps';
 import { InvoicesStore } from '../../../app.component.store';
 import { ContainInvoicesComponent } from '../table-invoices/contain-invoices/contain-invoices.component';
 import { MessageService } from 'primeng/api';
-import {MessagesModule} from 'primeng/messages'; 
+import { MessagesModule } from 'primeng/messages';
+import { ToastrService } from 'ngx-toastr';
+import { newGeneratePDFInvoices } from '../utils/new-pdf';
 
 @Component({
   selector: 'app-invoices-type-one',
@@ -19,7 +21,7 @@ import {MessagesModule} from 'primeng/messages';
     StepperModule,
     StepsModule,
     ButtonModule,
-    MessagesModule
+    MessagesModule,
   ],
   templateUrl: './invoices-type-one.component.html',
   styleUrl: './invoices-type-one.component.scss',
@@ -33,15 +35,41 @@ export class InvoicesTypeOneComponent implements OnDestroy {
   invoicesDestinationFormComponent!: InvoicesDestinationFormComponent;
   activeStep: number = 1;
   messageService: MessageService = inject(MessageService);
+  toastr: ToastrService = inject(ToastrService);
 
-  popUpServces(message: string) {
-    this.messageService.add({ 
-      severity: "error", 
-      summary: "GeeksforGeeks", 
-      detail: "Error Service Message", 
-    }); 
+  notAllowedShowPdf() {
+    const isValidFirstForm = this.store.getIsValidFirstForm();
+    const isValidSecondForm = this.store.getIsValidSecondForm();
+    const messages = 'Deben ser válidos los formularios del paso 1.';
+    if (
+      !isValidFirstForm ||
+      (!isValidSecondForm &&
+        !this.invoicesDestinationFormComponent.formDestinationGenericComponent.formValid())
+    ) {
+      this.toastr.error(
+        !isValidFirstForm
+          ? messages
+          : 'Deben ser válidos los formularios del paso 3.',
+        'Error'
+      );
+    } else {
+      const first = this.store.getFirstForm();
+      let second = this.store.getSeconfForm();
+      const table = this.store.getTableContain();
+      if (
+        this.invoicesDestinationFormComponent.formDestinationGenericComponent.formValid()
+      )
+        second =
+          this.invoicesDestinationFormComponent.formDestinationGenericComponent.getDataFormComplete();
+      newGeneratePDFInvoices(
+        [first.name, first.national ? first.address : first.passport],
+        second,
+        first,
+        table
+      );
+    }
   }
-  
+
   onActiveIndexChange(event: number) {
     this.activeStep = event;
   }
@@ -50,16 +78,6 @@ export class InvoicesTypeOneComponent implements OnDestroy {
     this.store.resetInvoices();
     this.store.resetTableInvoices();
     this.invoicesSenderFormComponent.changeData(this.store.getFirstForm());
-  }
-  generateAvoices() {
-    const isValidFirstForm = this.store.getIsValidFirstForm();
-    const isValidSecondForm = this.store.getIsValidSecondForm();
-    if(!isValidFirstForm){
-        this.popUpServces('Deben ser válidos los formularios del paso 1.',)
-    }
-    else if(!isValidSecondForm){
-      this.popUpServces('Deben ser válidos los formularios del paso 3.',)
-    }
   }
 
   ngOnDestroy() {

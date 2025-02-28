@@ -4,6 +4,7 @@ import { FormGenericComponent } from '../../../shared/components/form-generic/fo
 import { FormField } from '../../../core/interfaces/form-field';
 import { InvoicesStore } from '../../../app.component.store';
 
+
 @Component({
   selector: 'app-invoices-destination-form',
   standalone: true,
@@ -79,4 +80,6 @@ export class InvoicesDestinationFormComponent implements OnDestroy {
   getSecondFormStore() {
     return this.store.getSeconfForm();
   }
+
+
 }

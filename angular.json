@@ -28,8 +28,7 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public",
-                "output": "assets"
+                "input": "public"
               }
             ],
             "styles": [
@@ -43,7 +42,8 @@
               "jspdf",
               "core-js",
               "raf",
-              "rgbcolor"
+              "rgbcolor",
+              "pdfmake"
             ]
           },
           "configurations": {
@@ -97,8 +97,7 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public",
-                "output": "assets"
+                "input": "public"
               }
             ],
             "styles": [

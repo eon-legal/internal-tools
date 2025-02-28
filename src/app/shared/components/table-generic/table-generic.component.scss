@@ -1,8 +1,38 @@
-.p-table-resposive{
+/*.p-table-resposive{
     overflow: auto;
     width: 100%;
 }
 
-::ng-deep .p-table{
+::ng-deep p-table{
     min-width: 600px;
-}
+}*/
+
+::ng-deep .flex-table {
+    display: flex;
+    flex-direction: column;
+    
+    .p-datatable-thead {
+      display: none;
+    }
+  
+    .p-datatable-tbody > tr {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1rem;
+      border: 1px solid #dee2e6;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    ::ng-deep .flex-table {
+      display: table;
+      
+      .p-datatable-thead {
+        display: table-header-group;
+      }
+      
+      .p-datatable-tbody > tr {
+        display: table-row;
+      }
+    }
+  }
