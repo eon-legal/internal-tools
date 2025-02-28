@@ -1,0 +1,4 @@
+<div class="sidebar-overlay" [class.active]="isOpen" (click)="close.emit()"></div>
+<aside class="sidebar" [class.active]="isOpen">
+  <p-panelMenu [model]="menuItems" [multiple]="false"></p-panelMenu>
+</aside>

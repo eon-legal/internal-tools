@@ -1,0 +1,8 @@
+.p-table-resposive{
+    overflow: auto;
+    width: 100%;
+}
+
+::ng-deep .p-table{
+    min-width: 600px;
+}

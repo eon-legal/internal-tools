@@ -1,0 +1,23 @@
+
+.main-content {
+  margin-top: 60px;
+  padding: 1rem;
+  transition: transform 0.3s ease;
+  min-height: calc(100vh - 60px);
+
+  .content-wrapper {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  &.menu-open {
+    transform: translateX(250px);
+  }
+
+  @media (min-width: 769px) {
+    margin-left: 250px;
+    transform: none !important;
+  }
+}

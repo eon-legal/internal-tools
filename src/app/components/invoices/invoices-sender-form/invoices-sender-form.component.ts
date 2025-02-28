@@ -55,6 +55,7 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
       cols: 4,
       validators: [Validators.required],
       showComponent: false,
+      primeNgConfig: { selectionMode: 'multiple' },
     },
     {
       name: 'name',

@@ -8,7 +8,8 @@ import {
 } from '@angular/core';
 import {
   DialogService,
-  DynamicDialog,
+  //DynamicDialog,
+  DynamicDialogModule,
   DynamicDialogRef,
 } from 'primeng/dynamicdialog';
 import { InvoicesStore } from '../../../../app.component.store';
@@ -32,7 +33,7 @@ import { ButtonModule } from 'primeng/button';
     FormGenericComponent,
     TableGenericComponent,
     ButtonModule,
-    DynamicDialog,
+    DynamicDialogModule,
   ],
   templateUrl: './contain-invoices.component.html',
   styleUrl: './contain-invoices.component.scss',
@@ -148,8 +149,8 @@ export class ContainInvoicesComponent
     const posIVA = this.rowTable.findIndex(
       (v) => v.perCentIva === DataInvoicesConstant.IVA
     );
-    this.rowTable[posIVA].total = this.store.getIVA() || 0,
-    this.updateFieldTable();
+    (this.rowTable[posIVA].total = this.store.getIVA() || 0),
+      this.updateFieldTable();
   }
 
   hideLastRows(row: DataInvoicesTable): boolean {

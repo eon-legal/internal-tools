@@ -1,14 +1,21 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
-import { DatePicker } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
+
+//import { SelectModule } from 'primeng/select';
+//import { ToggleSwitchModule } from 'primeng/toggleswitch';
+//import { DatePicker } from 'primeng/datepicker';
+
 import { InputNumberModule } from 'primeng/inputnumber';
 import { NgClass } from '@angular/common';
 import { FormField } from '../../../core/interfaces/form-field';
 import { Subject, takeUntil } from 'rxjs';
+
+import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { MessagesModule } from 'primeng/messages';
 
 @Component({
   selector: 'app-form-generic',
@@ -16,12 +23,14 @@ import { Subject, takeUntil } from 'rxjs';
   imports: [
     NgClass,
     ReactiveFormsModule,
-    DatePicker,
+    CalendarModule,
     InputTextModule,
-    ToggleSwitchModule,
-    SelectModule,
+    InputSwitchModule,
+    DropdownModule,
     CheckboxModule,
     InputNumberModule,
+    MessagesModule,
+    InputNumberModule
   ],
   templateUrl: './form-generic.component.html',
   styleUrl: './form-generic.component.scss',

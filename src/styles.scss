@@ -4,6 +4,14 @@ html, body { height: 100%;
      }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 @import "primeicons/primeicons.css";
+
+//primeng v17
+@import "primeng/resources/themes/soho-light/theme.css";
+@import "primeng/resources/primeng.css";
+
+//angular.json v18
+//"node_modules/primeflex/primeflex.css",
+
 /* Mejoras para móviles */
 /*@media (max-width: 768px) {
     .app-header {

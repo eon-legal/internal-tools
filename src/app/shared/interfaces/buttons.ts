@@ -1,13 +1,12 @@
 type Status =
   | 'success'
   | 'info'
-  | 'warn'
+  | 'warning'
   | 'danger'
   | 'help'
   | 'primary'
   | 'secondary'
-  | 'contrast'
-  | 'warn';
+  | 'contrast';
 
 
 interface ButtonOperationLabel<T extends object> {

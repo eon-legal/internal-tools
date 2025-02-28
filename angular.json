@@ -33,7 +33,9 @@
               }
             ],
             "styles": [
-              "node_modules/primeflex/primeflex.css", 
+              "node_modules/primeng/resources/themes/soho-light/theme.css",
+              "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeflex/primeflex.min.css",
               "src/styles.scss"
             ],
             "scripts": [],
@@ -49,8 +51,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1MB",
+                  "maximumError": "5MB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -99,8 +101,10 @@
                 "output": "assets"
               }
             ],
-            "styles": [ 
-              "node_modules/primeflex/primeflex.css", 
+            "styles": [
+              "node_modules/primeng/resources/themes/soho-light/theme.css",
+              "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeflex/primeflex.min.css",
               "src/styles.scss"
             ],
             "scripts": []

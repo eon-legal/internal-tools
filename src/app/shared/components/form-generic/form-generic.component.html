@@ -36,7 +36,7 @@
 
         <!-- Input Number -->
         @if(field.type === 'number'){
-        <p-inputnumber
+        <p-inputNumber
           class="w-full"
           [style]="{ width: '100%' }"
           styleClass="w-full"
@@ -47,13 +47,12 @@
           }"
           [id]="field.name"
           [formControlName]="field.name"
-          [placeholder]="field.primeNgConfig?.placeholder || ''"
         />
         }
 
         <!-- Input Number EUR -->
         @if(field.type === 'number_currency'){
-        <p-inputnumber
+        <p-inputNumber
           class="w-full"
           [style]="{ width: '100%' }"
           styleClass="w-full"
@@ -68,33 +67,31 @@
           locale="de-DE"
           [id]="field.name"
           [formControlName]="field.name"
-          [placeholder]="field.primeNgConfig?.placeholder || ''"
         />
         }
 
         <!-- Input Number percent -->
         @if(field.type === 'number_percent'){
-          <p-inputnumber
-            class="w-full"
-            [style]="{ width: '100%' }"
-            styleClass="w-full"
-            [ngClass]="{
-              'ng-invalid ng-dirty':
-                getFormControl(field.name)?.invalid &&
-                getFormControl(field.name)?.touched
-            }"
-            
-            inputId="percent"
-            prefix="%"
-            [id]="field.name"
-            [formControlName]="field.name"
-            [placeholder]="field.primeNgConfig?.placeholder || ''"
-          />
-          }
+        <p-inputNumber
+          class="w-full"
+          [style]="{ width: '100%' }"
+          styleClass="w-full"
+          [ngClass]="{
+            'ng-invalid ng-dirty':
+              getFormControl(field.name)?.invalid &&
+              getFormControl(field.name)?.touched
+          }"
+          inputId="percent"
+          prefix="%"
+          [id]="field.name"
+          [formControlName]="field.name"
+        />
+        }
 
         <!-- Dropdown -->
         @if(field.type === 'dropdown'){
-        <p-select
+
+        <p-dropdown
           class="w-full"
           [ngClass]="{
             'ng-invalid ng-dirty':
@@ -105,13 +102,12 @@
           [formControlName]="field.name"
           [optionLabel]="field.primeNgConfig?.optionLabel || 'label'"
           [placeholder]="field.primeNgConfig?.placeholder || ''"
-        >
-        </p-select>
+        />
         }
 
         <!-- Calendar -->
         @if(field.type === 'calendar'){
-        <p-datepicker
+        <p-calendar
           class="p-datepicker-input"
           [ngClass]="{
             'ng-invalid ng-dirty':
@@ -121,8 +117,10 @@
           [formControlName]="field.name"
           [dateFormat]="field.primeNgConfig?.dateFormat || 'dd/mm/yy'"
           [showIcon]="true"
+          [selectionMode]="field.primeNgConfig?.selectionMode || 'single'"
         >
-        </p-datepicker>
+        </p-calendar>
+
         }
 
         <!-- Textarea -->
@@ -140,7 +138,7 @@
         >
         </textarea>
         } @if(field.type === 'toggle'){
-        <p-toggleswitch
+        <p-inputSwitch
           [ngClass]="{
             'ng-invalid ng-dirty':
               getFormControl(field.name)?.invalid &&
@@ -148,6 +146,7 @@
           }"
           [formControlName]="field.name"
         />
+
         }
         <!-- Checkbox -->
         @if(field.type === 'checkbox'){
