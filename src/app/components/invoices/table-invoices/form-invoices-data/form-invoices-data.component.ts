@@ -49,6 +49,7 @@ export class FormInvoicesDataComponent {
       label: 'S.Total',
       type: 'number_currency',
       cols: 6,
+      initialData: 0,
       validators: [Validators.required],
     },
     {
@@ -56,6 +57,7 @@ export class FormInvoicesDataComponent {
       label: '% IVA',
       type: 'number_percent',
       cols: 6,
+      initialData: 0,
       validators: [Validators.required],
     },
     {
@@ -63,6 +65,7 @@ export class FormInvoicesDataComponent {
       label: 'Total',
       type: 'number_currency',
       cols: 6,
+      initialData: 0,
       validators: [Validators.required],
     },
   ];

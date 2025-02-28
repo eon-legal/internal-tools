@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import {
   DialogService,
-  //DynamicDialog,
   DynamicDialogModule,
   DynamicDialogRef,
 } from 'primeng/dynamicdialog';

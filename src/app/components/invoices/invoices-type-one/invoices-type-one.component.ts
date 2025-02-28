@@ -10,6 +10,7 @@ import { MessageService } from 'primeng/api';
 import { MessagesModule } from 'primeng/messages';
 import { ToastrService } from 'ngx-toastr';
 import { newGeneratePDFInvoices } from '../utils/new-pdf';
+import { DataInvoicesConstant } from '../constants/data-invoices';
 
 @Component({
   selector: 'app-invoices-type-one',
@@ -37,7 +38,12 @@ export class InvoicesTypeOneComponent implements OnDestroy {
   messageService: MessageService = inject(MessageService);
   toastr: ToastrService = inject(ToastrService);
 
+  nameStepOne = 'Remitente Factura';
+  nameStepTwo = 'Tabla Factura';
+  nameStepThree = 'Destinario - Generar Factura';
+
   notAllowedShowPdf() {
+    this.askHaveDataTableCreate();
     const isValidFirstForm = this.store.getIsValidFirstForm();
     const isValidSecondForm = this.store.getIsValidSecondForm();
     const messages = 'Deben ser válidos los formularios del paso 1.';
@@ -67,6 +73,27 @@ export class InvoicesTypeOneComponent implements OnDestroy {
         first,
         table
       );
+    }
+  }
+
+  askHaveDataTableCreate() {
+    let rowTable = this.store.getTableContain();
+    if (!rowTable.length) {
+      rowTable.push({
+        id: '',
+        description: '',
+        sTotal: '',
+        perCentIva: DataInvoicesConstant.IVA,
+        total: 0,
+      });
+      rowTable.push({
+        id: '',
+        description: '',
+        sTotal: '',
+        perCentIva: DataInvoicesConstant.TOTAL,
+        total: 0,
+      });
+      this.store.updateTable(rowTable);
     }
   }
 

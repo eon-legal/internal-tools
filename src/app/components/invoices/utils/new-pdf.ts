@@ -6,6 +6,7 @@ import { DataInvoicesTable } from '../interfaces/data-invoices-table';
 import { UM } from '../constants/um';
 import { FisrtForm } from '../interfaces/first-form';
 import { formatDateByParams } from './format-date';
+import { DataInvoicesConstant } from '../constants/data-invoices';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 export async function newGeneratePDFInvoices(
@@ -99,8 +100,29 @@ export async function newGeneratePDFInvoices(
           { text: item.description, wordWrap: true, style: 'tableCell' },
           { text: item?.qtt || '', style: 'tableCell' },
           { text: item?.price || '', style: 'tableCell' },
-          { text: `${item.sTotal} ${UM.EU}`, style: 'tableCell' },
-          { text: `${item.perCentIva} ${UM.PER_CENT}`, style: 'tableCell' },
+          {
+            text: ` ${
+              item.perCentIva === DataInvoicesConstant.IVA ||
+              item.perCentIva === DataInvoicesConstant.TOTAL
+                ? ''
+                : item.sTotal
+            }  ${
+              item.perCentIva === DataInvoicesConstant.IVA ||
+              item.perCentIva === DataInvoicesConstant.TOTAL
+                ? ''
+                : UM.EU
+            }`,
+            style: 'tableCell',
+          },
+          {
+            text: `${item.perCentIva} ${
+              item.perCentIva === DataInvoicesConstant.IVA ||
+              item.perCentIva === DataInvoicesConstant.TOTAL
+                ? ''
+                : UM.PER_CENT
+            }`,
+            style: 'tableCell',
+          },
           { text: `${item.total} ${UM.EU}`, style: 'tableCell' },
         ]),
       ],

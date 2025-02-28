@@ -1,12 +1,10 @@
-import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, ViewChild } from '@angular/core';
 import jsPDF from 'jspdf';
 import { ButtonModule } from 'primeng/button';
-import {
-  FileUpload,
-  FileUploadModule,
-} from 'primeng/fileupload';
+import { FileUpload, FileUploadModule } from 'primeng/fileupload';
 import { TableModule } from 'primeng/table';
 import { FileSizePipe } from '../../core/directives/file-size/file-size.pipe';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-download-pdf',
@@ -36,7 +34,8 @@ export class DownloadPdfComponent {
     },
   ];
   uploadedFiles: any[] = [];
-  constructor(private cd: ChangeDetectorRef) {}
+  toastr: ToastrService = inject(ToastrService);
+  cd: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   uploadFilesImages(event: { files: File[] }) {
     const files: File[] = event.files;
@@ -148,8 +147,8 @@ export class DownloadPdfComponent {
         this.myFiles = [];
         this.fileUpload.clear();
       })
-      .catch((error) => {
-        console.error('Error procesando imágenes:', error);
+      .catch(() => {
+        this.toastr.error('Error procesando imágenes', 'Error');
         this.myFiles = [];
         this.fileUpload.clear();
       });
@@ -167,9 +166,9 @@ export class DownloadPdfComponent {
       this.cd.detectChanges();
     }
   }
-  extension(data: string){
+  extension(data: string) {
     const sub = 'image/';
-    if(data.includes(sub)){
+    if (data.includes(sub)) {
       return data.split(sub)[1].toLocaleUpperCase();
     }
     return 'N/A';
