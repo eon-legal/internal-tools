@@ -3,11 +3,16 @@ html, body { height: 100%;
     background-color: #F5F7FA;
      }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-@import "primeicons/primeicons.css";
+//@import "primeicons/primeicons.css";
 @import 'ngx-toastr/toastr';
+@import "primeng/resources/primeng.min.css";
+@import "primeflex/primeflex.css";
+@import "primeicons/primeicons.css";
+@import "primeng/resources/themes/lara-light-indigo/theme.css";
+
 //primeng v17
-@import "primeng/resources/themes/soho-light/theme.css";
-@import "primeng/resources/primeng.css";
+//@import "primeng/resources/themes/soho-light/theme.css";
+//@import "primeng/resources/primeng.css";
 
 //angular.json v18
 //"node_modules/primeflex/primeflex.css",

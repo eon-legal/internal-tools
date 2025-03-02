@@ -1,10 +1,28 @@
 .p-error {
     color: #ff6767;
 }
+/*
 ::ng-deep .p-datepicker {  
     width: 100% !important;  
-  }  
+  }  */
   /*
   ::ng-deep .p-inputtext {  
     width: 100%;  
   }  */
+
+  ::ng-deep {
+    .custom-datepicker {
+      position: absolute !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      max-width: 95vw !important;
+      //max-width: 350px !important;
+      min-width: 300px !important;
+      z-index: 1100 !important;
+      top: 10px !important;
+    }
+  }
+
+  
+ 
+  

@@ -1,42 +1,40 @@
-@if(getHeaderKeys(headerData).length){
-    <p-table
-      [value]="dataTable"
-      [paginator]="true"
-      [totalRecords]="dataTable.length"
-      [rowsPerPageOptions]="listPagination.length ? listPagination : [5]"
-      [rows]="listPagination.length ? listPagination[0] : 5"
-      styleClass="flex-table"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          @for( header of getHeaderEntries(headerData) ; track header[0]){
-          <th pResizableColumn>{{ header[1] }}</th>
-          } @if(operation.length && getHeaderKeys(headerData).length){
-          <th pResizableColumn>Acciones</th>
-          }
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-file let-rowIndex="rowIndex">
-        <tr>
-          @for(obj of getHeaderKeys(headerData); track obj){
-          <!--{{ file[obj] || "" }} -->
-          <td>{{ getFormattedValue(obj, file) }}</td>
-          } @for(op of operation; track op){
-          @if(!op?.hideDependsFunction(file)){
-          <td data-label>
-            <p-button
-              [icon]="op?.icon"
-              [label]="op?.label"
-              [rounded]="true"
-              [severity]="op.severity"
-              [disabled]="isDisabled(op, file)"
-              (click)="isDisabled(op, file) ? null : op.action(file)"
-            />
-          </td>
-          } @else{
-          <td data-label></td>
-          } }
-        </tr>
-      </ng-template>
-    </p-table>
+@if(headerData.length){
+<p-table
+  [value]="dataTable"
+  [paginator]="true"
+  [totalRecords]="dataTable.length"
+  [rowsPerPageOptions]="listPagination.length ? listPagination : [5]"
+  [rows]="listPagination.length ? listPagination[0] : 5"
+  [columns]="headerData"
+>
+  <ng-template pTemplate="header" let-data>
+    <tr>
+      @for( header of data ; track header){
+      <th>{{ header.header }}</th>
+      } @if(operation.length && data.length){
+      <th>Acciones</th>
+      }
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-otro let-columns="columns">
+    <tr>
+      @for (obj of columns; track obj) {
+      <td>{{ getFormattedValue(obj.field, otro) }}</td>
+      } @for(op of operation; track op){ @if(!op?.hideDependsFunction(otro)){
+      <td data-label>
+        <p-button
+          [icon]="op?.icon"
+          [label]="op?.label"
+          [rounded]="true"
+          [severity]="op.severity"
+          [disabled]="isDisabled(op, otro)"
+          (click)="isDisabled(op, otro) ? null : op.action(otro)"
+        />
+      </td>
+      } @else{
+      <td data-label></td>
+      } }
+    </tr>
+  </ng-template>
+</p-table>
 }

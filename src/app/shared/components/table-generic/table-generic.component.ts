@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ButtonOperation, FormatOptions } from '../../interfaces/buttons';
+import { HeadeTable } from '../../interfaces/header-table';
 
 @Component({
   selector: 'app-table-generic',
@@ -12,19 +13,10 @@ import { ButtonOperation, FormatOptions } from '../../interfaces/buttons';
 })
 export class TableGenericComponent<T extends object> {
   listPagination = [5, 10, 20];
-  @Input() headerData!: T;
+  @Input() headerData!: HeadeTable<T>[];
   @Input() dataTable!: T[];
   @Input() operation: ButtonOperation<T>[] = [];
   @Input() formatOptions?: FormatOptions<T>;
-  getHeaderKeys(headerData: T): (keyof T)[] {
-    return Object.keys(headerData) as (keyof T)[];
-  }
-  getHeaderValue(headerData: T) {
-    return Object.values(headerData);
-  }
-  getHeaderEntries(headerData: T) {
-    return Object.entries(headerData);
-  }
   handleOperation(op: ButtonOperation<T>, file: T) {
     op.action(file);
   }

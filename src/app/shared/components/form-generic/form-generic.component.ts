@@ -1,16 +1,25 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  Input,
+  OnInit,
+} from '@angular/core';
+import {
+  AsyncValidatorFn,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 
-//import { SelectModule } from 'primeng/select';
-//import { ToggleSwitchModule } from 'primeng/toggleswitch';
-//import { DatePicker } from 'primeng/datepicker';
-
 import { InputNumberModule } from 'primeng/inputnumber';
-import { NgClass } from '@angular/common';
-import { FormField } from '../../../core/interfaces/form-field';
-import { Subject, takeUntil } from 'rxjs';
+import { FormField } from '../../interfaces/form-field';
+import { Observable, Subject, takeUntil } from 'rxjs';
 
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
@@ -21,7 +30,6 @@ import { MessagesModule } from 'primeng/messages';
   selector: 'app-form-generic',
   standalone: true,
   imports: [
-    NgClass,
     ReactiveFormsModule,
     CalendarModule,
     InputTextModule,
@@ -35,13 +43,14 @@ import { MessagesModule } from 'primeng/messages';
   templateUrl: './form-generic.component.html',
   styleUrl: './form-generic.component.scss',
 })
-export class FormGenericComponent implements OnInit {
-  @Input() formConfig: FormField[] = [];
+export class FormGenericComponent<T> implements OnInit {
+  @Input() formConfig: FormField<T>[] = [];
   form!: FormGroup;
   groupInitialData: any = {};
 
   private destroy$ = new Subject<void>();
   private externalListeners: ((value: any) => void)[] = [];
+  cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   // Nuevo método para registrar listeners externos
   registerListener(callback: (value: any) => void) {
@@ -50,6 +59,7 @@ export class FormGenericComponent implements OnInit {
 
   ngOnInit() {
     this.createForm();
+    this.subscribeToAsyncValidators();
     this.setupInternalObservables();
   }
 
@@ -72,12 +82,20 @@ export class FormGenericComponent implements OnInit {
     const group: any = {};
 
     this.formConfig.forEach((field) => {
+      const validators =
+        field.validators?.filter((v) => !v.async)?.map((v) => v.validator) ||
+        [];
+
+      const asyncValidators =
+        field.validators?.filter((v) => v.async)?.map((v) => v.validator) || [];
+
       group[field.name] = [
         {
-          value: field?.initialData !== undefined ? field?.initialData : '',
+          value: field?.initialData,
           disabled: field?.disabled !== undefined ? field?.disabled : false,
         },
-        field.validators || [],
+        validators,
+        asyncValidators,
       ];
       this.groupInitialData[field.name] =
         field?.initialData !== undefined ? field?.initialData : '';
@@ -125,4 +143,105 @@ export class FormGenericComponent implements OnInit {
     this.form.markAsUntouched();
     this.form.markAsPristine();
   }
+
+  private subscribeToAsyncValidators() {
+    this.formConfig.forEach((field) => {
+      const control = this.form.get(field.name);
+      if (control) {
+        control.statusChanges.subscribe((status) => {
+          if (status === 'VALID' || status === 'INVALID') {
+            this.cdr.detectChanges(); // Forzar la detección de cambios
+          }
+        });
+      }
+    });
+  }
+
+  getErrorMessages(fieldName: string): string[] {
+    const control = this.form.get(fieldName);
+    if (
+      !control ||
+      !control.errors ||
+      (!control.touched && !control.dirty) ||
+      control.pending
+    ) {
+      return [];
+    }
+    const field = this.formConfig.find((f) => f.name === fieldName);
+
+    if (!field || !field.validators) {
+      return [];
+    }
+
+    const errors = control.errors;
+    const messages: string[] = [];
+    for (const errorKey of Object.keys(errors)) {
+      const validator = field.validators.find((v) => {
+        const validatorName = this.getValidatorName(v.validator);
+        return validatorName === errorKey;
+      });
+
+      if (validator) {
+        messages.push(validator.message);
+      }
+    }
+    return messages;
+  }
+
+  private getValidatorName(validator: ValidatorFn | AsyncValidatorFn): string {
+    // Validadores estáticos
+    if (validator === Validators.required) return 'required';
+    if (validator === Validators.email) return 'email';
+
+    // Validadores dinámicos (minLength, min, maxLength, max, pattern)
+    if (validator.name === 'minLength') return 'minlength';
+    if (validator.name === 'min') return 'min';
+    if (validator.name === 'maxLength') return 'maxlength';
+    if (validator.name === 'max') return 'max';
+    if (validator.name === 'pattern') return 'pattern';
+
+    // Validadores asíncronos
+    if (this.isAsyncValidator(validator)) {
+      return validator.name || 'asyncValidator';
+    }
+
+    // Validadores personalizados
+    if (typeof validator === 'function') {
+      // Intentamos obtener el nombre del validador personalizado
+      const validatorName = validator.name;
+
+      // Si el validador tiene un nombre, lo devolvemos
+      if (validatorName) {
+        return validatorName;
+      }
+
+      // Si no tiene nombre, intentamos obtener el nombre del error que devuelve
+      const control = new FormControl('');
+      control.setValidators(validator as ValidatorFn);
+      control.updateValueAndValidity();
+
+      if (control.errors) {
+        const errorKey = Object.keys(control.errors)[0];
+        return errorKey || 'customValidator';
+      }
+    }
+
+    // Si no se puede determinar el nombre, devolvemos un valor por defecto
+    return 'unknownValidator';
+  }
+
+  private isAsyncValidator(validator: ValidatorFn | AsyncValidatorFn): boolean {
+    // Creamos un control ficticio para probar el validador
+    const control = new FormControl('');
+
+    try {
+      const result = validator(control);
+      // Si el resultado es una Promise o un Observable, es un validador asíncrono
+      return result instanceof Promise || result instanceof Observable;
+    } catch (error) {
+      // Si hay un error, asumimos que no es un validador asíncrono
+      return false;
+    }
+  }
+
 }

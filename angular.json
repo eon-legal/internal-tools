@@ -32,11 +32,8 @@
               }
             ],
             "styles": [
-              "node_modules/primeng/resources/themes/soho-light/theme.css",
-              "node_modules/primeng/resources/primeng.min.css",
-              "node_modules/primeflex/primeflex.min.css",
               "src/styles.scss"
-            ],
+          ],
             "scripts": [],
             "allowedCommonJsDependencies": [
               "jspdf",
@@ -101,10 +98,7 @@
               }
             ],
             "styles": [
-              "node_modules/primeng/resources/themes/soho-light/theme.css",
-              "node_modules/primeng/resources/primeng.min.css",
-              "node_modules/primeflex/primeflex.min.css",
-              "src/styles.scss"
+              "src/styles.scss"           
             ],
             "scripts": []
           }
