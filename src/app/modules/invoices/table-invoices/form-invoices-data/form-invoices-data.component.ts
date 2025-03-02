@@ -34,13 +34,14 @@ export class FormInvoicesDataComponent {
           validator: this.createCustomValidatorD('customErrorTito', (value: string) => !value?.includes('test')), 
           message: 'El nombre de usuario no puede contener "test".' 
         },*/
-        /*{ 
-          validator: this.createAsyncValidator('createAsyncValidator', (value: string) => 
-            of(value !== 'admin').pipe(delay(2000)) // Simula una validación asíncrona
-          ), 
-          message: 'El nombre de usuario "admin" ya está en uso.', 
-          async: true 
-        }*/
+        /*{
+          validator: this.createAsyncValidator(
+            'createAsyncValidator',
+            (value: string) => of(value !== 'admin').pipe(delay(2000)) // Simula una validación asíncrona
+          ),
+          message: 'El nombre de usuario "admin" ya está en uso.',
+          async: true,
+        },*/
       ],
     },
     {
@@ -99,8 +100,8 @@ export class FormInvoicesDataComponent {
       validators: [
         { validator: Validators.required, message: 'Campo requerido.' },
         {
-          validator: Validators.min(0),
-          message: 'Deben ser valores positivos',
+          validator:  Validators.pattern(/^(100(\.0{1,2})?$|^([0-9]{1,2})(\.[0-9]{1,2})?$)/),
+          message: 'Solos valores comprendidos entre 0 - 100'
         },
       ],
     },

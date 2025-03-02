@@ -157,7 +157,7 @@ export class FormGenericComponent<T> implements OnInit {
     });
   }
 
-  getErrorMessages(fieldName: string): string[] {
+  /*getErrorMessages(fieldName: string): string[] {
     const control = this.form.get(fieldName);
     if (
       !control ||
@@ -186,7 +186,50 @@ export class FormGenericComponent<T> implements OnInit {
       }
     }
     return messages;
-  }
+  }*/
+
+    getErrorMessages(fieldName: string): string[] {
+      const control = this.form.get(fieldName);
+    
+      // Si no hay control o no hay errores, retornar un array vacío
+      if (!control || !control.errors) {
+        return [];
+      }
+    
+      // Si el control está "pending" pero ya tiene errores, mostramos los errores existentes
+      if (control.pending && Object.keys(control.errors).length > 0) {
+        return [];
+      }
+    
+      // Si el control no está "touched" ni "dirty", retornar un array vacío
+      if (!control.touched && !control.dirty) {
+        return [];
+      }
+    
+      // Obtener el campo correspondiente en formConfig
+      const field = this.formConfig.find((f) => f.name === fieldName);
+      if (!field || !field.validators) {
+        return [];
+      }
+    
+      // Obtener los errores del control
+      const errors = control.errors;
+      const messages: string[] = [];
+    
+      // Mapear los errores a los mensajes correspondientes
+      for (const errorKey of Object.keys(errors)) {
+        const validator = field.validators.find((v) => {
+          const validatorName = this.getValidatorName(v.validator);
+          return validatorName === errorKey;
+        });
+    
+        if (validator) {
+          messages.push(validator.message);
+        }
+      }
+    
+      return messages;
+    }
 
   private getValidatorName(validator: ValidatorFn | AsyncValidatorFn): string {
     // Validadores estáticos
