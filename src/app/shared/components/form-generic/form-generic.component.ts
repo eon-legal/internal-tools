@@ -196,8 +196,8 @@ export class FormGenericComponent<T> implements OnInit {
         return [];
       }
     
-      // Si el control está "pending" pero ya tiene errores, mostramos los errores existentes
-      if (control.pending && Object.keys(control.errors).length > 0) {
+      // Si el control está "pending", no mostramos errores hasta que finalice
+      if (control.pending) {
         return [];
       }
     
@@ -231,47 +231,53 @@ export class FormGenericComponent<T> implements OnInit {
       return messages;
     }
 
-  private getValidatorName(validator: ValidatorFn | AsyncValidatorFn): string {
-    // Validadores estáticos
-    if (validator === Validators.required) return 'required';
-    if (validator === Validators.email) return 'email';
-
-    // Validadores dinámicos (minLength, min, maxLength, max, pattern)
-    if (validator.name === 'minLength') return 'minlength';
-    if (validator.name === 'min') return 'min';
-    if (validator.name === 'maxLength') return 'maxlength';
-    if (validator.name === 'max') return 'max';
-    if (validator.name === 'pattern') return 'pattern';
-
-    // Validadores asíncronos
-    if (this.isAsyncValidator(validator)) {
-      return validator.name || 'asyncValidator';
-    }
-
-    // Validadores personalizados
-    if (typeof validator === 'function') {
-      // Intentamos obtener el nombre del validador personalizado
-      const validatorName = validator.name;
-
-      // Si el validador tiene un nombre, lo devolvemos
-      if (validatorName) {
-        return validatorName;
+    private getValidatorName(validator: ValidatorFn | AsyncValidatorFn): string {
+      // Validadores estáticos
+      if (validator === Validators.required) return 'required';
+      if (validator === Validators.email) return 'email';
+    
+      // Validadores dinámicos (minLength, min, maxLength, max, pattern)
+      if (this.isValidatorType(validator, Validators.minLength)) return 'minlength';
+      if (this.isValidatorType(validator, Validators.min)) return 'min';
+      if (this.isValidatorType(validator, Validators.maxLength)) return 'maxlength';
+      if (this.isValidatorType(validator, Validators.max)) return 'max';
+      if (this.isValidatorType(validator, Validators.pattern)) return 'pattern';
+    
+      // Validadores asíncronos
+      if (this.isAsyncValidator(validator)) {
+        return validator.name || 'asyncValidator';
       }
-
-      // Si no tiene nombre, intentamos obtener el nombre del error que devuelve
-      const control = new FormControl('');
-      control.setValidators(validator as ValidatorFn);
-      control.updateValueAndValidity();
-
-      if (control.errors) {
-        const errorKey = Object.keys(control.errors)[0];
-        return errorKey || 'customValidator';
+    
+      // Validadores personalizados
+      if (typeof validator === 'function') {
+        // Intentamos obtener el nombre del validador personalizado
+        const validatorName = validator.name;
+    
+        // Si el validador tiene un nombre, lo devolvemos
+        if (validatorName) {
+          return validatorName;
+        }
+    
+        // Si no tiene nombre, intentamos obtener el nombre del error que devuelve
+        const control = new FormControl('');
+        control.setValidators(validator as ValidatorFn);
+        control.updateValueAndValidity();
+    
+        if (control.errors) {
+          const errorKey = Object.keys(control.errors)[0];
+          return errorKey || 'customValidator';
+        }
       }
+    
+      // Si no se puede determinar el nombre, devolvemos un valor por defecto
+      return 'unknownValidator';
     }
-
-    // Si no se puede determinar el nombre, devolvemos un valor por defecto
-    return 'unknownValidator';
-  }
+    
+    private isValidatorType(validator: ValidatorFn | AsyncValidatorFn, validatorType: Function): boolean {
+      // Creamos una instancia del validador tipo para comparar
+      const sampleValidator = validatorType(/.*/); // Usamos una expresión regular genérica para pattern
+      return validator.toString() === sampleValidator.toString();
+    }
 
   private isAsyncValidator(validator: ValidatorFn | AsyncValidatorFn): boolean {
     // Creamos un control ficticio para probar el validador

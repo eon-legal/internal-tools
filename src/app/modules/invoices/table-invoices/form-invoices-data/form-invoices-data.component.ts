@@ -100,7 +100,7 @@ export class FormInvoicesDataComponent {
       validators: [
         { validator: Validators.required, message: 'Campo requerido.' },
         {
-          validator:  Validators.pattern(/^(100(\.0{1,2})?$|^([0-9]{1,2})(\.[0-9]{1,2})?$)/),
+          validator: Validators.pattern(/^(100(\.0{1,2})?$|^([0-9]{1,2})(\.[0-9]{1,2})?$)/),
           message: 'Solos valores comprendidos entre 0 - 100'
         },
       ],
