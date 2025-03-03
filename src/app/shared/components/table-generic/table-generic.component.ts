@@ -35,10 +35,10 @@ export class TableGenericComponent<T extends object> {
   }
   showButtonOpeartion(op: ButtonOperation<T>, otro: T): boolean {
     if (
-      'hideDependsFunction' in otro &&
-      typeof op?.hideDependsFunction === 'function'
+      'hideDependsFunction' in op 
+      && typeof op?.hideDependsFunction === 'function'
     ) {
-      return !op?.hideDependsFunction(otro) ? true : false;
+      return  op?.hideDependsFunction(otro) ? false : true;
     }
     return true;
   }
