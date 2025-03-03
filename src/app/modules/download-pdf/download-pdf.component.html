@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container mb-2">
   <p-fileUpload
     #fileUpload
     name="myFiles[]"
@@ -14,37 +14,19 @@
   </p-fileUpload>
   <br />
   <br />
-  <p-table
-    [value]="fileUpload.files"
-    [paginator]="true"
-    [totalRecords]="fileUpload.files.length"
-    [rowsPerPageOptions]="listPagination"
-    [rows]="listPagination.length ? listPagination[0] : 5"
-    [responsive]="true"
-    styleClass="p-datatable-striped"
-  >
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Nombre</th>
-        <th>Tamaño</th>
-        <th>Tipo</th>
-        <th>Acciones</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-file let-rowIndex="rowIndex">
-      <tr>
-        <td>{{ file.name }}</td>
-        <td>{{ file.size | fileSize }}</td>
-        <td>{{ extension(file.type) }}</td>
-        <td>
-          <p-button
-            icon="pi pi-trash"
-            [rounded]="true"
-            severity="danger"
-            (click)="deletefile(file, $event)"
-          />
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-</div>
+  </div>
+
+<app-table-generic
+  [formatOptions]="formatOptions"
+  [dataTable]="fileUpload.files"
+  [headerData]="headerData"
+  [operation]="operation"
+>
+  <ng-template #imageTemplate let-file>
+    <img
+      [src]="file.objectURL"
+      style="width: 100px; height: 100px;"
+      alt="Imagen" 
+    />
+  </ng-template>
+</app-table-generic>

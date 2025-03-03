@@ -16,19 +16,28 @@
       }
     </tr>
   </ng-template>
-  <ng-template pTemplate="body" let-otro let-columns="columns">
+  <ng-template pTemplate="body" let-row let-columns="columns">
     <tr>
-      @for (obj of columns; track obj) {
-      <td>{{ getFormattedValue(obj.field, otro) }}</td>
-      } @for(op of operation; track op){ @if(!op?.hideDependsFunction(otro)){
+      @for (objHeader of columns; track objHeader.field) {
+      <td>
+        @if (objHeader.content) {
+          <!-- Proyectar contenido personalizado -->
+          <ng-container
+            *ngTemplateOutlet="objHeader.content; context: { $implicit: row }"
+          ></ng-container>
+        } @else {
+          {{ getFormattedValue(objHeader.field, row) }}
+        }
+      </td>
+      } @for(op of operation; track op){ @if(showButtonOpeartion(op, row)){
       <td data-label>
         <p-button
           [icon]="op?.icon"
           [label]="op?.label"
           [rounded]="true"
           [severity]="op.severity"
-          [disabled]="isDisabled(op, otro)"
-          (click)="isDisabled(op, otro) ? null : op.action(otro)"
+          [disabled]="isDisabled(op, row)"
+          (click)="isDisabled(op, row) ? null : op.action(row)"
         />
       </td>
       } @else{
@@ -38,3 +47,5 @@
   </ng-template>
 </p-table>
 }
+
+<!--@if(!op?.hideDependsFunction(row)){-->

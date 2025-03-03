@@ -73,7 +73,6 @@ type FieldType =
   ];
 
   onFormSubmit(formData: any) {
-    console.log('Datos del formulario:', formData);
   }
 }
 

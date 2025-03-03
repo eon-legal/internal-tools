@@ -25,7 +25,7 @@ import { FormGenericComponent } from '../../../../shared/components/form-generic
 import { TableGenericComponent } from '../../../../shared/components/table-generic/table-generic.component';
 import { ButtonModule } from 'primeng/button';
 import { Iva } from '../../interfaces/iva';
-import { HeadeTable } from '../../../../shared/interfaces/header-table';
+import { HeaderTable } from '../../../../shared/interfaces/header-table';
 
 @Component({
   selector: 'app-contain-invoices',
@@ -63,7 +63,7 @@ export class ContainInvoicesComponent
     },
   ];
 
-  headerData: HeadeTable<DataInvoicesTable>[] = [
+  headerData: HeaderTable<DataInvoicesTable>[] = [
     {
       field: 'id',
       header: 'ID',

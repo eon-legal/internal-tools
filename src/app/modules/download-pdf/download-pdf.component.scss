@@ -1,3 +1,7 @@
  ::ng-deep .hidden-file-list .p-fileupload-content, ::ng-deep .hidden-file-list .p-fileupload-file-badge{
   display: none !important;
 }
+
+span {
+  font-weight: bold;
+}
