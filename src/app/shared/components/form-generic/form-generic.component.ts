@@ -17,7 +17,7 @@ import {
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 
-import { InputNumberModule } from 'primeng/inputnumber';
+import { InputNumberInputEvent, InputNumberModule } from 'primeng/inputnumber';
 
 import { FormField } from '../../interfaces/form-field';
 import { Observable, Subject, takeUntil } from 'rxjs';
@@ -26,7 +26,6 @@ import { DropdownModule } from 'primeng/dropdown';
 //import { CalendarModule } from 'primeng/calendar';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { MessagesModule } from 'primeng/messages';
-
 
 import { DatePickerModule } from 'primeng/datepicker';
 
@@ -41,7 +40,7 @@ import { DatePickerModule } from 'primeng/datepicker';
     DropdownModule,
     CheckboxModule,
     MessagesModule,
-    InputNumberModule
+    InputNumberModule,
   ],
   templateUrl: './form-generic.component.html',
   styleUrl: './form-generic.component.scss',
@@ -191,96 +190,101 @@ export class FormGenericComponent<T> implements OnInit {
     return messages;
   }*/
 
-    getErrorMessages(fieldName: string): string[] {
-      const control = this.form.get(fieldName);
-    
-      // Si no hay control o no hay errores, retornar un array vacío
-      if (!control || !control.errors) {
-        return [];
-      }
-    
-      // Si el control está "pending", no mostramos errores hasta que finalice
-      if (control.pending) {
-        return [];
-      }
-    
-      // Si el control no está "touched" ni "dirty", retornar un array vacío
-      if (!control.touched && !control.dirty) {
-        return [];
-      }
-    
-      // Obtener el campo correspondiente en formConfig
-      const field = this.formConfig.find((f) => f.name === fieldName);
-      if (!field || !field.validators) {
-        return [];
-      }
-    
-      // Obtener los errores del control
-      const errors = control.errors;
-      const messages: string[] = [];
-    
-      // Mapear los errores a los mensajes correspondientes
-      for (const errorKey of Object.keys(errors)) {
-        const validator = field.validators.find((v) => {
-          const validatorName = this.getValidatorName(v.validator);
-          return validatorName === errorKey;
-        });
-    
-        if (validator) {
-          messages.push(validator.message);
-        }
-      }
-    
-      return messages;
+  getErrorMessages(fieldName: string): string[] {
+    const control = this.form.get(fieldName);
+
+    // Si no hay control o no hay errores, retornar un array vacío
+    if (!control || !control.errors) {
+      return [];
     }
 
-    private getValidatorName(validator: ValidatorFn | AsyncValidatorFn): string {
-      // Validadores estáticos
-      if (validator === Validators.required) return 'required';
-      if (validator === Validators.email) return 'email';
-    
-      // Validadores dinámicos (minLength, min, maxLength, max, pattern)
-      if (this.isValidatorType(validator, Validators.minLength)) return 'minlength';
-      if (this.isValidatorType(validator, Validators.min)) return 'min';
-      if (this.isValidatorType(validator, Validators.maxLength)) return 'maxlength';
-      if (this.isValidatorType(validator, Validators.max)) return 'max';
-      if (this.isValidatorType(validator, Validators.pattern)) return 'pattern';
-    
-      // Validadores asíncronos
-      if (this.isAsyncValidator(validator)) {
-        return validator.name || 'asyncValidator';
-      }
-    
-      // Validadores personalizados
-      if (typeof validator === 'function') {
-        // Intentamos obtener el nombre del validador personalizado
-        const validatorName = validator.name;
-    
-        // Si el validador tiene un nombre, lo devolvemos
-        if (validatorName) {
-          return validatorName;
-        }
-    
-        // Si no tiene nombre, intentamos obtener el nombre del error que devuelve
-        const control = new FormControl('');
-        control.setValidators(validator as ValidatorFn);
-        control.updateValueAndValidity();
-    
-        if (control.errors) {
-          const errorKey = Object.keys(control.errors)[0];
-          return errorKey || 'customValidator';
-        }
-      }
-    
-      // Si no se puede determinar el nombre, devolvemos un valor por defecto
-      return 'unknownValidator';
+    // Si el control está "pending", no mostramos errores hasta que finalice
+    if (control.pending) {
+      return [];
     }
-    
-    private isValidatorType(validator: ValidatorFn | AsyncValidatorFn, validatorType: Function): boolean {
-      // Creamos una instancia del validador tipo para comparar
-      const sampleValidator = validatorType(/.*/); // Usamos una expresión regular genérica para pattern
-      return validator.toString() === sampleValidator.toString();
+
+    // Si el control no está "touched" ni "dirty", retornar un array vacío
+    if (!control.touched && !control.dirty) {
+      return [];
     }
+
+    // Obtener el campo correspondiente en formConfig
+    const field = this.formConfig.find((f) => f.name === fieldName);
+    if (!field || !field.validators) {
+      return [];
+    }
+
+    // Obtener los errores del control
+    const errors = control.errors;
+    const messages: string[] = [];
+
+    // Mapear los errores a los mensajes correspondientes
+    for (const errorKey of Object.keys(errors)) {
+      const validator = field.validators.find((v) => {
+        const validatorName = this.getValidatorName(v.validator);
+        return validatorName === errorKey;
+      });
+
+      if (validator) {
+        messages.push(validator.message);
+      }
+    }
+
+    return messages;
+  }
+
+  private getValidatorName(validator: ValidatorFn | AsyncValidatorFn): string {
+    // Validadores estáticos
+    if (validator === Validators.required) return 'required';
+    if (validator === Validators.email) return 'email';
+
+    // Validadores dinámicos (minLength, min, maxLength, max, pattern)
+    if (this.isValidatorType(validator, Validators.minLength))
+      return 'minlength';
+    if (this.isValidatorType(validator, Validators.min)) return 'min';
+    if (this.isValidatorType(validator, Validators.maxLength))
+      return 'maxlength';
+    if (this.isValidatorType(validator, Validators.max)) return 'max';
+    if (this.isValidatorType(validator, Validators.pattern)) return 'pattern';
+
+    // Validadores asíncronos
+    if (this.isAsyncValidator(validator)) {
+      return validator.name || 'asyncValidator';
+    }
+
+    // Validadores personalizados
+    if (typeof validator === 'function') {
+      // Intentamos obtener el nombre del validador personalizado
+      const validatorName = validator.name;
+
+      // Si el validador tiene un nombre, lo devolvemos
+      if (validatorName) {
+        return validatorName;
+      }
+
+      // Si no tiene nombre, intentamos obtener el nombre del error que devuelve
+      const control = new FormControl('');
+      control.setValidators(validator as ValidatorFn);
+      control.updateValueAndValidity();
+
+      if (control.errors) {
+        const errorKey = Object.keys(control.errors)[0];
+        return errorKey || 'customValidator';
+      }
+    }
+
+    // Si no se puede determinar el nombre, devolvemos un valor por defecto
+    return 'unknownValidator';
+  }
+
+  private isValidatorType(
+    validator: ValidatorFn | AsyncValidatorFn,
+    validatorType: Function
+  ): boolean {
+    // Creamos una instancia del validador tipo para comparar
+    const sampleValidator = validatorType(/.*/); // Usamos una expresión regular genérica para pattern
+    return validator.toString() === sampleValidator.toString();
+  }
 
   private isAsyncValidator(validator: ValidatorFn | AsyncValidatorFn): boolean {
     // Creamos un control ficticio para probar el validador
@@ -295,5 +299,60 @@ export class FormGenericComponent<T> implements OnInit {
       return false;
     }
   }
+  validateInputNumberDecimal(event: InputNumberInputEvent, campo: string) {
+    const valor = event.value?.toString() || '';
+    const [parteEntera, parteDecimal] = valor.split('.');
 
+    // Limita la parte entera a 13 dígitos
+    const parteEnteraLimitada = parteEntera?.slice(0, 13) || '';
+
+    // Limita la parte decimal a 2 dígitos
+    const parteDecimalLimitada = parteDecimal?.slice(0, 2) || '';
+
+    // Reconstruye el valor
+    let nuevoValor = parteEnteraLimitada;
+    if (parteDecimalLimitada) {
+      nuevoValor += `.${parteDecimalLimitada}`;
+    }
+
+    // Actualiza el valor si hubo cambios
+    if (nuevoValor !== valor) {
+      this.form
+        .get(campo)
+        ?.setValue(nuevoValor ? parseFloat(nuevoValor) : null);
+    }
+  }
+  validateInputPercentaje(event: InputNumberInputEvent, campo: string) {
+    const valor = event.value?.toString() || '';
+    const [parteEntera, parteDecimal] = valor.split('.');
+
+    // Limita la parte entera a 2 dígitos
+    const parteEnteraLimitada = parteEntera?.slice(0, 2) || '';
+
+    // Limita la parte decimal a 2 dígitos
+    const parteDecimalLimitada = parteDecimal?.slice(0, 2) || '';
+
+    // Reconstruye el valor
+    let nuevoValor = parteEnteraLimitada;
+    if (parteDecimalLimitada) {
+      nuevoValor += `.${parteDecimalLimitada}`;
+    }
+
+    // Convierte a número para validar el rango
+    const valorNumerico = parseFloat(nuevoValor);
+
+    // Si el valor está fuera del rango, lo ajusta
+    if (valorNumerico < 0) {
+      nuevoValor = '0';
+    } else if (valorNumerico > 100) {
+      nuevoValor = '100';
+    }
+
+    // Actualiza el valor si hubo cambios
+    if (nuevoValor !== valor) {
+      this.form
+        .get(campo)
+        ?.setValue(nuevoValor ? parseFloat(nuevoValor) : null);
+    }
+  }
 }

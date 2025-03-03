@@ -87,7 +87,22 @@
           "
         />
 
-        } @case('decimal'){
+        } @case('number'){
+        <p-inputnumber
+          class="w-full"
+          [style]="{ width: '100%' }"
+          styleClass="w-full"
+          [class.ng-dirty]="
+            getFormControl(field.name)?.invalid &&
+            getFormControl(field.name)?.touched
+          "
+          [id]="field.name"
+          [formControlName]="field.name"
+          [max]="999999999999999"
+          [maxlength]="15"
+          [useGrouping]="false"
+        />
+        }@case('decimal'){
         <p-inputnumber
           class="w-full"
           [style]="{ width: '100%' }"
@@ -101,22 +116,9 @@
           mode="decimal"
           [maxFractionDigits]="2"
           [useGrouping]="false"
-          [maxlength]="12"
+          [maxlength]="13"
         />
-        <!--[minFractionDigits]="2" si le adiciono esto queda parecido al EU-->
-        }@case('number'){
-        <p-inputnumber
-          class="w-full"
-          [style]="{ width: '100%' }"
-          styleClass="w-full"
-          [class.ng-dirty]="
-            getFormControl(field.name)?.invalid &&
-            getFormControl(field.name)?.touched
-          "
-          [id]="field.name"
-          [formControlName]="field.name"
-          [maxlength]="12"
-        />
+        <!-- 13 3ntero[minFractionDigits]="2" si le adiciono esto queda parecido al EU-->
         } @case('number_currency'){
         <p-inputnumber
           class="w-full"
@@ -133,7 +135,8 @@
           [id]="field.name"
           [formControlName]="field.name"
           [useGrouping]="false"
-          [maxlength]="12"
+          [max]="9999999999999.99"
+          (onInput)="validateInputNumberDecimal($event, field.name)"
         />
         } @case('number_percent'){
         <p-inputnumber
@@ -154,6 +157,7 @@
           [minFractionDigits]="0"
           [maxFractionDigits]="2"
           [maxlength]="5"
+          (onInput)="validateInputPercentaje($event, field.name)"
         />
         } @case('dropdown'){
 
