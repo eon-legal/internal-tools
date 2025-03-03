@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import {
   DialogService,
-  DynamicDialogModule,
+  DynamicDialog,
   DynamicDialogRef,
 } from 'primeng/dynamicdialog';
 import { InvoicesStore } from '../../../../store/app.component.store';
@@ -34,7 +34,7 @@ import { HeaderTable } from '../../../../shared/interfaces/header-table';
     FormGenericComponent,
     TableGenericComponent,
     ButtonModule,
-    DynamicDialogModule,
+    DynamicDialog,
   ],
   templateUrl: './contain-invoices.component.html',
   styleUrl: './contain-invoices.component.scss',

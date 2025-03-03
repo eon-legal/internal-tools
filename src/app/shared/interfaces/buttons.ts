@@ -1,7 +1,7 @@
 type Status =
   | 'success'
   | 'info'
-  | 'warning'
+  | 'warn'
   | 'danger'
   | 'help'
   | 'primary'

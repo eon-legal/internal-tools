@@ -18,25 +18,28 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 
 import { InputNumberModule } from 'primeng/inputnumber';
+
 import { FormField } from '../../interfaces/form-field';
 import { Observable, Subject, takeUntil } from 'rxjs';
 
 import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
+//import { CalendarModule } from 'primeng/calendar';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { MessagesModule } from 'primeng/messages';
+
+
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-form-generic',
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    CalendarModule,
+    DatePickerModule,
     InputTextModule,
     InputSwitchModule,
     DropdownModule,
     CheckboxModule,
-    InputNumberModule,
     MessagesModule,
     InputNumberModule
   ],

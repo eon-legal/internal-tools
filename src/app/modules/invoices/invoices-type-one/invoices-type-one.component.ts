@@ -1,9 +1,7 @@
 import { Component, inject, OnDestroy, ViewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { StepperModule } from 'primeng/stepper';
 import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-sender-form.component';
 import { InvoicesDestinationFormComponent } from '../invoices-destination-form/invoices-destination-form.component';
-import { StepsModule } from 'primeng/steps';
 import { InvoicesStore } from '../../../store/app.component.store';
 import { ContainInvoicesComponent } from '../table-invoices/contain-invoices/contain-invoices.component';
 import { MessageService } from 'primeng/api';
@@ -12,6 +10,7 @@ import { ToastrService } from 'ngx-toastr';
 import { DataInvoicesConstant } from '../constants/data-invoices';
 import { ThemeService } from '../../../core/services/theme.service';
 import { CreateInvoicePdfService } from '../services/create-invoice-pdf.service';
+import { StepperModule } from 'primeng/stepper';
 
 @Component({
   selector: 'app-invoices-type-one',
@@ -21,7 +20,6 @@ import { CreateInvoicePdfService } from '../services/create-invoice-pdf.service'
     InvoicesDestinationFormComponent,
     ContainInvoicesComponent,
     StepperModule,
-    StepsModule,
     ButtonModule,
     MessagesModule,
   ],

@@ -3,8 +3,8 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-/*import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeng/themes/aura';*/
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeng/themes/aura';
 import { provideHttpClient } from '@angular/common/http';
 import { provideToastr } from 'ngx-toastr';
 
@@ -15,11 +15,11 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideToastr({timeOut: 2000, preventDuplicates: true}),
     provideHttpClient(),
-    /*providePrimeNG({
+    providePrimeNG({
       theme: {
         preset: Aura,
       },
-    }),*/
+    })
     //provideStore({ user: userReducer }),
   ],
 };

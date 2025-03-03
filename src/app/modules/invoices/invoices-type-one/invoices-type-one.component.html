@@ -1,10 +1,9 @@
-<!--
-<div class="card">
-  <p-stepper [value]="1">
+<div class="card flex justify-center">
+  <p-stepper [value]="1" class="basis-[50rem]">
     <p-step-list>
-      <p-step [value]="1">Remitente - Fechas</p-step>
-      <p-step [value]="2">Contenido Factura</p-step>
-      <p-step [value]="3">Destino - Generar PDF</p-step>
+      <p-step [value]="1">{{ nameStepOne }}</p-step>
+      <p-step [value]="2">{{ nameStepTwo }}</p-step>
+      <p-step [value]="3">{{ nameStepThree }}</p-step>
     </p-step-list>
     <p-step-panels>
       <p-step-panel [value]="1">
@@ -12,11 +11,14 @@
           <div class="flex flex-col h-48">
             <app-invoices-sender-form #invoicesSenderFormComponent />
           </div>
-          <div class="flex pt-6 justify-content-between">
+          <div
+            class="flex flex-column md:flex-row md:justify-content-between gap-2"
+          >
             <p-button
               label="Limpiar Todo"
-              severity="warn"
               icon="pi pi pi-times"
+              severity="warn"
+              iconPos="right"
               (click)="cleanDataStep()"
             />
             <p-button
@@ -32,7 +34,9 @@
       <p-step-panel [value]="2">
         <ng-template #content let-activateCallback="activateCallback">
           <app-contain-invoices />
-          <div class="flex pt-6 justify-content-between">
+          <div
+            class="flex flex-column md:flex-row md:justify-content-between gap-2"
+          >
             <p-button
               label="Atrás"
               severity="secondary"
@@ -54,18 +58,20 @@
           <div class="flex flex-col h-48">
             <app-invoices-destination-form #invoicesDestinationFormComponent />
           </div>
-          <div class="flex pt-6 justify-content-between">
+          <div
+            class="flex flex-column md:flex-row md:justify-content-between gap-2"
+          >
             <p-button
               label="Atrás"
+              severity="secondary"
               icon="pi pi-arrow-left"
-              iconPos="right"
               (onClick)="activateCallback(2)"
             />
             <p-button
               label="Generar Factura"
               icon="pi pi-file-pdf"
               iconPos="right"
-              (onClick)="generateAvoices()"
+              (onClick)="notAllowedShowPdf()"
             />
           </div>
         </ng-template>
@@ -74,10 +80,8 @@
   </p-stepper>
 </div>
 
--->
-
+<!--
 <div>
-  <!--class="card flex justify-content-center"-->
   <p-stepper>
     <p-stepperPanel [header]="nameStepOne">
       <ng-template
@@ -89,17 +93,15 @@
           <app-invoices-sender-form #invoicesSenderFormComponent />
         </div>
 
-        <!--flex pt-6 justify-content-between-->
         <div
           class="flex flex-column md:flex-row md:justify-content-between gap-2"
         >
           <p-button
             label="Limpiar Todo"
             icon="pi pi pi-times"
-            severity="warning"
+            severity="warn"
             (click)="cleanDataStep()"
           />
-          <!-- <div class="flex pt-4 justify-content-end"> -->
           <p-button
             label="Siguiente"
             icon="pi pi-arrow-right"
@@ -117,7 +119,6 @@
         let-index="index"
       >
         <app-contain-invoices />
-        <!-- <div class="flex pt-4 justify-content-between"> -->
         <div
           class="flex flex-column md:flex-row md:justify-content-between gap-2 mt-2"
         >
@@ -135,6 +136,7 @@
         </div>
       </ng-template>
     </p-stepperPanel>
+
     <p-stepperPanel [header]="nameStepThree">
       <ng-template
         pTemplate="content"
@@ -147,7 +149,6 @@
         <div
           class="flex flex-column md:flex-row md:justify-content-between gap-2"
         >
-          <!--<div class="flex pt-4 justify-content-start"> -->
           <p-button
             label="Atrás"
             icon="pi pi-arrow-left"
@@ -165,3 +166,4 @@
     </p-stepperPanel>
   </p-stepper>
 </div>
+-->

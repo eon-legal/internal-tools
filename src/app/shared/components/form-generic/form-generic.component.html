@@ -88,7 +88,7 @@
         />
 
         } @case('decimal'){
-        <p-inputNumber
+        <p-inputnumber
           class="w-full"
           [style]="{ width: '100%' }"
           styleClass="w-full"
@@ -101,10 +101,11 @@
           mode="decimal"
           [maxFractionDigits]="2"
           [useGrouping]="false"
+          [maxlength]="12"
         />
         <!--[minFractionDigits]="2" si le adiciono esto queda parecido al EU-->
         }@case('number'){
-        <p-inputNumber
+        <p-inputnumber
           class="w-full"
           [style]="{ width: '100%' }"
           styleClass="w-full"
@@ -114,9 +115,10 @@
           "
           [id]="field.name"
           [formControlName]="field.name"
+          [maxlength]="12"
         />
         } @case('number_currency'){
-        <p-inputNumber
+        <p-inputnumber
           class="w-full"
           [style]="{ width: '100%' }"
           styleClass="w-full"
@@ -131,9 +133,10 @@
           [id]="field.name"
           [formControlName]="field.name"
           [useGrouping]="false"
+          [maxlength]="12"
         />
         } @case('number_percent'){
-        <p-inputNumber
+        <p-inputnumber
           class="w-full"
           [style]="{ width: '100%' }"
           styleClass="w-full"
@@ -146,6 +149,11 @@
           [id]="field.name"
           [formControlName]="field.name"
           [useGrouping]="false"
+          [min]="0"
+          [max]="100"
+          [minFractionDigits]="0"
+          [maxFractionDigits]="2"
+          [maxlength]="5"
         />
         } @case('dropdown'){
 
@@ -166,7 +174,7 @@
           [panelStyleClass]="'custom-datepicker'"
           class="w-full"-->
         @case('calendar'){
-        <p-calendar
+        <p-datepicker
           [showButtonBar]="true"
           [readonlyInput]="true"
           [formControlName]="field.name"
