@@ -1,7 +1,20 @@
  ::ng-deep .hidden-file-list .p-fileupload-content, ::ng-deep .hidden-file-list .p-fileupload-file-badge{
   display: none !important;
 }
-
+/*
 span {
   font-weight: bold;
+}*/
+
+.image-container {
+  width: 100px; /* Ancho deseado */
+  height: 50px; /* Altura deseada */
+  overflow: hidden; /* Oculta el exceso de la imagen */
+  border-radius: 4px; /* Opcional: Agrega bordes redondeados */
+}
+
+.image-container img {
+  width: 100%; /* Ocupa todo el ancho del contenedor */
+  height: 100%; /* Ocupa toda la altura del contenedor */
+  object-fit: contain; /* Ajusta la imagen dentro del contenedor sin recortarla */
 }
