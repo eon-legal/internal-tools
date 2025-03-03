@@ -130,6 +130,7 @@
           locale="de-DE"
           [id]="field.name"
           [formControlName]="field.name"
+          [useGrouping]="false"
         />
         } @case('number_percent'){
         <p-inputNumber
@@ -144,6 +145,7 @@
           prefix="%"
           [id]="field.name"
           [formControlName]="field.name"
+          [useGrouping]="false"
         />
         } @case('dropdown'){
 
