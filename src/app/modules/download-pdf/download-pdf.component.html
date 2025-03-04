@@ -12,9 +12,7 @@
     }}"
   >
   </p-fileUpload>
-  <br />
-  <br />
-  </div>
+</div>
 
 <app-table-generic
   [formatOptions]="formatOptions"
@@ -22,25 +20,4 @@
   [headerData]="headerData"
   [operation]="operation"
 >
-<!--
-  <ng-template #imageTemplate let-file>
-    <img
-      [src]="file.objectURL"
-      style="width: 100px; height: 100px;"
-      alt="Imagen" 
-    />
-  </ng-template> -->
-
-  <ng-template #imageTemplate let-file>
-    @if (file.objectURL) {
-      <div class="image-container">
-        <img
-          [src]="file.objectURL"
-          alt="Imagen"
-        />
-      </div>
-    } @else {
-      <small>No se pudo cargar la imagen.</small>
-    }
-  </ng-template>
 </app-table-generic>

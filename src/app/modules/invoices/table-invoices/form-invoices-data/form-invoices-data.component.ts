@@ -2,7 +2,7 @@ import { Component, inject, ViewChild } from '@angular/core';
 import { FormGenericComponent } from '../../../../shared/components/form-generic/form-generic.component';
 import { FormField } from '../../../../shared/interfaces/form-field';
 import { ButtonModule } from 'primeng/button';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
 import {
   AbstractControl,
@@ -100,8 +100,10 @@ export class FormInvoicesDataComponent {
       validators: [
         { validator: Validators.required, message: 'Campo requerido.' },
         {
-          validator: Validators.pattern(/^(100(\.0{1,2})?$|^([0-9]{1,2})(\.[0-9]{1,2})?$)/),
-          message: 'Solos valores comprendidos entre 0 - 100'
+          validator: Validators.pattern(
+            /^(100(\.0{1,2})?$|^([0-9]{1,2})(\.[0-9]{1,2})?$)/
+          ),
+          message: 'Solos valores comprendidos entre 0 - 100',
         },
       ],
     },
@@ -120,7 +122,20 @@ export class FormInvoicesDataComponent {
       ],
     },
   ];
-  ref: DynamicDialogRef<DataInvoicesTable | null> = inject(DynamicDialogRef);
+  //ref: DynamicDialogRef<DataInvoicesTable | null> = inject(DynamicDialogRef);
+  //config: DynamicDialogConfig = inject(DynamicDialogConfig);
+  data: any;
+
+  constructor( public ref: DynamicDialogRef,   
+    public config: DynamicDialogConfig  ) {
+    // Recibir datos del modal
+    this.data = this.config.data;
+  }
+
+  // Método para cerrar el modal
+  closeModal() {
+    this.ref.close(null);
+  }
   accept() {
     if (this.formTable.formValid()) {
       this.ref.close(this.formTable.getDataFormComplete());

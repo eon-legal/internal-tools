@@ -230,9 +230,9 @@ export class InvoicesSenderFormComponent
   }
   ngOnDestroy(): void {
     this.store.updateFirstForm(
-      this.formSenderGenericComponent.getDataFormComplete()
+      this.formSenderGenericComponent?.getDataFormComplete()
     );
-    if (this.formSenderGenericComponent.formValid()) {
+    if (this.formSenderGenericComponent?.formValid()) {
       this.store.updateValidFirstForm(true);
     } else {
       this.store.updateValidFirstForm(false);

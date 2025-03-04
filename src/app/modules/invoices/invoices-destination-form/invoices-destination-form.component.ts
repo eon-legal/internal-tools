@@ -92,13 +92,19 @@ export class InvoicesDestinationFormComponent
   }
   ngOnDestroy(): void {
     this.store.updateSecondForm(
-      this.formDestinationGenericComponent.getDataFormComplete()
+      this.formDestinationGenericComponent?.getDataFormComplete()
     );
-    if (this.formDestinationGenericComponent.formValid()) {
+    if (this.isValidForm()) {
       this.store.updateValidSecondForm(true);
     } else {
       this.store.updateValidSecondForm(false);
     }
+  }
+  isValidForm(): boolean {
+    return this.formDestinationGenericComponent?.formValid();
+  }
+  getValueForm() {
+    return this.formDestinationGenericComponent?.getDataFormComplete();
   }
 
   getSecondFormStore() {

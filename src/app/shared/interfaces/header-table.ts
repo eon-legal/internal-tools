@@ -8,5 +8,6 @@ import { TemplateRef } from "@angular/core";
 export interface HeaderTable<T> {
   field: keyof T;
   header: string;
-  content?: TemplateRef<any>; // Añadir soporte para templates
+  //content?: TemplateRef<any>; // Añadir soporte para templates
+  customContent?: (item: T) => any; // Plantilla personalizada (opcional)
 }

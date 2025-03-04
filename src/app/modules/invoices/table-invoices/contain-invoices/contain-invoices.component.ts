@@ -6,11 +6,6 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import {
-  DialogService,
-  DynamicDialog,
-  DynamicDialogRef,
-} from 'primeng/dynamicdialog';
 import { InvoicesStore } from '../../../../store/app.component.store';
 import {
   ButtonOperation,
@@ -26,25 +21,23 @@ import { TableGenericComponent } from '../../../../shared/components/table-gener
 import { ButtonModule } from 'primeng/button';
 import { Iva } from '../../interfaces/iva';
 import { HeaderTable } from '../../../../shared/interfaces/header-table';
+import { CustomDialogService } from '../../../../shared/services/modal/custom-dialog.service';
+//import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-contain-invoices',
   standalone: true,
-  imports: [
-    FormGenericComponent,
-    TableGenericComponent,
-    ButtonModule,
-    DynamicDialog,
-  ],
+  imports: [FormGenericComponent, TableGenericComponent, ButtonModule],
   templateUrl: './contain-invoices.component.html',
   styleUrl: './contain-invoices.component.scss',
-  providers: [DialogService],
+  /*providers: [    
+    CustomDialogService // También puedes mover el servicio aquí  
+  ],  */
 })
 export class ContainInvoicesComponent
   implements AfterViewInit, OnDestroy, OnInit
 {
   readonly store = inject(InvoicesStore);
-  dialogService: DialogService = inject(DialogService);
   listPagination = [5, 10, 20];
   operation: ButtonOperation<DataInvoicesTable>[] = [
     {
@@ -128,7 +121,7 @@ export class ContainInvoicesComponent
   rowTable: DataInvoicesTable[] = [];
 
   @ViewChild('formIVA') formIVA!: FormGenericComponent<Iva>;
-  ref: DynamicDialogRef | undefined;
+  customDialogService: CustomDialogService = inject(CustomDialogService);
 
   ngAfterViewInit(): void {
     this.formIVA
@@ -189,20 +182,23 @@ export class ContainInvoicesComponent
     this.updateFieldTable();
   }
 
+  // Método para abrir el modal con el componente dinámico
   show() {
-    this.ref = this.dialogService.open(FormInvoicesDataComponent, {
-      header: 'Inserte Datos Factura',
-      width: '50vw',
-      modal: true,
-      contentStyle: { overflow: 'auto' },
-      breakpoints: {
-        '960px': '75vw',
-        '640px': '90vw',
-      },
-      focusOnShow: false,
-    });
+    const data = { message: 'Hola desde el componente principal' };
+    /*const dialogRef = this.customDialogService.openDialog(  
+      ChildDialogComponent,   
+      data  
+    );  
 
-    this.ref.onClose.subscribe((data: DataInvoicesTable | null) => {
+    // Opcional: manejar el resultado del diálogo  
+    dialogRef.onClose.subscribe(result => {  
+      console.log('Diálogo cerrado', result);  
+    }); */
+    const dialogRef = this.customDialogService.openDialog(
+      FormInvoicesDataComponent,
+      'Inserte Datos Factura'
+    );
+    dialogRef.onClose.subscribe((data: DataInvoicesTable | null) => {
       if (data) {
         const position = this.rowTable.findIndex(
           (r) => r.perCentIva === DataInvoicesConstant.IVA
@@ -270,9 +266,6 @@ export class ContainInvoicesComponent
   }
 
   ngOnDestroy(): void {
-    if (this.ref) {
-      this.ref.close();
-    }
     this.store.updateTable(this.rowTable);
     this.store.updateIVA(
       this.formIVA?.getDataFormComplete().iva

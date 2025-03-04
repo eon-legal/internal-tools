@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ButtonOperation, FormatOptions } from '../../interfaces/buttons';
@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, ButtonModule, TableModule],
   templateUrl: './table-generic.component.html',
   styleUrl: './table-generic.component.scss',
+  schemas: [NO_ERRORS_SCHEMA], // Agrega NO_ERRORS_SCHEMA
 })
 export class TableGenericComponent<T extends object> {
   listPagination = [5, 10, 20];

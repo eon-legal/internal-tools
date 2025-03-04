@@ -20,13 +20,10 @@
     <tr>
       @for (objHeader of columns; track objHeader.field) {
       <td>
-        @if (objHeader.content) {
-          <!-- Proyectar contenido personalizado -->
-          <ng-container
-            *ngTemplateOutlet="objHeader.content; context: { $implicit: row }"
-          ></ng-container>
+        @if (objHeader.customContent; as customContent) {
+        <span [innerHTML]="customContent(row)"></span>
         } @else {
-          {{ getFormattedValue(objHeader.field, row) }}
+        {{ getFormattedValue(objHeader.field, row) }}
         }
       </td>
       } @for(op of operation; track op){ @if(showButtonOpeartion(op, row)){

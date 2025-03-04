@@ -3,3 +3,12 @@
         overflow: auto;
     }
 }
+
+@media(max-width: 768px){
+    .p-table{
+        overflow-x: auto;
+    }
+    .p-table th, .p-table td{
+        white-space: nowrap;
+    }
+}

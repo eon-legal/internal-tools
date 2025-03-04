@@ -17,12 +17,17 @@ import {
   ButtonOperation,
   FormatOptions,
 } from '../../shared/interfaces/buttons';
-import { NgOptimizedImage } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-download-pdf',
   standalone: true,
-  imports: [FileUploadModule, ButtonModule, TableModule, TableGenericComponent, NgOptimizedImage],
+  imports: [
+    FileUploadModule,
+    ButtonModule,
+    TableModule,
+    TableGenericComponent
+  ],
   templateUrl: './download-pdf.component.html',
   styleUrl: './download-pdf.component.scss',
 })
@@ -36,22 +41,9 @@ export class DownloadPdfComponent implements AfterViewInit {
   uploadedFiles: any[] = [];
   toastr: ToastrService = inject(ToastrService);
   cd: ChangeDetectorRef = inject(ChangeDetectorRef);
+  sanitizer: DomSanitizer = inject(DomSanitizer);
 
-  headerData: HeaderTable<File>[] = [
-    /*{
-      field: 'name',
-      header: 'Nombre',
-      content: this.imageTemplate, // Usar el template para la columna "Nombre"
-    },
-    {
-      field: 'size',
-      header: 'Tamaño',
-    },
-    {
-      field: 'type',
-      header: 'Tipo',
-    },*/
-  ];
+  headerData: HeaderTable<File>[] = [];
   operation: ButtonOperation<File>[] = [
     {
       icon: 'pi pi-trash',
@@ -63,15 +55,15 @@ export class DownloadPdfComponent implements AfterViewInit {
   ngAfterViewInit() {
     setTimeout(() => {
       // Pre-generar las URLs de las imágenes
-     // Pre-generar las URLs de las imágenes
-     this.fileUpload.files.forEach((file) => {
-      (file as any).imageUrl = this.getImageUrl(file);
-    }); 
+      // Pre-generar las URLs de las imágenes
+      this.fileUpload.files.forEach((file) => {
+        (file as any).imageUrl = this.getImageUrl(file);
+      });
       this.headerData = [
         {
           field: 'text',
           header: 'Imagen',
-          content: this.imageTemplate,
+          customContent: this.customContentTemplate1,
         },
         {
           field: 'name',
@@ -114,6 +106,15 @@ export class DownloadPdfComponent implements AfterViewInit {
   getImageUrl(file: File): string {
     return URL.createObjectURL(file); // Genera una URL válida para el archivo TITO
   }
+
+  customContentTemplate1 = (file: any): SafeHtml => {
+    const html = `
+    <div class="image-container" style="width: 100px; height: 50px; overflow: hidden; border-radius: 4px;">
+      <img src="${file.objectURL.changingThisBreaksApplicationSecurity}" alt="Imagen" style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+  `;
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  };
 
   uploadFilesImages(event: { files: File[] }) {
     const files: File[] = event.files;
@@ -235,11 +236,6 @@ export class DownloadPdfComponent implements AfterViewInit {
     this.fileUpload.files = this.fileUpload.files.filter((f) => f !== file);
     if (!this.fileUpload.files.length) this.fileUpload.clear();
     this.cd.detectChanges();
-    /*if (index !== -1) {
-      this.fileUpload.remove(index);
-      if (!this.fileUpload.files.length) this.fileUpload.clear();
-      this.cd.detectChanges();
-    }*/
   }
   deletefile(file: File, event: Event) {
     const index = this.fileUpload.files.findIndex(
