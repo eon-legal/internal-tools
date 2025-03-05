@@ -228,19 +228,6 @@
 
         <!-- Repite para otros tipos -->
         }
-
-        <!-- Mensajes de error mejorados -->
-        <!--@if(getFormControl(field.name)?.invalid &&
-        getFormControl(field.name)?.touched){
-        <div class="p-error mt-1">
-          @if(getFormControl(field.name)?.hasError('required')){
-          <small>Campo requerido.</small>
-          } @if(getFormControl(field.name)?.hasError('email')){
-          <small>Formato de email inválido</small>
-          }
-        </div>
-        }-->
-
         <!-- Error Messages -->
         @if(getFormControl(field.name)?.invalid &&
         (getFormControl(field.name)?.touched ||

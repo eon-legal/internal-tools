@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { InvoicesTypeOneComponent } from './invoices-type-one.component';
+import { StepperContextComponent } from './stepper-context.component';
 
-describe('InvoicesTypeOneComponent', () => {
-  let component: InvoicesTypeOneComponent;
-  let fixture: ComponentFixture<InvoicesTypeOneComponent>;
+describe('StepperContextComponent', () => {
+  let component: StepperContextComponent;
+  let fixture: ComponentFixture<StepperContextComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InvoicesTypeOneComponent]
+      imports: [StepperContextComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(InvoicesTypeOneComponent);
+    fixture = TestBed.createComponent(StepperContextComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

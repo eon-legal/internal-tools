@@ -1,0 +1,18 @@
+<p-step-panel [value]="index">
+  <ng-template #content>
+    <ng-content></ng-content>
+    @if(getArrayButtons().length){
+    <div [ngClass]="getClass()">
+      @for (button of getArrayButtons(); track button.id) {
+      <p-button
+        [label]="button.label"
+        [icon]="button.icon"
+        [severity]="button.severity"
+        [iconPos]="button.iconPos"
+        (click)="(button.onClick ? button.onClick() : null)"
+      />
+      }
+    </div>
+    }
+  </ng-template>
+</p-step-panel>

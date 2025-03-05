@@ -1,4 +1,4 @@
-type Status =
+export type Status =
   | 'success'
   | 'info'
   | 'warn'

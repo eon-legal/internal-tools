@@ -159,37 +159,6 @@ export class FormGenericComponent<T> implements OnInit {
     });
   }
 
-  /*getErrorMessages(fieldName: string): string[] {
-    const control = this.form.get(fieldName);
-    if (
-      !control ||
-      !control.errors ||
-      (!control.touched && !control.dirty) ||
-      control.pending
-    ) {
-      return [];
-    }
-    const field = this.formConfig.find((f) => f.name === fieldName);
-
-    if (!field || !field.validators) {
-      return [];
-    }
-
-    const errors = control.errors;
-    const messages: string[] = [];
-    for (const errorKey of Object.keys(errors)) {
-      const validator = field.validators.find((v) => {
-        const validatorName = this.getValidatorName(v.validator);
-        return validatorName === errorKey;
-      });
-
-      if (validator) {
-        messages.push(validator.message);
-      }
-    }
-    return messages;
-  }*/
-
   getErrorMessages(fieldName: string): string[] {
     const control = this.form.get(fieldName);
 

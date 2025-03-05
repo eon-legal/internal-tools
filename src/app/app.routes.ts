@@ -11,17 +11,15 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('./modules/home/home.component').then(
-            (m) => m.HomeComponent
-          ),
+          import('./modules/home/home.component').then((m) => m.HomeComponent),
         title: 'Convertidor Imágenes a PDF',
       },
       {
         path: 'invoices',
         loadComponent: () =>
           import(
-            './modules/invoices/invoices-type-one/invoices-type-one.component'
-          ).then((m) => m.InvoicesTypeOneComponent),
+            './modules/invoices/stepper-invoices-generate-pdf/stepper-invoices-generate-pdf.component'
+          ).then((m) => m.StepperInvoicesGeneratePdfComponent),
         title: 'Convertidor Imágenes a PDF',
       },
     ],

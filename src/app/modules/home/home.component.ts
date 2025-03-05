@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { DownloadPdfComponent } from '../download-pdf/download-pdf.component';
+import { ImagesToPdfComponent } from '../images-to-pdf/images-to-pdf.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [DownloadPdfComponent],
+  imports: [ImagesToPdfComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })

@@ -1,0 +1,13 @@
+::ng-deep .hidden-file-list .p-fileupload-content, ::ng-deep .hidden-file-list .p-fileupload-file-badge{
+    display: none !important;
+  }
+  ::ng-deep{
+    @media(max-width: 768px){
+      .p-fileupload-header{
+        display: flex;
+        flex-direction: column;
+        align-items: start !important;
+      }
+    }
+  }
+  

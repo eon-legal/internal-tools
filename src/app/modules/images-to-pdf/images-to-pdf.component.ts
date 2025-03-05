@@ -20,18 +20,13 @@ import {
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-download-pdf',
+  selector: 'app-images-to-pdf',
   standalone: true,
-  imports: [
-    FileUploadModule,
-    ButtonModule,
-    TableModule,
-    TableGenericComponent
-  ],
-  templateUrl: './download-pdf.component.html',
-  styleUrl: './download-pdf.component.scss',
+  imports: [FileUploadModule, ButtonModule, TableModule, TableGenericComponent],
+  templateUrl: './images-to-pdf.component.html',
+  styleUrl: './images-to-pdf.component.scss',
 })
-export class DownloadPdfComponent implements AfterViewInit {
+export class ImagesToPdfComponent implements AfterViewInit {
   @ViewChild('imageTemplate') imageTemplate!: TemplateRef<any>;
   listPagination = [5, 10, 20];
   @ViewChild('fileUpload') fileUpload!: FileUpload;
