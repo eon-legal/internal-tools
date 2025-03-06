@@ -5,12 +5,6 @@
     <p-step [value]="3">{{ nameStepThree }}</p-step>
   </p-step-list>
   <app-stepper-context [index]="data" [stepper]="stepper">
-    @if(data === 1){
-    <app-invoices-sender-form #step1 />
-    } @if(data === 2){
-    <app-contain-invoices #step2 />
-    } @if(data === 3){
-    <app-invoices-destination-form #step3 />
-    }
+    <ng-template #dynamicComponent></ng-template>
   </app-stepper-context>
 </p-stepper>

@@ -1,4 +1,10 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  inject,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-sender-form.component';
 import { ContainInvoicesComponent } from '../table-invoices/contain-invoices/contain-invoices.component';
 import { InvoicesDestinationFormComponent } from '../invoices-destination-form/invoices-destination-form.component';
@@ -11,23 +17,33 @@ import { InvoicesStore } from '../../../store/app.component.store';
 import { StepperModule } from 'primeng/stepper';
 import { StepperContextComponent } from '../../../shared/components/stepper-context/stepper-context.component';
 import { ButtonModule } from 'primeng/button';
+import { CommonModule } from '@angular/common';
+
+// Diccionario de componentes
+const stepComponents: { [key: number]: any } = {
+  1: InvoicesSenderFormComponent,
+  2: ContainInvoicesComponent,
+  3: InvoicesDestinationFormComponent,
+};
 
 @Component({
   selector: 'app-stepper-invoices-generate-pdf',
   standalone: true,
-  imports: [
-    StepperModule,
-    InvoicesSenderFormComponent,
-    ContainInvoicesComponent,
-    InvoicesDestinationFormComponent,
-    StepperContextComponent,
-    ButtonModule,
-  ],
+  imports: [CommonModule, StepperModule, StepperContextComponent, ButtonModule],
   templateUrl: './stepper-invoices-generate-pdf.component.html',
   styleUrl: './stepper-invoices-generate-pdf.component.scss',
 })
-export class StepperInvoicesGeneratePdfComponent {
-  data = 1;
+export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
+  @ViewChild('dynamicComponent', { read: ViewContainerRef, static: false })
+  container!: ViewContainerRef;
+  private _data = 1; // Paso activo
+  get data(): number {
+    return this._data;
+  }
+  set data(value: number) {
+    this._data = value;
+    this.updateCurrentComponent(); // Actualizar el componente cuando cambia el paso
+  }
   readonly store = inject(InvoicesStore);
   nameStepOne = 'Remitente Factura';
   nameStepTwo = 'Tabla Factura';
@@ -100,10 +116,9 @@ export class StepperInvoicesGeneratePdfComponent {
       ],
     },
   ];
-  @ViewChild('step1')
-  step1!: InvoicesSenderFormComponent;
-  @ViewChild('step3')
-  step3!: InvoicesDestinationFormComponent;
+
+  componentRefs: { [key: number]: any } = {};
+
   activeStep: number = 1;
   toastr: ToastrService = inject(ToastrService);
   themeService: ThemeService = inject(ThemeService);
@@ -111,16 +126,36 @@ export class StepperInvoicesGeneratePdfComponent {
     CreateInvoicePdfService
   );
 
+  private updateCurrentComponent() {
+    this.container.clear(); // Limpiar el contenedor antes de renderizar
+
+    // Obtener el componente correspondiente al paso actual
+    const component = stepComponents[this.data] || InvoicesSenderFormComponent;
+
+    // Crear el componente dinámicamente
+    const componentRef = this.container.createComponent(component);
+
+    // Almacenar la referencia del componente
+    this.componentRefs[this.data] = componentRef.instance;
+  }
+
+  ngAfterViewInit() {
+    this.updateCurrentComponent(); // Renderizar el componente inicial al cargar la página
+  }
   notAllowedShowPdf() {
     this.askHaveDataTableCreate();
+    // Verificar si step3 está definido
+    if (this.data !== 3 || !this.componentRefs[3]) {
+      return;
+    }
+
+    const step3 = this.componentRefs[3] as InvoicesDestinationFormComponent;
+
     const isValidFirstForm = this.store.getIsValidFirstForm();
     const isValidSecondForm = this.store.getIsValidSecondForm();
     const messages = 'Deben ser válidos los formularios del paso 1.';
-    if (
-      !isValidFirstForm ||
-      (!isValidSecondForm &&
-        !this.step3.formDestinationGenericComponent.formValid())
-    ) {
+
+    if (!isValidFirstForm || (!isValidSecondForm && !step3.isValidForm())) {
       this.store.updateAllMarkFieldForm(true);
       this.toastr.error(
         !isValidFirstForm
@@ -132,9 +167,8 @@ export class StepperInvoicesGeneratePdfComponent {
       const first = this.store.getFirstForm();
       let second = this.store.getSeconfForm();
       const table = this.store.getTableContain();
-      if (this.step3.formDestinationGenericComponent.formValid())
-        second =
-          this.step3.formDestinationGenericComponent.getDataFormComplete();
+      if (step3.isValidForm())
+        second = step3.formDestinationGenericComponent.getDataFormComplete();
       this.createInvoicePdfService.newGeneratePDFInvoices(
         [first.name, first.national ? first.address : first.passport],
         second,
@@ -172,7 +206,8 @@ export class StepperInvoicesGeneratePdfComponent {
   cleanDataStep() {
     this.store.resetInvoices();
     this.store.resetTableInvoices();
-    this.step1.changeData(this.store.getFirstForm());
+    const step1 = this.componentRefs[1] as InvoicesSenderFormComponent;
+    step1.changeData(this.store.getFirstForm());
   }
 
   ngOnDestroy() {
