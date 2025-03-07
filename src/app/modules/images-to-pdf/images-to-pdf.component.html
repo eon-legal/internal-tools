@@ -5,7 +5,7 @@
     [multiple]="true"
     [customUpload]="true"
     styleClass="hidden-file-list"
-    (uploadHandler)="uploadFilesImages($event)"
+    (uploadHandler)="downloadFile($event)"
     accept="{{ acceptedFiles }}"
     invalidFileTypeMessageDetail="Sólo se permiten ficheros con la extensión:  {{
       acceptedFiles

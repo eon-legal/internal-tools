@@ -86,6 +86,88 @@ export class CreateInvoicePdfService {
         widths: ['auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto'],
         body: [
           [
+            { text: 'ID', style: 'tableHeader' },
+            { text: 'DESCRIPCIÓN', style: 'tableHeader' },
+            { text: 'QTT', style: 'tableHeader' },
+            { text: 'PRICE', style: 'tableHeader' },
+            { text: 'S.TOTAL', style: 'tableHeader' },
+            { text: '% IVA', style: 'tableHeader' },
+            { text: 'TOTAL', style: 'tableHeader' },
+          ].map((header) => ({
+            ...header,
+            fillColor: '#000000',
+            color: '#FFFFFF',
+          })),
+          ...tableData.map((item, index) => [
+            { 
+              text: item.id, 
+              style: 'tableCell',
+              border: index >= tableData.length - 2 ? [false, false, false, false] : undefined, // Borde izquierdo en las últimas filas primero true
+            },
+            { 
+              text: item.description, 
+              wordWrap: true, 
+              style: 'tableCell',
+              border: index >= tableData.length - 2 ? [false, false, false, false] : undefined, // Sin bordes en las últimas filas
+            },
+            { 
+              text: item?.qtt || '', 
+              style: 'tableCell',
+              border: index >= tableData.length - 2 ? [false, false, false, false] : undefined, // Sin bordes en las últimas filas
+            },
+            { 
+              text: item?.price || '', 
+              style: 'tableCell',
+              border: index >= tableData.length - 2 ? [false, false, false, false] : undefined, // Sin bordes en las últimas filas
+            },
+            {
+              text: ` ${
+                item.perCentIva === DataInvoicesConstant.IVA ||
+                item.perCentIva === DataInvoicesConstant.TOTAL
+                  ? ''
+                  : item.sTotal
+              }  ${
+                item.perCentIva === DataInvoicesConstant.IVA ||
+                item.perCentIva === DataInvoicesConstant.TOTAL
+                  ? ''
+                  : UM.EU
+              }`,
+              style: 'tableCell',
+              border: index >= tableData.length - 2 ? [false, false, false, false] : undefined, // Sin bordes en las últimas filas
+            },
+            {
+              text: `${item.perCentIva} ${
+                item.perCentIva === DataInvoicesConstant.IVA ||
+                item.perCentIva === DataInvoicesConstant.TOTAL
+                  ? ''
+                  : UM.PER_CENT
+              }`,
+              style: 'tableCell',
+              border: index >= tableData.length - 2 ? [true, true, true, true] : undefined, // Sin bordes en las últimas filas
+            },
+            {
+              text: `${item.total} ${UM.EU}`,
+              fillColor: index === tableData.length - 1 ? '#000000' : undefined,
+              color: index === tableData.length - 1 ? '#FFFFFF' : undefined,
+              border: index >= tableData.length - 2 ? [true, true, true, true] : undefined, // Bordes derecho e inferior en las últimas filas
+            },
+          ]),
+        ],
+      },
+      layout: {
+        hLineWidth: () => 1, // Bordes horizontales globales
+        vLineWidth: () => 0.8, // Bordes verticales globales
+        hLineColor: '#0066CC', // Color de los bordes horizontales
+        vLineColor: '#0066CC', // Color de los bordes verticales
+      },
+      margin: [0, 10, 0, 20],
+    });
+    /*pdf.add({
+      table: {
+        headerRows: 1,
+        widths: ['auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto'],
+        body: [
+          [
             { text: 'ID', style: 'tableHeader' }, //#2c3e50
             { text: 'DESCRIPCIÓN', style: 'tableHeader' },
             { text: 'QTT', style: 'tableHeader' },
@@ -137,11 +219,11 @@ export class CreateInvoicePdfService {
       layout: {
         hLineWidth: () => 1,
         vLineWidth: () => 0.8,
-        hLineColor: '#0066CC',
+        hLineColor: '#0066CC', //#0066CC
         vLineColor: '#0066CC',
       },
       margin: [0, 10, 0, 20],
-    });
+    });*/
 
     const fromElements = [
       {
