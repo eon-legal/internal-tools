@@ -163,6 +163,11 @@
 
         <p-dropdown
           class="w-full"
+          [showClear]="true"
+          [filter]="true"
+          optionLabel="label"
+          [checkmark]="true"
+
           [class.ng-dirty]="
             getFormControl(field.name)?.invalid &&
             getFormControl(field.name)?.touched
