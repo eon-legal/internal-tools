@@ -18,7 +18,7 @@ export const routes: Routes = [
         path: 'invoices',
         loadComponent: () =>
           import(
-            './modules/invoices/stepper-invoices-generate-pdf/stepper-invoices-generate-pdf.component'
+            './modules/invoices/components/stepper-invoices-generate-pdf/stepper-invoices-generate-pdf.component'
           ).then((m) => m.StepperInvoicesGeneratePdfComponent),
         title: 'Convertidor Imágenes a PDF',
       },

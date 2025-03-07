@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { PdfMakeWrapper, Txt, Img } from 'pdfmake-wrapper';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
-import { SecondForm } from '../interfaces/second-form';
-import { DataInvoicesTable } from '../interfaces/data-invoices-table';
-import { UM } from '../constants/um';
-import { FisrtForm } from '../interfaces/first-form';
-import { DataInvoicesConstant } from '../constants/data-invoices';
-import { formatDateByParams } from '../utils/format-date';
+import { SecondForm } from '../../interfaces/second-form';
+import { FisrtForm } from '../../interfaces/first-form';
+import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
+import { formatDateByParams } from '../../utils/format-date';
+import { DataInvoicesConstant } from '../../constants/data-invoices';
+import { UM } from '../../constants/um';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 @Injectable({

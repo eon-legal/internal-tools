@@ -6,22 +6,19 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { InvoicesStore } from '../../../../store/app.component.store';
-import {
-  ButtonOperation,
-  FormatOptions,
-} from '../../../../shared/interfaces/buttons';
-import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
-import { FormField } from '../../../../shared/interfaces/form-field';
-import { DataInvoicesConstant } from '../../constants/data-invoices';
-import { FormInvoicesDataComponent } from '../form-invoices-data/form-invoices-data.component';
-import { getSumAttribute } from '../../utils/sum-attribute-object';
-import { FormGenericComponent } from '../../../../shared/components/form-generic/form-generic.component';
-import { TableGenericComponent } from '../../../../shared/components/table-generic/table-generic.component';
+import { FormGenericComponent } from '../../../../../shared/components/form-generic/form-generic.component';
+import { TableGenericComponent } from '../../../../../shared/components/table-generic/table-generic.component';
 import { ButtonModule } from 'primeng/button';
-import { Iva } from '../../interfaces/iva';
-import { HeaderTable } from '../../../../shared/interfaces/header-table';
-import { CustomDialogService } from '../../../../shared/services/modal/custom-dialog.service';
+import { InvoicesStore } from '../../../../../store/app.component.store';
+import { DataInvoicesTable } from '../../../interfaces/data-invoices-table';
+import { ButtonOperation, FormatOptions } from '../../../../../shared/interfaces/buttons';
+import { FormField } from '../../../../../shared/interfaces/form-field';
+import { Iva } from '../../../interfaces/iva';
+import { HeaderTable } from '../../../../../shared/interfaces/header-table';
+import { DataInvoicesConstant } from '../../../constants/data-invoices';
+import { CustomDialogService } from '../../../../../shared/services/modal/custom-dialog.service';
+import { FormInvoicesDataComponent } from '../form-invoices-data/form-invoices-data.component';
+import { getSumAttribute } from '../../../utils/sum-attribute-object';
 //import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({

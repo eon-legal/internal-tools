@@ -8,16 +8,16 @@ import {
 import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-sender-form.component';
 import { ContainInvoicesComponent } from '../table-invoices/contain-invoices/contain-invoices.component';
 import { InvoicesDestinationFormComponent } from '../invoices-destination-form/invoices-destination-form.component';
-import { StepInterface } from '../../../shared/interfaces/stepper';
-import { DataInvoicesConstant } from '../constants/data-invoices';
 import { ToastrService } from 'ngx-toastr';
-import { ThemeService } from '../../../core/services/theme.service';
 import { CreateInvoicePdfService } from '../services/create-invoice-pdf.service';
-import { InvoicesStore } from '../../../store/app.component.store';
 import { StepperModule } from 'primeng/stepper';
-import { StepperContextComponent } from '../../../shared/components/stepper-context/stepper-context.component';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
+import { StepperContextComponent } from '../../../../shared/components/stepper-context/stepper-context.component';
+import { InvoicesStore } from '../../../../store/app.component.store';
+import { StepInterface } from '../../../../shared/interfaces/stepper';
+import { ThemeService } from '../../../../core/services/theme.service';
+import { DataInvoicesConstant } from '../../constants/data-invoices';
 
 // Diccionario de componentes
 const stepComponents: { [key: number]: any } = {

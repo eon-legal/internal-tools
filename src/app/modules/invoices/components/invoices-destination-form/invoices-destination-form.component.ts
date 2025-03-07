@@ -6,10 +6,10 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { FormGenericComponent } from '../../../shared/components/form-generic/form-generic.component';
-import { FormField } from '../../../shared/interfaces/form-field';
-import { InvoicesStore } from '../../../store/app.component.store';
-import { SecondForm } from '../interfaces/second-form';
+import { FormGenericComponent } from '../../../../shared/components/form-generic/form-generic.component';
+import { InvoicesStore } from '../../../../store/app.component.store';
+import { SecondForm } from '../../interfaces/second-form';
+import { FormField } from '../../../../shared/interfaces/form-field';
 
 @Component({
   selector: 'app-invoices-destination-form',

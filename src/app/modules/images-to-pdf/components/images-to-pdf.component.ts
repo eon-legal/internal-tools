@@ -10,14 +10,14 @@ import {
 import { ButtonModule } from 'primeng/button';
 import { FileUpload, FileUploadModule } from 'primeng/fileupload';
 import { TableModule } from 'primeng/table';
-import { TableGenericComponent } from '../../shared/components/table-generic/table-generic.component';
-import { HeaderTable } from '../../shared/interfaces/header-table';
+import { TableGenericComponent } from '../../../shared/components/table-generic/table-generic.component';
+import { HeaderTable } from '../../../shared/interfaces/header-table';
 import {
   ButtonOperation,
   FormatOptions,
-} from '../../shared/interfaces/buttons';
+} from '../../../shared/interfaces/buttons';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { DownloadImagePdfService } from './services/download-image-pdf.service';
+import { DownloadImagePdfService } from '../services/download-image-pdf.service';
 
 @Component({
   selector: 'app-images-to-pdf',
