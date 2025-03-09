@@ -1,5 +1,4 @@
 import { Component, inject, ViewChild } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import {
   AbstractControl,
@@ -12,16 +11,37 @@ import { delay, map, Observable, of } from 'rxjs';
 import { FormGenericComponent } from '../../../../../shared/components/form-generic/form-generic.component';
 import { DataInvoicesTable } from '../../../interfaces/data-invoices-table';
 import { FormField } from '../../../../../shared/interfaces/form-field';
+import { ButtonGenericInterface } from '../../../../../shared/interfaces/buttons';
+import { ButtonGenericComponent } from '../../../../../shared/components/button-generic/button-generic.component';
 
 @Component({
   selector: 'app-form-invoices-data',
   standalone: true,
-  imports: [FormGenericComponent, ButtonModule],
+  imports: [FormGenericComponent, ButtonGenericComponent],
   templateUrl: './form-invoices-data.component.html',
   styleUrl: './form-invoices-data.component.scss',
 })
 export class FormInvoicesDataComponent {
   @ViewChild('formTable') formTable!: FormGenericComponent<DataInvoicesTable>;
+  buttons: ButtonGenericInterface = {
+    css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
+    buttons: [
+      {
+        id: 1,
+        icon: 'pi pi-trash',
+        label: 'Cerrar',
+        severity: 'danger',
+        action: () => this.close(),
+      },
+      {
+        id: 2,
+        icon: 'pi pi-check',
+        label: 'Agregar',
+        severity: 'primary',
+        action: () => this.accept(),
+      },
+    ],
+  };
   formConfig: FormField<DataInvoicesTable>[] = [
     {
       name: 'description',
@@ -126,8 +146,10 @@ export class FormInvoicesDataComponent {
   //config: DynamicDialogConfig = inject(DynamicDialogConfig);
   data: any;
 
-  constructor( public ref: DynamicDialogRef,   
-    public config: DynamicDialogConfig  ) {
+  constructor(
+    public ref: DynamicDialogRef,
+    public config: DynamicDialogConfig
+  ) {
     // Recibir datos del modal
     this.data = this.config.data;
   }

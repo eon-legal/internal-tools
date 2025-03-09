@@ -15,9 +15,12 @@ import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { StepperContextComponent } from '../../../../shared/components/stepper-context/stepper-context.component';
 import { InvoicesStore } from '../../../../store/app.component.store';
-import { StepInterface } from '../../../../shared/interfaces/stepper';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { DataInvoicesConstant } from '../../constants/data-invoices';
+import {
+  ButtonConfig,
+  ButtonGenericInterface,
+} from '../../../../shared/interfaces/buttons';
 
 // Diccionario de componentes
 const stepComponents: { [key: number]: any } = {
@@ -48,75 +51,73 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
   nameStepOne = 'Remitente Factura';
   nameStepTwo = 'Tabla Factura';
   nameStepThree = 'Destinario - Generar Factura';
-  stepper: StepInterface[] = [
+  indexOne: ButtonConfig[] = [
     {
-      css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
-      buttons: [
-        {
-          id: 1,
-          label: 'Limpiar Todo',
-          icon: 'pi pi-times',
-          severity: 'warn',
-          iconPos: 'right',
-          onClick: () => this.cleanDataStep(),
-        },
-        {
-          id: 2,
-          label: 'Siguiente',
-          icon: 'pi pi-arrow-right',
-          iconPos: 'right',
-          onClick: () => {
-            this.data = 2;
-          },
-        },
-      ],
+      id: 1,
+      label: 'Limpiar Todo',
+      icon: 'pi pi-times',
+      severity: 'warn',
+      iconPos: 'right',
+      action: () => this.cleanDataStep(),
     },
     {
-      css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
-      buttons: [
-        {
-          id: 3,
-          label: 'Atrás',
-          severity: 'secondary',
-          icon: 'pi pi-arrow-left',
-          onClick: () => {
-            this.data = 1;
-          },
-        },
-        {
-          id: 4,
-          label: 'Siguiente',
-          icon: 'pi pi-arrow-right',
-          iconPos: 'right',
-          onClick: () => {
-            this.data = 3;
-          },
-        },
-      ],
-    },
-    {
-      css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
-      buttons: [
-        {
-          id: 5,
-          label: 'Atrás',
-          severity: 'secondary',
-          icon: 'pi pi-arrow-left',
-          onClick: () => {
-            this.data = 2;
-          },
-        },
-        {
-          id: 6,
-          label: 'Generar Factura',
-          icon: 'pi pi-file-pdf',
-          iconPos: 'right',
-          onClick: () => this.notAllowedShowPdf(),
-        },
-      ],
+      id: 2,
+      label: 'Siguiente',
+      icon: 'pi pi-arrow-right',
+      iconPos: 'right',
+      action: () => {
+        this.data = 2;
+      },
     },
   ];
 
+  stepper: ButtonGenericInterface = {
+    css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
+    buttons: this.indexOne,
+  };
+
+  indexTwo: ButtonConfig[] = [
+    {
+      id: 3,
+      label: 'Atrás',
+      severity: 'secondary',
+      icon: 'pi pi-arrow-left',
+      action: () => {
+        this.data = 1;
+      },
+    },
+    {
+      id: 4,
+      label: 'Siguiente',
+      icon: 'pi pi-arrow-right',
+      iconPos: 'right',
+      action: () => {
+        this.data = 3;
+      },
+    },
+  ];
+
+
+  indexThree: ButtonConfig[] = [
+    {
+      id: 5,
+      label: 'Atrás',
+      severity: 'secondary',
+      icon: 'pi pi-arrow-left',
+      action: () => {
+        this.data = 2;
+      },
+    },
+    {
+      id: 6,
+      label: 'Generar Factura',
+      icon: 'pi pi-file-pdf',
+      iconPos: 'right',
+      action: () => this.notAllowedShowPdf(),
+    },
+  ];
+
+  
   componentRefs: { [key: number]: any } = {};
 
   activeStep: number = 1;
@@ -137,6 +138,17 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
 
     // Almacenar la referencia del componente
     this.componentRefs[this.data] = componentRef.instance;
+    switch (this.data) {
+      case 1:
+        this.stepper.buttons = this.indexOne;
+        break;
+      case 2:
+        this.stepper.buttons = this.indexTwo;
+        break;
+      case 3:
+        this.stepper.buttons = this.indexThree;
+        break;
+    }
   }
 
   ngAfterViewInit() {

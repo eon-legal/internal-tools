@@ -11,7 +11,10 @@ import { TableGenericComponent } from '../../../../../shared/components/table-ge
 import { ButtonModule } from 'primeng/button';
 import { InvoicesStore } from '../../../../../store/app.component.store';
 import { DataInvoicesTable } from '../../../interfaces/data-invoices-table';
-import { ButtonOperation, FormatOptions } from '../../../../../shared/interfaces/buttons';
+import {
+  ButtonGenericInterface,
+  FormatOptions,
+} from '../../../../../shared/interfaces/buttons';
 import { FormField } from '../../../../../shared/interfaces/form-field';
 import { Iva } from '../../../interfaces/iva';
 import { HeaderTable } from '../../../../../shared/interfaces/header-table';
@@ -19,12 +22,17 @@ import { DataInvoicesConstant } from '../../../constants/data-invoices';
 import { CustomDialogService } from '../../../../../shared/services/modal/custom-dialog.service';
 import { FormInvoicesDataComponent } from '../form-invoices-data/form-invoices-data.component';
 import { getSumAttribute } from '../../../utils/sum-attribute-object';
+import { ButtonGenericComponent } from '../../../../../shared/components/button-generic/button-generic.component';
 //import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-contain-invoices',
   standalone: true,
-  imports: [FormGenericComponent, TableGenericComponent, ButtonModule],
+  imports: [
+    FormGenericComponent,
+    TableGenericComponent,
+    ButtonGenericComponent,
+  ],
   templateUrl: './contain-invoices.component.html',
   styleUrl: './contain-invoices.component.scss',
   /*providers: [    
@@ -36,14 +44,29 @@ export class ContainInvoicesComponent
 {
   readonly store = inject(InvoicesStore);
   listPagination = [5, 10, 20];
-  operation: ButtonOperation<DataInvoicesTable>[] = [
-    {
-      icon: 'pi pi-trash',
-      severity: 'danger',
-      action: (row: DataInvoicesTable) => this.deleteRow(row),
-      hideDependsFunction: (row: DataInvoicesTable) => this.hideLastRows(row),
-    },
-  ];
+  buttons: ButtonGenericInterface = {
+    css: 'noClass',
+    buttons: [
+      {
+        id: 1,
+        icon: 'pi pi-check',
+        label: 'Agregar Dato Facturas',
+        severity: 'primary',
+        action: () => this.show()
+      },
+    ],
+  };
+  operation: ButtonGenericInterface = {
+    buttons: [
+      {
+        id: 1,
+        icon: 'pi pi-trash',
+        severity: 'danger',
+        action: (row: DataInvoicesTable) => this.deleteRow(row),
+        hideDependsFunction: (row: DataInvoicesTable) => this.hideLastRows(row),
+      },
+    ],
+  };
   formConfig: FormField<Iva>[] = [
     {
       name: 'iva',

@@ -11,7 +11,7 @@
     <tr>
       @for( header of data ; track header){
       <th>{{ header.header }}</th>
-      } @if(operation.length && data.length){
+      } @if(operation?.buttons?.length && data.length){
       <th>Acciones</th>
       }
     </tr>
@@ -26,16 +26,10 @@
         {{ getFormattedValue(objHeader.field, row) }}
         }
       </td>
-      } @for(op of operation; track op){ @if(showButtonOpeartion(op, row)){
+      } @for(op of operation?.buttons; track op; let i=$index){
+      @if(showButtonOpeartion(op, row)){
       <td data-label>
-        <p-button
-          [icon]="op?.icon"
-          [label]="op?.label"
-          [rounded]="true"
-          [severity]="op.severity"
-          [disabled]="isDisabled(op, row)"
-          (click)="isDisabled(op, row) ? null : op.action(row)"
-        />
+        <app-button-generic [buttons]="getButtons(op,row)" />
       </td>
       } @else{
       <td data-label></td>

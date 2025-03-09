@@ -13,7 +13,7 @@ import { TableModule } from 'primeng/table';
 import { TableGenericComponent } from '../../../shared/components/table-generic/table-generic.component';
 import { HeaderTable } from '../../../shared/interfaces/header-table';
 import {
-  ButtonOperation,
+  ButtonGenericInterface,
   FormatOptions,
 } from '../../../shared/interfaces/buttons';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -40,13 +40,24 @@ export class ImagesToPdfComponent implements AfterViewInit {
     DownloadImagePdfService
   );
   headerData: HeaderTable<File>[] = [];
-  operation: ButtonOperation<File>[] = [
-    {
-      icon: 'pi pi-trash',
+  operation: ButtonGenericInterface = {
+    buttons: [
+      {
+        id: 1,
+        icon: 'pi pi-trash',
+        severity: 'danger',
+        action: (row: File) => this.deleteTest(row),
+      },
+    ],
+  }; /* { 
+   buttons: {
+    [
+      {icon: 'pi pi-trash',
       severity: 'danger',
-      action: (row: File) => this.deleteTest(row),
+      action: (row: File) => this.deleteTest(row)}
+   ]
     },
-  ];
+  };*/
 
   ngAfterViewInit() {
     setTimeout(() => {
