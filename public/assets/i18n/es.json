@@ -1,0 +1,9 @@
+{
+    "images_to_pdf": {
+        "buttons": {
+            "choose": "Selecccionar",
+            "download": "Descargar",
+            "clean": "Limpiar"
+        }
+    }
+}

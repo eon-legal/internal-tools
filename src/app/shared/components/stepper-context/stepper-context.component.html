@@ -1,17 +1,6 @@
 <p-step-panel [value]="index">
   <ng-template #content>
     <ng-content></ng-content>
-    <!--@if(getArrayButtons().length){
-    <div [ngClass]="stepper?.css || ''">
-      @for (button of getArrayButtons(); track button.id) { -->
-      <app-button-generic [buttons]="stepper" />
-      <!---}
-    </div>
-    } -->
+    <app-button-generic [buttons]="stepper" />
   </ng-template>
 </p-step-panel>
-
-<!--[label]="button.label"
-        [icon]="button.icon"
-        [severity]="button.severity"
-        [iconPos]="button.iconPos"-->

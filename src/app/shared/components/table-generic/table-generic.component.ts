@@ -1,9 +1,8 @@
-import { Component, Input, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import {
   ButtonConfig,
   ButtonGenericInterface,
-  FlexibleFunction,
   FormatOptions,
 } from '../../interfaces/buttons';
 import { HeaderTable } from '../../interfaces/header-table';

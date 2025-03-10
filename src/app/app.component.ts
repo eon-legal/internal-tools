@@ -11,4 +11,12 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
+ /**
+  * constructor(public languageService: LanguageService) {}
+
+  // Cambia el idioma
+  changeLanguage(language: string) {
+    this.languageService.setLanguage(language);
+  }
+  */
 }
