@@ -32,9 +32,9 @@ export class ImagesToPdfComponent implements AfterViewInit {
   @ViewChild('fileUpload') fileUpload!: FileUpload;
   acceptedFiles: string = '.jpg,.jpeg,.png,.gif';
   messagesFiles: string = 'Solo se aceptan imágenes.';
-  chooseLabel="Seleccionar Archivo"
-  uploadLabel="Cargar"
-  cancelLabel="Cancelar"
+  chooseLabel="Seleccionar"
+  uploadLabel="Descargar"
+  cancelLabel="Limpiar"
   myFiles: File[] = [];
   uploadedFiles: any[] = [];
   cd: ChangeDetectorRef = inject(ChangeDetectorRef);
