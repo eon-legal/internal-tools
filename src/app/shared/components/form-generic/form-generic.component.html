@@ -1,62 +1,7 @@
-<!--form [formGroup]="form">
-  <div class="grid" style="box-sizing: border-box">
-    @for(field of formConfig; track field.name){ @if(field?.showComponent !==
-    false){
-    <div class="col-12 md:col-{{ field.cols }}">
-      <div class="field">
-        <label
-          [for]="field.name"
-          class="block font-medium mb-2"
-          [ngClass]="
-            getFormControl(field.name)?.invalid &&
-            getFormControl(field.name)?.touched
-              ? 'p-error'
-              : 'text-900'
-          "
-          >{{ field.label }}
-        </label>
-
-      
-        @if(field.type === 'input'){
-        <input
-          class="w-full"
-          [style]="{ width: '100%' }"
-          styleClass="w-full"
-          [ngClass]="{
-            'ng-invalid ng-dirty':
-              getFormControl(field.name)?.invalid &&
-              getFormControl(field.name)?.touched
-          }"
-          pInputText
-          [id]="field.name"
-          [formControlName]="field.name"
-          [placeholder]="field.primeNgConfig?.placeholder || ''"
-        />
-        }
-
-    
-        
-        @if(getFormControl(field.name)?.invalid &&
-        getFormControl(field.name)?.touched){
-        <div class="p-error">
-          @if(getFormControl(field.name)?.errors?.['required']){
-          <div>Campo requerido.</div>
-          } @if(getFormControl(field.name)?.errors?.['email']){
-          <div>Email inválido</div>
-          }
-        </div>
-        }
-      </div>
-    </div>
-    } }
-  </div>
-</form>
--->
-
 <form [formGroup]="form">
   <div class="flex flex-wrap">
-    @for(field of formConfig; track field.name){ @if(field?.showComponent !==
-    false){
+    @for(field of formConfig; track field.name; let i = $index){
+    @if(field?.showComponent !== false){
     <div class="col-12 md:col-{{ field.cols || 12 }}">
       <div class="field">
         <!-- Etiqueta -->
@@ -167,7 +112,6 @@
           [filter]="true"
           optionLabel="label"
           [checkmark]="true"
-
           [class.ng-dirty]="
             getFormControl(field.name)?.invalid &&
             getFormControl(field.name)?.touched
@@ -238,7 +182,7 @@
         (getFormControl(field.name)?.touched ||
         getFormControl(field.name)?.dirty)){
         <div class="p-error mt-1">
-          @for(error of getErrorMessages(field.name); track error){
+          @for(error of getErrorMessages(field.name); track $index){
           <small>{{ error }}</small
           ><br />
           }

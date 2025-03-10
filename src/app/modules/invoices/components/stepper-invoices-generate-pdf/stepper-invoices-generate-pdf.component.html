@@ -1,10 +1,10 @@
-<p-stepper [(value)]="data" class="basis-[50rem]">
+<p-stepper [value]="data()" (valueChange)="onStepChange($event)" class="basis-[50rem]">
   <p-step-list>
     <p-step [value]="1">{{ nameStepOne }}</p-step>
     <p-step [value]="2">{{ nameStepTwo }}</p-step>
     <p-step [value]="3">{{ nameStepThree }}</p-step>
   </p-step-list>
-  <app-stepper-context [index]="data" [stepper]="stepper">
+  <app-stepper-context [index]="data()" [stepper]="stepper">
     <ng-template #dynamicComponent></ng-template>
   </app-stepper-context>
 </p-stepper>

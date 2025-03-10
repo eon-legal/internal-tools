@@ -5,29 +5,25 @@ import {
   Input,
   OnInit,
 } from '@angular/core';
-import {
-  AsyncValidatorFn,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 
 import { InputNumberInputEvent, InputNumberModule } from 'primeng/inputnumber';
 
 import { FormField } from '../../interfaces/form-field';
-import { Observable, Subject, takeUntil } from 'rxjs';
 
 import { DropdownModule } from 'primeng/dropdown';
-//import { CalendarModule } from 'primeng/calendar';
+
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { MessagesModule } from 'primeng/messages';
 
 import { DatePickerModule } from 'primeng/datepicker';
+import {
+  getErrorMessagesFn,
+  getValidateInputNumberDecimal,
+  getValidateInputPercentaje,
+} from '../../utils/get-validate-input-decimal-percentaje-messages';
 
 @Component({
   selector: 'app-form-generic',
@@ -44,36 +40,18 @@ import { DatePickerModule } from 'primeng/datepicker';
   ],
   templateUrl: './form-generic.component.html',
   styleUrl: './form-generic.component.scss',
+  host: { 'some-binding': 'some-value' },
 })
 export class FormGenericComponent<T> implements OnInit {
   @Input() formConfig: FormField<T>[] = [];
   form!: FormGroup;
-  groupInitialData: any = {};
+  groupInitialData: Partial<T> = {};
 
-  private destroy$ = new Subject<void>();
-  private externalListeners: ((value: any) => void)[] = [];
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
-
-  // Nuevo método para registrar listeners externos
-  registerListener(callback: (value: any) => void) {
-    this.externalListeners.push(callback);
-  }
 
   ngOnInit() {
     this.createForm();
     this.subscribeToAsyncValidators();
-    this.setupInternalObservables();
-  }
-
-  private setupInternalObservables() {
-    this.form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
-      this.externalListeners.forEach((callback) => callback(value));
-    });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   constructor(private fb: FormBuilder) {
@@ -81,7 +59,7 @@ export class FormGenericComponent<T> implements OnInit {
   }
 
   private createForm() {
-    const group: any = {};
+    const group: { [key in keyof T]?: any } = {};
 
     this.formConfig.forEach((field) => {
       const validators =
@@ -161,167 +139,20 @@ export class FormGenericComponent<T> implements OnInit {
 
   getErrorMessages(fieldName: string): string[] {
     const control = this.form.get(fieldName);
-
-    // Si no hay control o no hay errores, retornar un array vacío
-    if (!control || !control.errors) {
-      return [];
-    }
-
-    // Si el control está "pending", no mostramos errores hasta que finalice
-    if (control.pending) {
-      return [];
-    }
-
-    // Si el control no está "touched" ni "dirty", retornar un array vacío
-    if (!control.touched && !control.dirty) {
-      return [];
-    }
-
-    // Obtener el campo correspondiente en formConfig
-    const field = this.formConfig.find((f) => f.name === fieldName);
-    if (!field || !field.validators) {
-      return [];
-    }
-
-    // Obtener los errores del control
-    const errors = control.errors;
-    const messages: string[] = [];
-
-    // Mapear los errores a los mensajes correspondientes
-    for (const errorKey of Object.keys(errors)) {
-      const validator = field.validators.find((v) => {
-        const validatorName = this.getValidatorName(v.validator);
-        return validatorName === errorKey;
-      });
-
-      if (validator) {
-        messages.push(validator.message);
-      }
-    }
-
-    return messages;
+    return getErrorMessagesFn(fieldName, control, this.formConfig);
   }
 
-  private getValidatorName(validator: ValidatorFn | AsyncValidatorFn): string {
-    // Validadores estáticos
-    if (validator === Validators.required) return 'required';
-    if (validator === Validators.email) return 'email';
-
-    // Validadores dinámicos (minLength, min, maxLength, max, pattern)
-    if (this.isValidatorType(validator, Validators.minLength))
-      return 'minlength';
-    if (this.isValidatorType(validator, Validators.min)) return 'min';
-    if (this.isValidatorType(validator, Validators.maxLength))
-      return 'maxlength';
-    if (this.isValidatorType(validator, Validators.max)) return 'max';
-    if (this.isValidatorType(validator, Validators.pattern)) return 'pattern';
-
-    // Validadores asíncronos
-    if (this.isAsyncValidator(validator)) {
-      return validator.name || 'asyncValidator';
-    }
-
-    // Validadores personalizados
-    if (typeof validator === 'function') {
-      // Intentamos obtener el nombre del validador personalizado
-      const validatorName = validator.name;
-
-      // Si el validador tiene un nombre, lo devolvemos
-      if (validatorName) {
-        return validatorName;
-      }
-
-      // Si no tiene nombre, intentamos obtener el nombre del error que devuelve
-      const control = new FormControl('');
-      control.setValidators(validator as ValidatorFn);
-      control.updateValueAndValidity();
-
-      if (control.errors) {
-        const errorKey = Object.keys(control.errors)[0];
-        return errorKey || 'customValidator';
-      }
-    }
-
-    // Si no se puede determinar el nombre, devolvemos un valor por defecto
-    return 'unknownValidator';
-  }
-
-  private isValidatorType(
-    validator: ValidatorFn | AsyncValidatorFn,
-    validatorType: Function
-  ): boolean {
-    // Creamos una instancia del validador tipo para comparar
-    const sampleValidator = validatorType(/.*/); // Usamos una expresión regular genérica para pattern
-    return validator.toString() === sampleValidator.toString();
-  }
-
-  private isAsyncValidator(validator: ValidatorFn | AsyncValidatorFn): boolean {
-    // Creamos un control ficticio para probar el validador
-    const control = new FormControl('');
-
-    try {
-      const result = validator(control);
-      // Si el resultado es una Promise o un Observable, es un validador asíncrono
-      return result instanceof Promise || result instanceof Observable;
-    } catch (error) {
-      // Si hay un error, asumimos que no es un validador asíncrono
-      return false;
-    }
-  }
   validateInputNumberDecimal(event: InputNumberInputEvent, campo: string) {
-    const valor = event.value?.toString() || '';
-    const [parteEntera, parteDecimal] = valor.split('.');
-
-    // Limita la parte entera a 13 dígitos
-    const parteEnteraLimitada = parteEntera?.slice(0, 13) || '';
-
-    // Limita la parte decimal a 2 dígitos
-    const parteDecimalLimitada = parteDecimal?.slice(0, 2) || '';
-
-    // Reconstruye el valor
-    let nuevoValor = parteEnteraLimitada;
-    if (parteDecimalLimitada) {
-      nuevoValor += `.${parteDecimalLimitada}`;
-    }
-
-    // Actualiza el valor si hubo cambios
-    if (nuevoValor !== valor) {
-      this.form
-        .get(campo)
-        ?.setValue(nuevoValor ? parseFloat(nuevoValor) : null);
+    const save = getValidateInputNumberDecimal(event);
+    if (save.change) {
+      this.form.get(campo)?.setValue(save?.value);
     }
   }
+
   validateInputPercentaje(event: InputNumberInputEvent, campo: string) {
-    const valor = event.value?.toString() || '';
-    const [parteEntera, parteDecimal] = valor.split('.');
-
-    // Limita la parte entera a 2 dígitos
-    const parteEnteraLimitada = parteEntera?.slice(0, 2) || '';
-
-    // Limita la parte decimal a 2 dígitos
-    const parteDecimalLimitada = parteDecimal?.slice(0, 2) || '';
-
-    // Reconstruye el valor
-    let nuevoValor = parteEnteraLimitada;
-    if (parteDecimalLimitada) {
-      nuevoValor += `.${parteDecimalLimitada}`;
-    }
-
-    // Convierte a número para validar el rango
-    const valorNumerico = parseFloat(nuevoValor);
-
-    // Si el valor está fuera del rango, lo ajusta
-    if (valorNumerico < 0) {
-      nuevoValor = '0';
-    } else if (valorNumerico > 100) {
-      nuevoValor = '100';
-    }
-
-    // Actualiza el valor si hubo cambios
-    if (nuevoValor !== valor) {
-      this.form
-        .get(campo)
-        ?.setValue(nuevoValor ? parseFloat(nuevoValor) : null);
+    const save = getValidateInputPercentaje(event);
+    if (save.change) {
+      this.form.get(campo)?.setValue(save?.value);
     }
   }
 }
