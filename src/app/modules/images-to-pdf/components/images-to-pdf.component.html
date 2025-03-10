@@ -3,6 +3,9 @@
     #fileUpload
     name="myFiles[]"
     [multiple]="true"
+    [chooseLabel]="chooseLabel"
+    [uploadLabel]="uploadLabel"
+    [cancelLabel]="cancelLabel"
     [customUpload]="true"
     styleClass="hidden-file-list"
     (uploadHandler)="downloadFile($event)"

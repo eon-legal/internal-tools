@@ -32,6 +32,9 @@ export class ImagesToPdfComponent implements AfterViewInit {
   @ViewChild('fileUpload') fileUpload!: FileUpload;
   acceptedFiles: string = '.jpg,.jpeg,.png,.gif';
   messagesFiles: string = 'Solo se aceptan imágenes.';
+  chooseLabel="Seleccionar Archivo"
+  uploadLabel="Cargar"
+  cancelLabel="Cancelar"
   myFiles: File[] = [];
   uploadedFiles: any[] = [];
   cd: ChangeDetectorRef = inject(ChangeDetectorRef);
@@ -49,20 +52,10 @@ export class ImagesToPdfComponent implements AfterViewInit {
         action: (row: File) => this.deleteTest(row),
       },
     ],
-  }; /* { 
-   buttons: {
-    [
-      {icon: 'pi pi-trash',
-      severity: 'danger',
-      action: (row: File) => this.deleteTest(row)}
-   ]
-    },
-  };*/
+  };
 
   ngAfterViewInit() {
     setTimeout(() => {
-      // Pre-generar las URLs de las imágenes
-      // Pre-generar las URLs de las imágenes
       this.fileUpload.files.forEach((file) => {
         (file as any).imageUrl = this.getImageUrl(file);
       });
