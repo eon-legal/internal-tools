@@ -21,6 +21,8 @@
     "@angular/router": "^18.2.0",
     "@ngrx/signals": "^18.0.0",
     "@primeng/themes": "^18.0.0",
+    "@ngx-translate/core": "^15.0.0",
+    "@ngx-translate/http-loader": "^8.0.0",
     "jspdf": "^2.5.2",
     "ngx-toastr": "^19.0.0",
     "pdfmake": "^0.1.72",
