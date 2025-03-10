@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { FormGenericComponent } from '../../../../../shared/components/form-generic/form-generic.component';
 import { TableGenericComponent } from '../../../../../shared/components/table-generic/table-generic.component';
-import { ButtonModule } from 'primeng/button';
 import { InvoicesStore } from '../../../../../store/app.component.store';
 import { DataInvoicesTable } from '../../../interfaces/data-invoices-table';
 import {
@@ -23,7 +22,6 @@ import { CustomDialogService } from '../../../../../shared/services/modal/custom
 import { FormInvoicesDataComponent } from '../form-invoices-data/form-invoices-data.component';
 import { getSumAttribute } from '../../../utils/sum-attribute-object';
 import { ButtonGenericComponent } from '../../../../../shared/components/button-generic/button-generic.component';
-//import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-contain-invoices',
@@ -35,9 +33,6 @@ import { ButtonGenericComponent } from '../../../../../shared/components/button-
   ],
   templateUrl: './contain-invoices.component.html',
   styleUrl: './contain-invoices.component.scss',
-  /*providers: [    
-    CustomDialogService // También puedes mover el servicio aquí  
-  ],  */
 })
 export class ContainInvoicesComponent
   implements AfterViewInit, OnDestroy, OnInit
@@ -52,7 +47,7 @@ export class ContainInvoicesComponent
         icon: 'pi pi-check',
         label: 'Agregar Dato Facturas',
         severity: 'primary',
-        action: () => this.show()
+        action: () => this.show(),
       },
     ],
   };
@@ -152,6 +147,7 @@ export class ContainInvoicesComponent
         );
         if (positionIVA !== -1) {
           this.rowTable[positionIVA].total = value ? value : 0;
+          //this.updateFieldTableSumAllExcepIVA();
         }
       });
   }
@@ -185,7 +181,7 @@ export class ContainInvoicesComponent
       (v) => v.perCentIva === DataInvoicesConstant.IVA
     );
     (this.rowTable[posIVA].total = this.store.getIVA() || 0),
-      this.updateFieldTable();
+      this.updateFieldTableSumAllExcepIVA();
   }
 
   hideLastRows(row: DataInvoicesTable): boolean {
@@ -199,21 +195,11 @@ export class ContainInvoicesComponent
     this.rowTable = this.rowTable.filter(
       (v) => v.indexDelete !== data.indexDelete
     );
-    this.updateFieldTable();
+    this.updateFieldTableSumAllExcepIVA();
   }
 
   // Método para abrir el modal con el componente dinámico
   show() {
-    const data = { message: 'Hola desde el componente principal' };
-    /*const dialogRef = this.customDialogService.openDialog(  
-      ChildDialogComponent,   
-      data  
-    );  
-
-    // Opcional: manejar el resultado del diálogo  
-    dialogRef.onClose.subscribe(result => {  
-      console.log('Diálogo cerrado', result);  
-    }); */
     const dialogRef = this.customDialogService.openDialog(
       FormInvoicesDataComponent,
       'Inserte Datos Factura'
@@ -243,12 +229,12 @@ export class ContainInvoicesComponent
             total: 0,
           });
         }
-        this.updateFieldTable();
+        this.updateFieldTableSumAllExcepIVA();
       }
     });
   }
 
-  updateFieldTable() {
+  updateFieldTableSumAllExcepIVA() {
     const positionTotal = this.rowTable.findIndex(
       (r) => r.perCentIva === DataInvoicesConstant.TOTAL
     );
@@ -257,8 +243,13 @@ export class ContainInvoicesComponent
         r.perCentIva !== DataInvoicesConstant.TOTAL &&
         r.perCentIva !== DataInvoicesConstant.IVA
     );
+    /*const todoMenosTotal = this.rowTable.filter(
+      (r) =>
+        r.perCentIva !== DataInvoicesConstant.TOTAL
+    );*/
     const total = getSumAttribute<DataInvoicesTable>(
       todoMenosTotalAndIVA,
+      //todoMenosTotal,
       'total'
     );
     if (positionTotal !== -1) {
