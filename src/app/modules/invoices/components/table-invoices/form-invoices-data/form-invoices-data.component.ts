@@ -77,6 +77,9 @@ export class FormInvoicesDataComponent {
       name: 'qtt',
       label: 'QTT',
       type: 'decimal',
+      primeNgConfig: {
+        min: 0
+      },
       cols: 6,
       validators: [
         {
@@ -89,6 +92,9 @@ export class FormInvoicesDataComponent {
       name: 'price',
       label: 'Precio',
       type: 'decimal',
+      primeNgConfig: {
+        min: 0
+      },
       cols: 6,
       validators: [
         {
@@ -101,6 +107,9 @@ export class FormInvoicesDataComponent {
       name: 'sTotal',
       label: 'S.Total *',
       type: 'number_currency',
+      primeNgConfig: {
+        min: 0
+      },
       cols: 6,
       initialData: 0,
       validators: [
@@ -131,6 +140,9 @@ export class FormInvoicesDataComponent {
       name: 'total',
       label: 'Total *',
       type: 'number_currency',
+      primeNgConfig: {
+        min: 0
+      },
       cols: 6,
       initialData: 0,
       validators: [

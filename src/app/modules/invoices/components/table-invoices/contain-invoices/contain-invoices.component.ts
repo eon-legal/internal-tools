@@ -68,6 +68,9 @@ export class ContainInvoicesComponent
       label: 'IVA Neto',
       type: 'number_currency',
       initialData: this.store.getIVA() || 0,
+      primeNgConfig: {
+        min: 0
+      }
     },
   ];
 

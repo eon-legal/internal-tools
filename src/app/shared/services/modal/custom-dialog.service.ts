@@ -17,6 +17,8 @@ export class CustomDialogService {
       baseZIndex: 10000,
       data: data || {} ,
       focusOnShow: false,
+      modal: true, // Activa el modo modal
+      closable: true, // Muestra el botón de cierre en la esquina superior derecha
     });  
 
     return this.dialogRef;  

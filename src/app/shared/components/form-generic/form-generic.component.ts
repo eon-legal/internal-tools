@@ -43,6 +43,7 @@ import {
   host: { 'some-binding': 'some-value' },
 })
 export class FormGenericComponent<T> implements OnInit {
+  negativeInfinity = Number.NEGATIVE_INFINITY; 
   @Input() formConfig: FormField<T>[] = [];
   form!: FormGroup;
   groupInitialData: Partial<T> = {};
