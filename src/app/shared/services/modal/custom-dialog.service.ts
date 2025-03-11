@@ -12,8 +12,8 @@ export class CustomDialogService {
   openDialog(component: any, header: string,data?: any) {  
     this.dialogRef = this.dialogService.open(component, {  
       header,  
-      width: '70%', 
-      contentStyle: { overflow: 'auto' },
+      /*width: '70%', 
+      contentStyle: { overflow: 'auto' },*/
       baseZIndex: 10000,
       data: data || {} ,
       focusOnShow: false,

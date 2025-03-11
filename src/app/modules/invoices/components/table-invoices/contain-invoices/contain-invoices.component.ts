@@ -1,12 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  inject,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import { FormGenericComponent } from '../../../../../shared/components/form-generic/form-generic.component';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { TableGenericComponent } from '../../../../../shared/components/table-generic/table-generic.component';
 import { InvoicesStore } from '../../../../../store/app.component.store';
 import { DataInvoicesTable } from '../../../interfaces/data-invoices-table';
@@ -14,29 +6,23 @@ import {
   ButtonGenericInterface,
   FormatOptions,
 } from '../../../../../shared/interfaces/buttons';
-import { FormField } from '../../../../../shared/interfaces/form-field';
-import { Iva } from '../../../interfaces/iva';
 import { HeaderTable } from '../../../../../shared/interfaces/header-table';
 import { DataInvoicesConstant } from '../../../constants/data-invoices';
 import { CustomDialogService } from '../../../../../shared/services/modal/custom-dialog.service';
 import { FormInvoicesDataComponent } from '../form-invoices-data/form-invoices-data.component';
-import { getSumAttribute } from '../../../utils/sum-attribute-object';
+import { getSumArrayNumber } from '../../../utils/sum-attribute-object';
 import { ButtonGenericComponent } from '../../../../../shared/components/button-generic/button-generic.component';
+import { getNextID } from '../../../utils/next-id';
+import { mapAtrribute } from '../../../utils/mapeo';
 
 @Component({
   selector: 'app-contain-invoices',
   standalone: true,
-  imports: [
-    FormGenericComponent,
-    TableGenericComponent,
-    ButtonGenericComponent,
-  ],
+  imports: [TableGenericComponent, ButtonGenericComponent],
   templateUrl: './contain-invoices.component.html',
   styleUrl: './contain-invoices.component.scss',
 })
-export class ContainInvoicesComponent
-  implements AfterViewInit, OnDestroy, OnInit
-{
+export class ContainInvoicesComponent implements OnDestroy, OnInit {
   readonly store = inject(InvoicesStore);
   listPagination = [5, 10, 20];
   buttons: ButtonGenericInterface = {
@@ -62,17 +48,6 @@ export class ContainInvoicesComponent
       },
     ],
   };
-  formConfig: FormField<Iva>[] = [
-    {
-      name: 'iva',
-      label: 'IVA Neto',
-      type: 'number_currency',
-      initialData: this.store.getIVA() || 0,
-      primeNgConfig: {
-        min: 0
-      }
-    },
-  ];
 
   headerData: HeaderTable<DataInvoicesTable>[] = [
     {
@@ -137,24 +112,7 @@ export class ContainInvoicesComponent
   };
 
   rowTable: DataInvoicesTable[] = [];
-
-  @ViewChild('formIVA') formIVA!: FormGenericComponent<Iva>;
   customDialogService: CustomDialogService = inject(CustomDialogService);
-
-  ngAfterViewInit(): void {
-    this.formIVA
-      ?.getFormControl('iva')
-      ?.valueChanges.subscribe((value: number | null) => {
-        const positionIVA = this.rowTable.findIndex(
-          (r) => r.perCentIva === DataInvoicesConstant.IVA
-        );
-        if (positionIVA !== -1) {
-          this.rowTable[positionIVA].total = value ? value : 0;
-          //this.updateFieldTableSumAllExcepIVA();
-        }
-      });
-  }
-
   ngOnInit() {
     this.rowTable = this.store.getTableContain();
     if (
@@ -180,11 +138,8 @@ export class ContainInvoicesComponent
         total: 0,
       });
     }
-    const posIVA = this.rowTable.findIndex(
-      (v) => v.perCentIva === DataInvoicesConstant.IVA
-    );
-    (this.rowTable[posIVA].total = this.store.getIVA() || 0),
-      this.updateFieldTableSumAllExcepIVA();
+
+    // this.updateFieldTableSumAllExcepIVA();
   }
 
   hideLastRows(row: DataInvoicesTable): boolean {
@@ -201,6 +156,18 @@ export class ContainInvoicesComponent
     this.updateFieldTableSumAllExcepIVA();
   }
 
+  redondearDecimal(numero: number, decimales: number): number {
+    // Multiplicar por 10^decimales para mover el decimal deseado a la posición de las unidades
+    const factor = Math.pow(10, decimales);
+    const numeroMultiplicado = numero * factor;
+
+    // Redondear el número
+    const numeroRedondeado = Math.round(numeroMultiplicado);
+
+    // Dividir por 10^decimales para devolver el número a su escala original
+    return numeroRedondeado / factor;
+  }
+
   // Método para abrir el modal con el componente dinámico
   show() {
     const dialogRef = this.customDialogService.openDialog(
@@ -214,6 +181,22 @@ export class ContainInvoicesComponent
         );
         const save = this.assingnIndexDeleteUltraOptimo(this.rowTable, data);
         if (position !== -1) {
+          save.id = getNextID(this.rowTable);
+          const perCentIva = save.perCentIva as {
+            label: string;
+            value: number;
+          };
+          let perCentIvaValue = perCentIva.value;
+          const sTotal = !perCentIvaValue
+            ? save.total
+            : this.redondearDecimal(
+                (82.6446 / 100) * (save.total as number),
+                2
+              );
+          save.sTotal = sTotal;
+
+          save.perCentIva = perCentIvaValue;
+          /**82.6446 / 100 */
           this.rowTable.splice(position, 0, save);
         } else {
           this.rowTable.push(save);
@@ -241,23 +224,38 @@ export class ContainInvoicesComponent
     const positionTotal = this.rowTable.findIndex(
       (r) => r.perCentIva === DataInvoicesConstant.TOTAL
     );
-    const todoMenosTotalAndIVA = this.rowTable.filter(
-      (r) =>
-        r.perCentIva !== DataInvoicesConstant.TOTAL &&
-        r.perCentIva !== DataInvoicesConstant.IVA
+    const positionIVA = this.rowTable.findIndex(
+      (r) => r.perCentIva === DataInvoicesConstant.IVA
     );
-    /*const todoMenosTotal = this.rowTable.filter(
-      (r) =>
-        r.perCentIva !== DataInvoicesConstant.TOTAL
-    );*/
-    const total = getSumAttribute<DataInvoicesTable>(
-      todoMenosTotalAndIVA,
-      //todoMenosTotal,
-      'total'
+    const total = getSumArrayNumber(
+      mapAtrribute<DataInvoicesTable>(
+        this.rowTable.filter(
+          (v) =>
+            v.perCentIva !== DataInvoicesConstant.IVA &&
+            v.perCentIva !== DataInvoicesConstant.TOTAL
+        ),
+        'total'
+      )
     );
-    if (positionTotal !== -1) {
+    const sTotal = getSumArrayNumber(
+      mapAtrribute<DataInvoicesTable>(
+        this.rowTable.filter(
+          (v) =>
+            v.perCentIva !== DataInvoicesConstant.IVA &&
+            v.perCentIva !== DataInvoicesConstant.TOTAL
+        ),
+        'sTotal'
+      )
+    );
+    if (positionTotal !== -1 && positionIVA !== -1) {
       const getDataPosTotal = this.rowTable[positionTotal];
       this.rowTable[positionTotal] = { ...getDataPosTotal, total };
+
+      const getDataPosIva = this.rowTable[positionIVA];
+      this.rowTable[positionIVA] = {
+        ...getDataPosIva,
+        total: this.redondearDecimal(total - sTotal, 2),
+      };
     }
   }
 
@@ -281,10 +279,5 @@ export class ContainInvoicesComponent
 
   ngOnDestroy(): void {
     this.store.updateTable(this.rowTable);
-    this.store.updateIVA(
-      this.formIVA?.getDataFormComplete().iva
-        ? this.formIVA?.getDataFormComplete().iva
-        : 0
-    );
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import {
   AbstractControl,
@@ -7,7 +7,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { delay, map, Observable, of } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { FormGenericComponent } from '../../../../../shared/components/form-generic/form-generic.component';
 import { DataInvoicesTable } from '../../../interfaces/data-invoices-table';
 import { FormField } from '../../../../../shared/interfaces/form-field';
@@ -65,6 +65,48 @@ export class FormInvoicesDataComponent {
       ],
     },
     {
+      name: 'perCentIva',
+      label: '% IVA *',
+      type: 'dropdown',
+      primeNgConfig: {
+        options: [
+          { label: '21%', value: 21 },
+          {
+            label: '0%',
+            value: 0,
+          },
+        ],
+      },
+      cols: 6,
+      initialData: { label: '21%', value: 21 },
+      validators: [
+        { validator: Validators.required, message: 'Campo requerido.' },
+        /*{
+          validator: Validators.pattern(
+            /^(100(\.0{1,2})?$|^([0-9]{1,2})(\.[0-9]{1,2})?$)/
+          ),
+          message: 'Solos valores comprendidos entre 0 - 100',
+        },*/
+      ],
+    },
+    {
+      name: 'total',
+      label: 'Total *',
+      type: 'number_currency',
+      primeNgConfig: {
+        min: 0,
+      },
+      cols: 6,
+      //initialData: 0,
+      validators: [
+        { validator: Validators.required, message: 'Campo requerido.' },
+        {
+          validator: Validators.min(1),
+          message: 'Deben ser valores mayores que cero',
+        },
+      ],
+    },
+    /*{
       name: 'id',
       label: 'ID *',
       type: 'input',
@@ -72,13 +114,13 @@ export class FormInvoicesDataComponent {
       validators: [
         { validator: Validators.required, message: 'Campo requerido.' },
       ],
-    },
+    },*/
     {
       name: 'qtt',
       label: 'QTT',
       type: 'decimal',
       primeNgConfig: {
-        min: 0
+        min: 0,
       },
       cols: 6,
       validators: [
@@ -93,7 +135,7 @@ export class FormInvoicesDataComponent {
       label: 'Precio',
       type: 'decimal',
       primeNgConfig: {
-        min: 0
+        min: 0,
       },
       cols: 6,
       validators: [
@@ -103,7 +145,7 @@ export class FormInvoicesDataComponent {
         },
       ],
     },
-    {
+    /*{
       name: 'sTotal',
       label: 'S.Total *',
       type: 'number_currency',
@@ -119,40 +161,7 @@ export class FormInvoicesDataComponent {
           message: 'Deben ser valores positivos',
         },
       ],
-    },
-    {
-      name: 'perCentIva',
-      label: '% IVA *',
-      type: 'number_percent',
-      cols: 6,
-      initialData: 0,
-      validators: [
-        { validator: Validators.required, message: 'Campo requerido.' },
-        {
-          validator: Validators.pattern(
-            /^(100(\.0{1,2})?$|^([0-9]{1,2})(\.[0-9]{1,2})?$)/
-          ),
-          message: 'Solos valores comprendidos entre 0 - 100',
-        },
-      ],
-    },
-    {
-      name: 'total',
-      label: 'Total *',
-      type: 'number_currency',
-      primeNgConfig: {
-        min: 0
-      },
-      cols: 6,
-      initialData: 0,
-      validators: [
-        { validator: Validators.required, message: 'Campo requerido.' },
-        {
-          validator: Validators.min(0),
-          message: 'Deben ser valores positivos',
-        },
-      ],
-    },
+    },*/
   ];
   //ref: DynamicDialogRef<DataInvoicesTable | null> = inject(DynamicDialogRef);
   //config: DynamicDialogConfig = inject(DynamicDialogConfig);
