@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18  # Use Node.js 18 for Angular 18
+          node-version: 22
 
       # Install dependencies
       - name: Install dependencies
@@ -33,5 +33,5 @@ jobs:
           server: ${{ secrets.EON_FTP_SERVER }}  # FTP server address
           username: ${{ secrets.EON_FTP_USERNAME }}  # FTP username
           password: ${{ secrets.EON_FTP_PASSWORD }}  # FTP password
-          local-dir: dist/internal-tools  # Path to the built Angular app
-          server-dir: /tools  # Path to the subdomain directory on Hostinger
+          local-dir: dist/internal-tools/browser/  # Path to the built Angular app
+          server-dir: ./  # Path to the subdomain directory on Hostinger
