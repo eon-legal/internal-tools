@@ -40,7 +40,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
   @ViewChild('fileUpload') fileUpload!: FileUpload;
   @ViewChild(TableGenericComponent)
   tableGenericComponent!: TableGenericComponent<File>;
-  listPagination = [3, 4, 5, 50, 100];
+  listPagination = [5, 10, 20, 50, 100];
   acceptedFiles: string = '.jpg,.jpeg,.png,.gif';
   messagesFiles: string = 'Solo se aceptan imágenes.';
   chooseLabel = 'Seleccionar';
