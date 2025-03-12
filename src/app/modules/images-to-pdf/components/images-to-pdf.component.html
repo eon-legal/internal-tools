@@ -1,26 +1,47 @@
-<div class="mb-2">
-  <p-fileUpload
-    #fileUpload
-    name="myFiles[]"
-    [multiple]="true"
-    [chooseLabel]="chooseLabel"
-    [uploadLabel]="uploadLabel"
-    [cancelLabel]="cancelLabel"
-    [customUpload]="true"
-    styleClass="hidden-file-list"
-    (uploadHandler)="downloadFile($event)"
-    accept="{{ acceptedFiles }}"
-    invalidFileTypeMessageDetail="Sólo se permiten ficheros con la extensión:  {{
-      acceptedFiles
-    }}"
-  >
-  </p-fileUpload>
+<div
+  class="drag-drop-area"
+  (dragover)="onDragOver($event)"
+  (drop)="onDrop($event)"
+>
+  <div>
+    <div class="my-4">{{ note }}</div>
+    <div>
+      <p-fileUpload
+        #fileUpload
+        name="myfile[]"
+        [chooseLabel]="chooseLabel"
+        uploadIcon="pi pi-arrow-down"
+        [uploadLabel]="uploadLabel"
+        [cancelLabel]="cancelLabel"
+        [customUpload]="true"
+        styleClass="hidden-file-list"
+        [multiple]="true"
+        accept="image/*"
+        (uploadHandler)="onUpload($event)"
+        (onSelect)="onFileSelect($event)"
+        auto="false"
+        [files]="myfile"
+      >
+      </p-fileUpload>
+    </div>
+  </div>
 </div>
 
-<app-table-generic
-  [formatOptions]="formatOptions"
-  [dataTable]="fileUpload.files"
-  [headerData]="headerData"
-  [operation]="operation"
->
-</app-table-generic>
+@if (errorMessage) {
+<p-message severity="error" [escape]="false" class="error-message my-4">
+  <div [innerHTML]="errorMessage" class="message-content"></div>
+</p-message>
+}
+
+<div class="mt-4">
+  <app-table-generic
+    [formatOptions]="formatOptions"
+    [listPagination]="listPagination"
+    [dataTable]="fileUpload?.files || []"
+    [headerData]="headerData"
+    [operation]="operation"
+    [enableDragDrop]="enableDragDrop"
+    (reordered)="organizeRow($event)"
+  >
+  </app-table-generic>
+</div>

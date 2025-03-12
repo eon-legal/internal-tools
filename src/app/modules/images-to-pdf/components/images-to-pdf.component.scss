@@ -1,9 +1,24 @@
-::ng-deep .hidden-file-list .p-fileupload-content, ::ng-deep .hidden-file-list .p-fileupload-file-badge{
+
+.drag-drop-area {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 20px; /* Espacio adicional debajo del área de drag-drop */
+  }
+  
+  .hidden-file-list {
+    display: none;
+  }
+  
+  ::ng-deep .hidden-file-list .p-fileupload-content,
+  ::ng-deep .hidden-file-list .p-fileupload-file-badge {
     display: none !important;
   }
-  ::ng-deep{
-    @media(max-width: 768px){
-      .p-fileupload-header{
+  
+  ::ng-deep {
+    @media (max-width: 768px) {
+      .p-fileupload-header {
         display: flex;
         flex-direction: column;
         align-items: start !important;
@@ -11,3 +26,61 @@
     }
   }
   
+  /* Estilos para el mensaje de error */
+  .error-message {
+    max-width: 100%; /* Limitar el ancho al 100% del contenedor */
+    width: 100%; /* Asegurar que ocupe todo el ancho disponible */
+    box-sizing: border-box; /* Incluir padding y border en el ancho */
+    margin: 10px 0; /* Espaciado vertical */
+  }
+  
+  .error-message ::ng-deep .p-message-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff3f3; /* Fondo rojo claro */
+    border: 1px solid #ff8080; /* Borde rojo */
+    border-radius: 4px; /* Bordes redondeados */
+    word-wrap: break-word; /* Dividir palabras largas */
+    overflow-wrap: break-word; /* Asegurar que el texto no desborde */
+    white-space: normal; /* Permitir saltos de línea */
+    overflow: hidden; /* Evitar desbordamiento */
+  }
+  
+  .error-message ::ng-deep .p-message-text {
+    margin: 0;
+    padding: 0;
+    color: #cc0000; /* Color del texto */
+    font-size: 14px; /* Tamaño del texto */
+    line-height: 1.5; /* Espaciado entre líneas */
+    word-break: break-word; /* Romper palabras largas */
+  }
+  
+  .error-message ::ng-deep ul {
+    margin: 0;
+    padding-left: 20px; /* Espaciado para las viñetas */
+  }
+  
+  .error-message ::ng-deep li {
+    text-align: left;
+    margin-bottom: 5px; /* Espaciado entre viñetas */
+    word-break: break-word; /* Romper palabras largas en viñetas */
+  }
+  
+  /* Estilos específicos para el contenido del mensaje */
+  .message-content {
+    max-width: 100%; /* Limitar el ancho del contenido */
+    word-wrap: break-word; /* Dividir palabras largas */
+    overflow-wrap: break-word; /* Asegurar que el texto no desborde */
+    white-space: normal; /* Permitir saltos de línea */
+  }
+  
+  @media (max-width: 600px) {
+    .error-message ::ng-deep .p-message-text {
+      font-size: 12px; /* Reducir el tamaño de la fuente en móviles */
+    }
+  
+    .error-message ::ng-deep ul {
+      padding-left: 15px; /* Reducir el espaciado de las viñetas en móviles */
+    }
+  }

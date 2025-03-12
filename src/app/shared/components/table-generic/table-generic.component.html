@@ -9,29 +9,33 @@
 >
   <ng-template pTemplate="header" let-data>
     <tr>
-      @for( header of data ; track header){
+      @for(header of data; track header) {
       <th>{{ header.header }}</th>
-      } @if(operation?.buttons?.length && data.length){
+      } @if(operation?.buttons?.length && data.length) {
       <th>Acciones</th>
       }
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-row let-columns="columns">
-    <tr>
-      @for (objHeader of columns; track objHeader.field) {
-      <td>
-        @if (objHeader.customContent; as customContent) {
+    <tr pDroppable="row" (onDrop)="onDrop(row)">
+      @for(objHeader of columns; track objHeader.field) {
+      <td
+        [pDraggable]="enableDragDrop ? 'row' : null"
+        (onDragStart)="onDragStart(row)"
+        [ngClass]="{ 'p-draggable-cell': enableDragDrop }"
+      >
+        @if(objHeader.customContent; as customContent) {
         <span [innerHTML]="customContent(row)"></span>
         } @else {
         {{ getFormattedValue(objHeader.field, row) }}
         }
       </td>
-      } @for(op of operation?.buttons; track op; let i=$index){
-      @if(showButtonOpeartion(op, row)){
+      } @for(op of operation?.buttons; track op; let i = $index) {
+      @if(showButtonOpeartion(op, row)) {
       <td data-label>
-        <app-button-generic [buttons]="getButtons(op,row)" />
+        <app-button-generic [buttons]="getButtons(op, row)" />
       </td>
-      } @else{
+      } @else {
       <td data-label></td>
       } }
     </tr>

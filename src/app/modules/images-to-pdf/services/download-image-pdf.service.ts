@@ -2,13 +2,13 @@ import { inject, Injectable } from '@angular/core';
 import jsPDF from 'jspdf';
 import { ToastrService } from 'ngx-toastr';
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DownloadImagePdfService {
   toastr: ToastrService = inject(ToastrService);
 
-  uploadFilesImages(event: { files: File[] }) {
-    const files: File[] = event.files;
+  uploadFilesImages(files: File[]) {
+    //const files: File[] = event.files;
 
     // Crea un nuevo documento PDF
     const doc = new jsPDF({
@@ -99,28 +99,22 @@ export class DownloadImagePdfService {
       })
     )
       .then(() => {
-        // Guarda el PDF
-        const date = new Date();
-        const filename = `doc${date.getFullYear()}${
-          date.getMonth() + 1 >= 10
-            ? date.getMonth() + 1
-            : `0${date.getMonth() + 1}`
-        }${date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`}${
-          date.getHours() >= 10 ? date.getHours() : `0${date.getHours()}`
-        }${
-          date.getMinutes() >= 10 ? date.getMinutes() : `0${date.getMinutes()}`
-        }${
-          date.getSeconds() >= 10 ? date.getSeconds() : `0${date.getSeconds()}`
-        }.pdf`;
+        // Genera un Blob del PDF
+        const pdfBlob = doc.output('blob');
 
-        doc.save(filename);
-        //this.myFiles = [];
-        //this.fileUpload.clear();
+        // Crea una URL temporal para el Blob
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+        // Abre el PDF en una nueva pestaña
+        window.open(pdfUrl, '_blank');
+
+        // Limpia la URL temporal después de abrir el PDF
+        setTimeout(() => {
+          URL.revokeObjectURL(pdfUrl);
+        }, 1000); // Revocar la URL después de 1 segundo
       })
       .catch(() => {
         this.toastr.error('Error procesando imágenes', 'Error');
-        //this.myFiles = [];
-        //this.fileUpload.clear();
       });
   }
 }

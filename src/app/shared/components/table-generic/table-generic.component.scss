@@ -12,3 +12,29 @@
         white-space: nowrap;
     }
 }
+
+td[pDraggable] {
+    cursor: move;
+  }
+  
+  td[pDraggable]:active {
+    opacity: 0.5;
+  }
+
+  /* Estilo para las celdas arrastrables */
+.p-draggable-cell {
+    cursor: move;
+  }
+  
+  /* Estilo para el "fantasma" (la fila que se arrastra) */
+  .p-draggable-row-ghost {
+    display: table-row; /* Mantiene el formato de fila */
+    background-color: #f8f9fa; /* Color de fondo */
+    border: 1px solid #ccc; /* Borde para resaltar */
+    opacity: 0.8; /* Transparencia */
+  }
+  
+  /* Estilo para la fila que se está arrastrando */
+  .p-draggable-row-dragging {
+    opacity: 0.5; /* Hace la fila original semi-transparente */
+  }
