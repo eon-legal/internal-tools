@@ -23,6 +23,7 @@
         accept="image/*"
         (uploadHandler)="onUpload($event)"
         (onSelect)="onFileSelect($event)"
+        (onClear)="onClear()"
         auto="false"
         [files]="myfile"
       >
@@ -36,6 +37,10 @@
   <div [innerHTML]="errorMessage" class="message-content"></div>
 </p-message>
 }
+
+<div class="mt-4">
+  <app-button-generic [buttons]="buttons" />
+</div>
 
 <div class="mt-4">
   <app-table-generic

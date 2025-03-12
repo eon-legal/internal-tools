@@ -21,6 +21,9 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DownloadImagePdfService } from '../services/download-image-pdf.service';
 import { DragDropModule } from 'primeng/dragdrop';
 import { MessageModule } from 'primeng/message';
+import { ConfirmationService } from '../../../shared/services/confirmation/confirmation.service';
+import { ButtonGenericComponent } from '../../../shared/components/button-generic/button-generic.component';
+import { filterFiles } from '../utils/filter-file';
 
 @Component({
   selector: 'app-images-to-pdf',
@@ -30,16 +33,34 @@ import { MessageModule } from 'primeng/message';
     DragDropModule,
     MessageModule,
     TableGenericComponent,
+    ButtonGenericComponent,
   ],
   templateUrl: './images-to-pdf.component.html',
   styleUrl: './images-to-pdf.component.scss',
 })
 export class ImagesToPdfComponent implements AfterViewInit {
+  orderTable: boolean = false;
+  arrayFileWhitOutChange: File[] = [];
+  @ViewChild('fileUpload') fileUpload!: FileUpload;
+  buttons: ButtonGenericInterface = {
+    css: 'flex flex-column md:flex-row md:justify-content-end gap-2',
+    buttons: [
+      {
+        id: 1,
+        icon: 'pi pi-check',
+        label: 'Restablecer Orden Inicial Archivos',
+        severity: 'primary',
+        disabled: !this.fileUpload?.files?.length,
+        action: () => this.restartTable(),
+      },
+    ],
+  };
   myfile: File[] = [];
   @ViewChild('imageTemplate') imageTemplate!: TemplateRef<any>;
-  @ViewChild('fileUpload') fileUpload!: FileUpload;
+
   @ViewChild(TableGenericComponent)
   tableGenericComponent!: TableGenericComponent<File>;
+  confirmationService: ConfirmationService = inject(ConfirmationService);
   listPagination = [5, 10, 20, 50, 100];
   acceptedFiles: string = '.jpg,.jpeg,.png,.gif';
   messagesFiles: string = 'Solo se aceptan imágenes.';
@@ -111,11 +132,17 @@ export class ImagesToPdfComponent implements AfterViewInit {
 
   onFileSelect(event: FileSelectEvent) {
     const files = event.files;
+    this.changeStateButton();
     this.validateAndAssignFiles(files, true);
   }
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
+  }
+
+  onClear() {
+    this.fileUpload.files = [];
+    this.changeStateButton();
   }
 
   customContentTemplate1 = (file: any): SafeHtml => {
@@ -133,19 +160,14 @@ export class ImagesToPdfComponent implements AfterViewInit {
 
   deleteTest(file: File) {
     this.fileUpload.files = this.fileUpload.files.filter((f) => f !== file);
-    if (!this.fileUpload.files.length) this.fileUpload.clear();
-  }
-
-  deletefile(file: File, event: Event) {
-    const index = this.fileUpload.files.findIndex(
-      (f) =>
-        f.name === file.name &&
-        f.size === file.size &&
-        f.lastModified === file.lastModified
-    );
-    if (index !== -1) {
-      this.fileUpload.remove(event, index);
-      if (!this.fileUpload.files.length) this.fileUpload.clear();
+    if (!this.fileUpload.files.length) {
+      this.fileUpload.clear();
+      this.changeStateButton();
+    } else {
+      this.arrayFileWhitOutChange = filterFiles(
+        this.fileUpload.files,
+        this.arrayFileWhitOutChange
+      );
     }
   }
 
@@ -163,6 +185,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
 
     Array.from(files).forEach((file) => {
       if (file.type.startsWith('image/')) {
+        this.changeStateButton();
         const isDuplicate = this.isFileDuplicate(file);
         if (!isDuplicate) {
           validFiles.push(file);
@@ -181,8 +204,10 @@ export class ImagesToPdfComponent implements AfterViewInit {
         this.fileUpload.files = validFiles;
       } else {
         this.fileUpload.files = [...this.fileUpload.files, ...validFiles];
+        this.arrayFileWhitOutChange = [...this.arrayFileWhitOutChange, ...validFiles];
       }
       this.myfile = this.fileUpload.files;
+      this.changeStateButton();
     }
   }
 
@@ -209,13 +234,31 @@ export class ImagesToPdfComponent implements AfterViewInit {
   }
 
   onUpload(event: any) {
-    this.downloadImagePdfService.uploadFilesImages(
-      this.tableGenericComponent?.dataTable
-    );
-    this.fileUpload.clear();
+    const dialogRef = this.confirmationService.openConfirmation();
+    dialogRef.onClose.subscribe((data: boolean | null | undefined) => {
+      if (data) {
+        this.downloadImagePdfService.uploadFilesImages(
+          this.tableGenericComponent?.dataTable
+        );
+        this.fileUpload.clear();
+        this.changeStateButton();
+      }
+    });
   }
 
   organizeRow(event: File[]) {
+    if (!this.orderTable) this.arrayFileWhitOutChange = this.fileUpload.files;
     this.fileUpload.files = event;
+    this.orderTable = true;
+  }
+  restartTable() {
+    if (this.orderTable) this.fileUpload.files = this.arrayFileWhitOutChange;
+  }
+  changeStateButton() {
+    this.buttons.buttons[0].disabled = !this.fileUpload?.files?.length;
+    if (!this.fileUpload?.files?.length) {
+      this.orderTable = false;
+      this.arrayFileWhitOutChange = [];
+    }
   }
 }
