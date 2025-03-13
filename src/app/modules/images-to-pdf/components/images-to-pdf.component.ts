@@ -28,7 +28,7 @@ import { DragDropAreaComponent } from '../../../shared/components/drag-drop-area
     MessagesComponent,
     TableGenericComponent,
     ButtonGenericComponent,
-    DragDropAreaComponent,
+    DragDropAreaComponent
   ],
   templateUrl: './images-to-pdf.component.html',
   styleUrl: './images-to-pdf.component.scss',

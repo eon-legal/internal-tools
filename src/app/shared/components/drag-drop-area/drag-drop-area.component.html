@@ -3,14 +3,12 @@
   (dragover)="onDragOver($event)"
   (drop)="onDrop($event)"
 >
-  <div>
-    <!-- Ícono de carga en la nube -->
-    <div class="cloud-icon-container">
-      <i class="pi pi-cloud-upload cloud-icon"></i>
-    </div>
-    <div class="my-4">{{ note }}</div>
-    <div>
-      <ng-content />
-    </div>
+  <div class="flex align-items-center justify-content-center flex-column">
+    <i
+      class="pi pi-cloud-upload cloud-icon border-2 border-circle p-5 text-8xl border-400"
+    ></i>
+    <p class="mt-4 mb-0">{{ note }}</p>
   </div>
+
+  <ng-content />
 </div>
