@@ -1,0 +1,17 @@
+<p-fileUpload
+  [name]="name"
+  [chooseLabel]="chooseLabel"
+  [uploadIcon]="uploadIcon"
+  [uploadLabel]="uploadLabel"
+  [cancelLabel]="cancelLabel"
+  [customUpload]="customUpload"
+  [multiple]="multiple"
+  [accept]="getAccept()"
+  [styleClass]="styleClass"
+  (uploadHandler)="onUpload()"
+  (onSelect)="onFileSelect($event)"
+  (onClear)="onClear()"
+  [auto]="auto"
+  [files]="files"
+>
+</p-fileUpload>

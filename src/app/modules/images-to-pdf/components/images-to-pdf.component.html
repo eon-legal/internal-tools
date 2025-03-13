@@ -1,41 +1,24 @@
-<div
-  class="drag-drop-area"
-  (dragover)="onDragOver($event)"
-  (drop)="onDrop($event)"
->
-  <div>
-    <!-- Ícono de carga en la nube -->
-    <div class="cloud-icon-container">
-      <i class="pi pi-cloud-upload cloud-icon"></i>
-    </div>
-    <div class="my-4">{{ note }}</div>
-    <div>
-      <p-fileUpload
-        #fileUpload
-        name="myfile[]"
-        [chooseLabel]="chooseLabel"
-        uploadIcon="pi pi-arrow-down"
-        [uploadLabel]="uploadLabel"
-        [cancelLabel]="cancelLabel"
-        [customUpload]="true"
-        styleClass="hidden-file-list"
-        [multiple]="true"
-        accept="image/*"
-        (uploadHandler)="onUpload($event)"
-        (onSelect)="onFileSelect($event)"
-        (onClear)="onClear()"
-        auto="false"
-        [files]="myfile"
-      >
-      </p-fileUpload>
-    </div>
-  </div>
-</div>
+<app-drag-drop-area (fileDrop)="onDrop($event)">
+  <app-file-upload
+    #fileUploadComponent
+    [name]="'myfile[]'"
+    [chooseLabel]="chooseLabel"
+    uploadIcon="pi pi-arrow-down"
+    [uploadLabel]="uploadLabel"
+    [cancelLabel]="cancelLabel"
+    [customUpload]="true"
+    [accept]="acceptedFiles"
+    [styleClass]="'hidden-file-list'"
+    [multiple]="true"
+    [files]="myfile"
+    (clean)="onClear()"
+    (select)="onFileSelect($event)"
+    (upload)="onUpload()"
+  />
+</app-drag-drop-area>
 
 @if (errorMessage) {
-<p-message severity="error" [escape]="false" class="error-message my-4">
-  <div [innerHTML]="errorMessage" class="message-content"></div>
-</p-message>
+<app-messages [errorMessage]="errorMessage" />
 }
 
 <div class="mt-4">
@@ -46,7 +29,7 @@
   <app-table-generic
     [formatOptions]="formatOptions"
     [listPagination]="listPagination"
-    [dataTable]="fileUpload?.files || []"
+    [dataTable]="fileUploadComponent?.getFiles() || []"
     [headerData]="headerData"
     [operation]="operation"
     [enableDragDrop]="enableDragDrop"

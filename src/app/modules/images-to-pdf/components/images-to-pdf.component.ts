@@ -5,12 +5,6 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
-
-import {
-  FileSelectEvent,
-  FileUpload,
-  FileUploadModule,
-} from 'primeng/fileupload';
 import { TableGenericComponent } from '../../../shared/components/table-generic/table-generic.component';
 import { HeaderTable } from '../../../shared/interfaces/header-table';
 import {
@@ -19,21 +13,22 @@ import {
 } from '../../../shared/interfaces/buttons';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DownloadImagePdfService } from '../services/download-image-pdf.service';
-import { DragDropModule } from 'primeng/dragdrop';
-import { MessageModule } from 'primeng/message';
 import { ConfirmationService } from '../../../shared/services/confirmation/confirmation.service';
 import { ButtonGenericComponent } from '../../../shared/components/button-generic/button-generic.component';
 import { filterFiles } from '../utils/filter-file';
+import { MessagesComponent } from '../../../shared/components/messages/messages.component';
+import { FileUploadComponent } from '../../../shared/components/file-upload/file-upload.component';
+import { DragDropAreaComponent } from '../../../shared/components/drag-drop-area/drag-drop-area.component';
 
 @Component({
   selector: 'app-images-to-pdf',
   standalone: true,
   imports: [
-    FileUploadModule,
-    DragDropModule,
-    MessageModule,
+    FileUploadComponent,
+    MessagesComponent,
     TableGenericComponent,
     ButtonGenericComponent,
+    DragDropAreaComponent,
   ],
   templateUrl: './images-to-pdf.component.html',
   styleUrl: './images-to-pdf.component.scss',
@@ -41,7 +36,7 @@ import { filterFiles } from '../utils/filter-file';
 export class ImagesToPdfComponent implements AfterViewInit {
   orderTable: boolean = false;
   arrayFileWhitOutChange: File[] = [];
-  @ViewChild('fileUpload') fileUpload!: FileUpload;
+  @ViewChild('fileUploadComponent') fileUploadComponent!: FileUploadComponent;
   buttons: ButtonGenericInterface = {
     css: 'flex flex-column md:flex-row md:justify-content-end gap-2',
     buttons: [
@@ -50,7 +45,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
         icon: 'pi pi-check',
         label: 'Restablecer Orden Inicial Archivos',
         severity: 'primary',
-        disabled: !this.fileUpload?.files?.length,
+        disabled: !this.fileUploadComponent?.getFiles()?.length,
         action: () => this.restartTable(),
       },
     ],
@@ -62,7 +57,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
   tableGenericComponent!: TableGenericComponent<File>;
   confirmationService: ConfirmationService = inject(ConfirmationService);
   listPagination = [5, 10, 20, 50, 100];
-  acceptedFiles: string = '.jpg,.jpeg,.png,.gif';
+  acceptedFiles: string[] = ['jpg', 'jpeg', 'png', 'gif'];
   messagesFiles: string = 'Solo se aceptan imágenes.';
   chooseLabel = 'Seleccionar';
   uploadLabel = 'Descargar';
@@ -74,7 +69,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
         id: 1,
         icon: 'pi pi-trash',
         severity: 'danger',
-        action: (row: File) => this.deleteTest(row),
+        action: (row: File) => this.deleteItemRow(row),
       },
     ],
   };
@@ -98,13 +93,18 @@ export class ImagesToPdfComponent implements AfterViewInit {
     },
   };
   enableDragDrop = true;
-  note = 'Arrastre y suelte imágenes aquí.';
+
   errorMessage: string = '';
 
   sanitizer: DomSanitizer = inject(DomSanitizer);
   downloadImagePdfService: DownloadImagePdfService = inject(
     DownloadImagePdfService
   );
+
+  onDrop(event: FileList) {
+    const files = Array.from(event);
+    this.validateAndAssignFiles(files, false);
+  }
 
   ngAfterViewInit() {
     setTimeout(() => {
@@ -130,19 +130,27 @@ export class ImagesToPdfComponent implements AfterViewInit {
     });
   }
 
-  onFileSelect(event: FileSelectEvent) {
-    const files = event.files;
+  onFileSelect(files: File[]) {
     this.changeStateButton();
     this.validateAndAssignFiles(files, true);
   }
 
-  onDragOver(event: DragEvent) {
-    event.preventDefault();
+  onClear() {
+    this.fileUploadComponent.setFiles([]);
+    this.changeStateButton();
   }
 
-  onClear() {
-    this.fileUpload.files = [];
-    this.changeStateButton();
+  onUpload() {
+    const dialogRef = this.confirmationService.openConfirmation();
+    dialogRef.onClose.subscribe((data: boolean | null | undefined) => {
+      if (data) {
+        this.downloadImagePdfService.uploadFilesImages(
+          this.tableGenericComponent?.dataTable
+        );
+        this.fileUploadComponent.clearFiles();
+        this.changeStateButton();
+      }
+    });
   }
 
   customContentTemplate1 = (file: any): SafeHtml => {
@@ -158,33 +166,34 @@ export class ImagesToPdfComponent implements AfterViewInit {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   };
 
-  deleteTest(file: File) {
-    this.fileUpload.files = this.fileUpload.files.filter((f) => f !== file);
-    if (!this.fileUpload.files.length) {
-      this.fileUpload.clear();
+  deleteItemRow(file: File) {
+    this.fileUploadComponent.setFiles(
+      this.fileUploadComponent.getFiles().filter((f) => f !== file)
+    );
+    if (!this.fileUploadComponent.getFiles().length) {
+      this.fileUploadComponent.clearFiles();
       this.changeStateButton();
     } else {
       this.arrayFileWhitOutChange = filterFiles(
-        this.fileUpload.files,
+        this.fileUploadComponent.getFiles(),
         this.arrayFileWhitOutChange
       );
     }
   }
 
-  onDrop(event: DragEvent) {
-    event.preventDefault();
-    if (event.dataTransfer?.files) {
-      const files = event.dataTransfer.files;
-      this.validateAndAssignFiles(files, false);
-    }
-  }
-
-  validateAndAssignFiles(files: FileList | File[], replace: boolean = false) {
+  validateAndAssignFiles(
+    files: FileList | File[] | null,
+    replace: boolean = false
+  ) {
+    if (!files) return;
     const validFiles: File[] = [];
     const invalidFiles: string[] = [];
-
-    Array.from(files).forEach((file) => {
-      if (file.type.startsWith('image/')) {
+    const filesArray = Array.isArray(files) ? files : Array.from(files);
+    filesArray.forEach((file) => {
+      if (
+        file.type.startsWith('image/') &&
+        this.hasAllowedExtension(file.type.split('/')[1])
+      ) {
         this.changeStateButton();
         const isDuplicate = this.isFileDuplicate(file);
         if (!isDuplicate) {
@@ -201,23 +210,29 @@ export class ImagesToPdfComponent implements AfterViewInit {
 
     if (validFiles.length > 0) {
       if (replace) {
-        this.fileUpload.files = validFiles;
+        this.fileUploadComponent.setFiles(validFiles);
       } else {
-        this.fileUpload.files = [...this.fileUpload.files, ...validFiles];
-        this.arrayFileWhitOutChange = [...this.arrayFileWhitOutChange, ...validFiles];
+        const currentFiles = this.fileUploadComponent.getFiles();
+        this.fileUploadComponent.setFiles([...currentFiles, ...validFiles]);
+        this.arrayFileWhitOutChange = [
+          ...this.arrayFileWhitOutChange,
+          ...validFiles,
+        ];
       }
-      this.myfile = this.fileUpload.files;
+      this.myfile = this.fileUploadComponent.getFiles();
       this.changeStateButton();
     }
   }
 
   isFileDuplicate(file: File): boolean {
-    return this.fileUpload.files.some(
-      (f) =>
-        f.name === file.name &&
-        f.size === file.size &&
-        f.lastModified === file.lastModified
-    );
+    return this.fileUploadComponent
+      .getFiles()
+      .some(
+        (f) =>
+          f.name === file.name &&
+          f.size === file.size &&
+          f.lastModified === file.lastModified
+      );
   }
 
   showErrorMessages(invalidFiles: string[]) {
@@ -225,7 +240,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
       .map((file) => `<li>${file}</li>`)
       .join('');
     this.errorMessage = `
-        Los siguientes archivos no son imágenes:
+        Los siguientes archivos no son imágenes permitidas:
         <ul>${bulletPoints}</ul>
       `;
     setTimeout(() => {
@@ -233,30 +248,23 @@ export class ImagesToPdfComponent implements AfterViewInit {
     }, 5000);
   }
 
-  onUpload(event: any) {
-    const dialogRef = this.confirmationService.openConfirmation();
-    dialogRef.onClose.subscribe((data: boolean | null | undefined) => {
-      if (data) {
-        this.downloadImagePdfService.uploadFilesImages(
-          this.tableGenericComponent?.dataTable
-        );
-        this.fileUpload.clear();
-        this.changeStateButton();
-      }
-    });
+  hasAllowedExtension(extension: string): boolean {
+    return this.acceptedFiles.includes(extension);
   }
-
   organizeRow(event: File[]) {
-    if (!this.orderTable) this.arrayFileWhitOutChange = this.fileUpload.files;
-    this.fileUpload.files = event;
+    if (!this.orderTable)
+      this.arrayFileWhitOutChange = this.fileUploadComponent.getFiles();
+    this.fileUploadComponent.setFiles(event);
     this.orderTable = true;
   }
   restartTable() {
-    if (this.orderTable) this.fileUpload.files = this.arrayFileWhitOutChange;
+    if (this.orderTable)
+      this.fileUploadComponent.setFiles(this.arrayFileWhitOutChange);
   }
   changeStateButton() {
-    this.buttons.buttons[0].disabled = !this.fileUpload?.files?.length;
-    if (!this.fileUpload?.files?.length) {
+    this.buttons.buttons[0].disabled =
+      !this.fileUploadComponent?.getFiles()?.length;
+    if (!this.fileUploadComponent?.getFiles()?.length) {
       this.orderTable = false;
       this.arrayFileWhitOutChange = [];
     }
