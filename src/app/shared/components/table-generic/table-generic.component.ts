@@ -26,6 +26,7 @@ import { DragDropModule } from 'primeng/dragdrop';
 })
 export class TableGenericComponent<T extends object> {
   @Input() listPagination: number[] = [5, 10, 20];
+  @Input() itemInitialPagination = 5;
   @Input() headerData!: HeaderTable<T>[];
   @Input() dataTable!: T[];
   @Input() operation: ButtonGenericInterface;

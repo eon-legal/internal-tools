@@ -1,12 +1,11 @@
 <app-drag-drop-area (fileDrop)="onDrop($event)">
+  <!--    [name]="'myfile[]'" -->
   <app-file-upload
     #fileUploadComponent
-    [name]="'myfile[]'"
     [chooseLabel]="chooseLabel"
     uploadIcon="pi pi-arrow-down"
     [uploadLabel]="uploadLabel"
     [cancelLabel]="cancelLabel"
-    [customUpload]="true"
     [accept]="acceptedFiles"
     [styleClass]="'hidden-file-list'"
     [multiple]="true"
@@ -27,6 +26,7 @@
 
 <div class="mt-4">
   <app-table-generic
+    [itemInitialPagination]="itemInitialPagination"
     [formatOptions]="formatOptions"
     [listPagination]="listPagination"
     [dataTable]="fileUploadComponent?.getFiles() || []"

@@ -4,7 +4,9 @@
   [paginator]="true"
   [totalRecords]="dataTable.length"
   [rowsPerPageOptions]="listPagination.length ? listPagination : [5]"
-  [rows]="listPagination.length ? listPagination[0] : 5"
+  [rows]="
+    itemInitialPagination || (listPagination.length ? listPagination[0] : 5)
+  "
   [columns]="headerData"
 >
   <ng-template pTemplate="header" let-data>

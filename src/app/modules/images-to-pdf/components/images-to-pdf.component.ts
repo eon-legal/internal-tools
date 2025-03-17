@@ -1,8 +1,10 @@
 import {
   AfterViewInit,
   Component,
+  effect,
   inject,
   TemplateRef,
+  viewChild,
   ViewChild,
 } from '@angular/core';
 import { TableGenericComponent } from '../../../shared/components/table-generic/table-generic.component';
@@ -28,15 +30,23 @@ import { DragDropAreaComponent } from '../../../shared/components/drag-drop-area
     MessagesComponent,
     TableGenericComponent,
     ButtonGenericComponent,
-    DragDropAreaComponent
+    DragDropAreaComponent,
   ],
   templateUrl: './images-to-pdf.component.html',
   styleUrl: './images-to-pdf.component.scss',
 })
 export class ImagesToPdfComponent implements AfterViewInit {
+  itemInitialPagination = 10;
   orderTable: boolean = false;
   arrayFileWhitOutChange: File[] = [];
-  @ViewChild('fileUploadComponent') fileUploadComponent!: FileUploadComponent;
+
+  fileUploadComponent = viewChild(FileUploadComponent);
+  constructor() {
+    effect(() => {
+      this.changeStateButton();
+    });
+  }
+
   buttons: ButtonGenericInterface = {
     css: 'flex flex-column md:flex-row md:justify-content-end gap-2',
     buttons: [
@@ -45,7 +55,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
         icon: 'pi pi-check',
         label: 'Restablecer Orden Inicial Archivos',
         severity: 'primary',
-        disabled: !this.fileUploadComponent?.getFiles()?.length,
+        disabled: !this.fileUploadComponent()?.getFiles()?.length,
         action: () => this.restartTable(),
       },
     ],
@@ -87,7 +97,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
     },
     type: {
       formatFunction: (v) => {
-        const [image, format] = v.type.split('/');
+        const [_, format] = v.type.split('/');
         return format.toUpperCase();
       },
     },
@@ -131,13 +141,11 @@ export class ImagesToPdfComponent implements AfterViewInit {
   }
 
   onFileSelect(files: File[]) {
-    this.changeStateButton();
     this.validateAndAssignFiles(files, true);
   }
 
   onClear() {
-    this.fileUploadComponent.setFiles([]);
-    this.changeStateButton();
+    this.fileUploadComponent()?.setFiles([]);
   }
 
   onUpload() {
@@ -147,8 +155,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
         this.downloadImagePdfService.uploadFilesImages(
           this.tableGenericComponent?.dataTable
         );
-        this.fileUploadComponent.clearFiles();
-        this.changeStateButton();
+        this.fileUploadComponent()?.clearFiles();
       }
     });
   }
@@ -167,15 +174,16 @@ export class ImagesToPdfComponent implements AfterViewInit {
   };
 
   deleteItemRow(file: File) {
-    this.fileUploadComponent.setFiles(
-      this.fileUploadComponent.getFiles().filter((f) => f !== file)
+    this.fileUploadComponent()?.setFiles(
+      this.fileUploadComponent()
+        ?.getFiles()
+        .filter((f) => f !== file)
     );
-    if (!this.fileUploadComponent.getFiles().length) {
-      this.fileUploadComponent.clearFiles();
-      this.changeStateButton();
+    if (!this.fileUploadComponent()?.getFiles().length) {
+      this.fileUploadComponent()?.clearFiles();
     } else {
       this.arrayFileWhitOutChange = filterFiles(
-        this.fileUploadComponent.getFiles(),
+        this.fileUploadComponent()?.getFiles(),
         this.arrayFileWhitOutChange
       );
     }
@@ -194,7 +202,6 @@ export class ImagesToPdfComponent implements AfterViewInit {
         file.type.startsWith('image/') &&
         this.hasAllowedExtension(file.type.split('/')[1])
       ) {
-        this.changeStateButton();
         const isDuplicate = this.isFileDuplicate(file);
         if (!isDuplicate) {
           validFiles.push(file);
@@ -210,22 +217,23 @@ export class ImagesToPdfComponent implements AfterViewInit {
 
     if (validFiles.length > 0) {
       if (replace) {
-        this.fileUploadComponent.setFiles(validFiles);
+        this.fileUploadComponent()?.setFiles(validFiles);
       } else {
-        const currentFiles = this.fileUploadComponent.getFiles();
-        this.fileUploadComponent.setFiles([...currentFiles, ...validFiles]);
+        const currentFiles = this.fileUploadComponent()?.getFiles();
+        this.fileUploadComponent()?.setFiles([...currentFiles, ...validFiles]);
         this.arrayFileWhitOutChange = [
           ...this.arrayFileWhitOutChange,
           ...validFiles,
         ];
       }
-      this.myfile = this.fileUploadComponent.getFiles();
-      this.changeStateButton();
+      //permite activar boton upload cuando arrastra imagenes
+      this.myfile = this.fileUploadComponent()?.getFiles();
     }
   }
 
   isFileDuplicate(file: File): boolean {
-    return this.fileUploadComponent
+    if (!this.fileUploadComponent()?.getFiles()?.length) return false;
+    return this.fileUploadComponent()
       .getFiles()
       .some(
         (f) =>
@@ -253,18 +261,18 @@ export class ImagesToPdfComponent implements AfterViewInit {
   }
   organizeRow(event: File[]) {
     if (!this.orderTable)
-      this.arrayFileWhitOutChange = this.fileUploadComponent.getFiles();
-    this.fileUploadComponent.setFiles(event);
+      this.arrayFileWhitOutChange = this.fileUploadComponent()?.getFiles();
+    this.fileUploadComponent()?.setFiles(event);
     this.orderTable = true;
   }
   restartTable() {
     if (this.orderTable)
-      this.fileUploadComponent.setFiles(this.arrayFileWhitOutChange);
+      this.fileUploadComponent()?.setFiles(this.arrayFileWhitOutChange);
   }
   changeStateButton() {
     this.buttons.buttons[0].disabled =
-      !this.fileUploadComponent?.getFiles()?.length;
-    if (!this.fileUploadComponent?.getFiles()?.length) {
+      !this.fileUploadComponent()?.getFiles()?.length;
+    if (!this.fileUploadComponent()?.getFiles()?.length) {
       this.orderTable = false;
       this.arrayFileWhitOutChange = [];
     }

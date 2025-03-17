@@ -3,12 +3,13 @@ import {
   EventEmitter,
   Input,
   Output,
+  signal,
   ViewChild,
 } from '@angular/core';
 import {
   FileSelectEvent,
   FileUpload,
-  FileUploadModule,
+  FileUploadModule
 } from 'primeng/fileupload';
 
 @Component({
@@ -16,12 +17,11 @@ import {
   standalone: true,
   imports: [FileUploadModule],
   templateUrl: './file-upload.component.html',
-  styleUrl: './file-upload.component.scss',
+  styleUrl: './file-upload.component.scss'
 })
 export class FileUploadComponent {
-  @Input() accept: string[];
+  @Input() accept: string[] = [];
   @Input() uploadIcon: string;
-  @Input() customUpload: boolean = false;
   @Input() styleClass: string;
   @Input() name: string;
   @Input() auto: boolean = false;
@@ -34,39 +34,47 @@ export class FileUploadComponent {
   @Output() upload = new EventEmitter<void>();
   @Output() select = new EventEmitter<File[]>();
   @ViewChild(FileUpload) fileUpload!: FileUpload;
-  private selectedFiles: File[] = [];
+
+  // Convertir selectedFiles en una Signal
+  selectedFiles = signal<File[]>([]);
+
   onUpload() {
     this.upload.emit();
   }
+
   onFileSelect(event: FileSelectEvent) {
     if (this.accept.length === 0) {
-      const newFiles = Array.from(event.files); //convertir FileList a un array File
-      this.selectedFiles = [...this.selectedFiles, ...newFiles]; //acumular archivos
-      this.select.emit(this.selectedFiles);
+      const newFiles = Array.from(event.files); // Convertir FileList a un array File
+      this.selectedFiles.set([...this.selectedFiles(), ...newFiles]); // Actualizar la señal
+      this.select.emit(this.selectedFiles());
     } else {
-      //const allowedExtensions = this.accept.split('.');
       const newFiles = Array.from(event.files).filter((file) => {
         const extension = file.type.split('/')[1];
         return this.accept.includes(extension);
       });
-      this.selectedFiles = [...this.selectedFiles, ...newFiles]; // acumular archivos
-      this.select.emit(this.selectedFiles);
+      this.selectedFiles.set([...this.selectedFiles(), ...newFiles]); // Actualizar la señal
+      this.select.emit(this.selectedFiles());
     }
   }
-  setFiles(file: File[]) {
-    this.selectedFiles = file;
+
+  setFiles(files: File[]) {
+    this.selectedFiles.set(files); // Actualizar la señal
   }
+
   onClear() {
     this.clean.emit();
     if (this.getFiles().length) this.clearFiles();
   }
+
   getFiles(): File[] {
-    return this.selectedFiles || [];
+    return this.selectedFiles(); // Obtener el valor actual de la señal
   }
+
   clearFiles() {
-    this.selectedFiles = [];
+    this.selectedFiles.set([]); // Limpiar la señal
     this.fileUpload.clear();
   }
+
   getAccept(): string {
     let modifiedString = '';
     for (let i = 0; i < this.accept.length; i++) {
