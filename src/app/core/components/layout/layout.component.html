@@ -1,6 +1,6 @@
 <div class="app-container">
   <app-header (toggleMenu)="isMenuOpen = !isMenuOpen"></app-header>
-  <app-sidebar 
+  <app-sidebar
     [isOpen]="isMenuOpen"
     [menuItems]="menuItems"
     (close)="isMenuOpen = false"

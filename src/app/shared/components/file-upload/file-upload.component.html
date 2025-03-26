@@ -7,7 +7,7 @@
   [customUpload]="true"
   [multiple]="multiple"
   [accept]="getAccept()"
-  [styleClass]="styleClass"
+  [styleClass]="!noFooter ? styleClass : 'hidden-file-list'"
   (uploadHandler)="onUpload()"
   (onSelect)="onFileSelect($event)"
   (onClear)="onClear()"

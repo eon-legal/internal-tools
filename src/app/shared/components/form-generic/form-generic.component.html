@@ -1,10 +1,11 @@
-<form [formGroup]="form">
+<form [formGroup]="getGroupForm">
   <div class="flex flex-wrap">
+    <!-- Itera sobre cada campo en la configuración del formulario -->
     @for(field of formConfig; track field.name; let i = $index){
     @if(field?.showComponent !== false){
     <div class="col-12 md:col-{{ field.cols || 12 }}">
       <div class="field">
-        <!-- Etiqueta -->
+        <!-- Etiqueta del campo -->
         <label
           [for]="field.name"
           class="block font-medium mb-2"
@@ -16,7 +17,7 @@
           {{ field.label }}
         </label>
 
-        <!-- Inputs -->
+        <!-- Renderiza el campo según su tipo -->
         @switch(field.type){ @case('input'){
         <input
           class="w-full"
@@ -31,7 +32,6 @@
             getFormControl(field.name)?.touched
           "
         />
-
         } @case('number'){
         <p-inputnumber
           class="w-full"
@@ -43,12 +43,12 @@
           "
           [id]="field.name"
           [formControlName]="field.name"
-          [min]="field?.primeNgConfig?.min ?? negativeInfinity"
-          [max]="999999999999999"
-          [maxlength]="15"
+          [max]="limitInput.INPUT_NUMBER_INT_MAX"
+          [maxlength]="limitInput.INPUT_NUMBER_INT_MAX_LENGTH"
           [useGrouping]="false"
+          (onInput)="validateInputInteger($event, field.name)"
         />
-        }@case('decimal'){
+        } @case('decimal'){
         <p-inputnumber
           class="w-full"
           [style]="{ width: '100%' }"
@@ -60,12 +60,10 @@
           [id]="field.name"
           [formControlName]="field.name"
           mode="decimal"
-          [min]="field?.primeNgConfig?.min ?? negativeInfinity"
           [maxFractionDigits]="2"
           [useGrouping]="false"
-          [maxlength]="13"
+          [maxlength]="limitInput.INPUT_NUMBER_DECIMAL_MAX_LENGTH"
         />
-        <!-- 13 3ntero[minFractionDigits]="2" si le adiciono esto queda parecido al EU-->
         } @case('number_currency'){
         <p-inputnumber
           class="w-full"
@@ -80,10 +78,8 @@
           currency="EUR"
           locale="de-DE"
           [id]="field.name"
-          [min]="field?.primeNgConfig?.min ?? negativeInfinity"
           [formControlName]="field.name"
           [useGrouping]="false"
-          [max]="9999999999999.99"
           (onInput)="validateInputNumberDecimal($event, field.name)"
         />
         } @case('number_percent'){
@@ -101,15 +97,13 @@
           [formControlName]="field.name"
           [useGrouping]="false"
           [min]="0"
-          [max]="100"
           [minFractionDigits]="0"
           [maxFractionDigits]="2"
           [maxlength]="5"
           (onInput)="validateInputPercentaje($event, field.name)"
         />
-        } @case('dropdown'){
-
-        <p-dropdown
+        } @case('select'){
+        <p-select
           class="w-full"
           [showClear]="true"
           [filter]="true"
@@ -124,12 +118,30 @@
           [optionLabel]="field.primeNgConfig?.optionLabel || 'label'"
           [placeholder]="field.primeNgConfig?.placeholder || ''"
         />
-        }
-        <!--[style]="{ 'width': '100%' }"
-          [inputStyle]="{ 'width': '100%' }"
-          [panelStyleClass]="'custom-datepicker'"
-          class="w-full"-->
-        @case('calendar'){
+        } @case('file') {
+        <app-file-upload
+          [accept]="field.primeNgConfig?.fileOptions?.accept"
+          [uploadIcon]="field.primeNgConfig?.fileOptions?.uploadIcon"
+          [styleClass]="field.primeNgConfig?.fileOptions?.styleClass"
+          [name]="field.name"
+          [auto]="field.primeNgConfig?.fileOptions?.auto || false"
+          [multiple]="field.primeNgConfig?.fileOptions?.multiple || false"
+          [chooseLabel]="
+            field.primeNgConfig?.fileOptions?.chooseLabel || 'Seleccionar'
+          "
+          [uploadLabel]="
+            field.primeNgConfig?.fileOptions?.uploadLabel || 'Subir'
+          "
+          [cancelLabel]="
+            field.primeNgConfig?.fileOptions?.cancelLabel || 'Limpiar'
+          "
+          [files]="getFormControl(field.name)?.value || []"
+          [noFooter]="field.primeNgConfig?.fileOptions?.noFooter"
+          (select)="onFileSelect($event, field.name)"
+          (upload)="onUpload(field.name)"
+          (clean)="onClear(field.name)"
+        ></app-file-upload>
+        } @case('calendar'){
         <p-datepicker
           [showButtonBar]="true"
           [readonlyInput]="true"
@@ -144,7 +156,6 @@
             getFormControl(field.name)?.touched
           "
         />
-
         } @case('textarea'){
         <textarea
           pInputTextarea
@@ -165,7 +176,6 @@
           "
           [formControlName]="field.name"
         />
-
         } @case('checkbox'){
         <p-checkbox
           [binary]="true"
@@ -176,18 +186,15 @@
           [formControlName]="field.name"
         >
         </p-checkbox>
-        }
+        } }
 
-        <!-- Repite para otros tipos -->
-        }
-        <!-- Error Messages -->
+        <!-- Mensajes de error  -->
         @if(getFormControl(field.name)?.invalid &&
         (getFormControl(field.name)?.touched ||
         getFormControl(field.name)?.dirty)){
         <div class="p-error mt-1">
           @for(error of getErrorMessages(field.name); track $index){
-          <small>{{ error }}</small
-          ><br />
+          <small>{{ error }}</small>
           }
         </div>
         }

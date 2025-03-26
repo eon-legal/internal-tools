@@ -1,12 +1,16 @@
-@if(buttons?.buttons){
+<!-- Verifica si la propiedad 'buttons' existe y tiene una propiedad 'buttons' -->
+@if(buttons?.buttons) {
 <div
   [ngClass]="
     buttons?.css ||
     'flex flex-column md:flex-row md:justify-content-start gap-2'
   "
 >
-  @for(button of buttons?.buttons; track button.id){
-  @if(showHideButton(button)){
+  <!-- Itera sobre cada botón en la lista 'buttons.buttons' -->
+  @for(button of buttons?.buttons; track button.id) {
+  <!-- Verifica si el botón debe mostrarse usando el método 'showHideButton' -->
+  @if(showHideButton(button)) {
+  <!-- Componente de botón de PrimeNG -->
   <p-button
     [label]="button.label"
     [icon]="button.icon"
@@ -25,5 +29,4 @@
   </p-button>
   } }
 </div>
-
 }

@@ -5,16 +5,22 @@ import { DataInvoicesTable } from '../../../interfaces/data-invoices-table';
 import {
   ButtonGenericInterface,
   FormatOptions,
-} from '../../../../../shared/interfaces/buttons';
-import { HeaderTable } from '../../../../../shared/interfaces/header-table';
+} from '../../../../../shared/components/button-generic/interfaces/buttons';
+import { HeaderTable } from '../../../../../shared/components/table-generic/interfaces/header-table';
 import { DataInvoicesConstant } from '../../../constants/data-invoices';
 import { CustomDialogService } from '../../../../../shared/services/modal/custom-dialog.service';
 import { FormInvoicesDataComponent } from '../form-invoices-data/form-invoices-data.component';
-import { getSumArrayNumber } from '../../../utils/sum-attribute-object';
+import { getSumArrayNumber } from '../../../utils/sum-attribute-object/sum-attribute-object';
 import { ButtonGenericComponent } from '../../../../../shared/components/button-generic/button-generic.component';
-import { getNextID } from '../../../utils/next-id';
-import { mapAtrribute } from '../../../utils/mapeo';
 
+import { mapAtrribute } from '../../../utils/mapeo/mapeo';
+import { getNextID } from '../../../utils/next-id/next-id';
+
+/**
+ * Component for managing and displaying invoice data in a table.
+ * This component allows users to add, delete, and update invoice data,
+ * and it integrates with a store for state management.
+ */
 @Component({
   selector: 'app-contain-invoices',
   standalone: true,
@@ -23,8 +29,13 @@ import { mapAtrribute } from '../../../utils/mapeo';
   styleUrl: './contain-invoices.component.scss',
 })
 export class ContainInvoicesComponent implements OnDestroy, OnInit {
+  /** Injected store for managing invoice data */ 
   readonly store = inject(InvoicesStore);
+
+  /** List of pagination options for the table */
   listPagination = [5, 10, 20];
+
+  // Configuration for buttons in the component
   buttons: ButtonGenericInterface = {
     css: 'noClass',
     buttons: [
@@ -33,22 +44,25 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
         icon: 'pi pi-check',
         label: 'Agregar Dato Facturas',
         severity: 'primary',
-        action: () => this.show(),
+        action: () => this.show(), // Action to open the dialog for adding invoice data
       },
     ],
   };
+
+  /** Configuration for table operations (e.g., delete) */
   operation: ButtonGenericInterface = {
     buttons: [
       {
         id: 1,
         icon: 'pi pi-trash',
         severity: 'danger',
-        action: (row: DataInvoicesTable) => this.deleteRow(row),
-        hideDependsFunction: (row: DataInvoicesTable) => this.hideLastRows(row),
+        action: (row: DataInvoicesTable) => this.deleteRow(row), // Action to delete a row
+        hideDependsFunction: (row: DataInvoicesTable) => this.hideLastRows(row), // Function to hide the delete button for specific rows
       },
     ],
   };
 
+  /** Header configuration for the table */
   headerData: HeaderTable<DataInvoicesTable>[] = [
     {
       field: 'id',
@@ -80,6 +94,7 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
     },
   ];
 
+  /** Format options for table columns */
   formatOptions: FormatOptions<DataInvoicesTable> = {
     sTotal: {
       formatFunction: (v) => {
@@ -111,8 +126,16 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
     },
   };
 
+  /** Array to store the rows of the table */
   rowTable: DataInvoicesTable[] = [];
+
+  /** Injected service for managing custom dialogs */
   customDialogService: CustomDialogService = inject(CustomDialogService);
+
+  /**
+   * Lifecycle hook that runs when the component is initialized.
+   * Initializes the table data and ensures the presence of summary rows (IVA and TOTAL).
+   */
   ngOnInit() {
     this.rowTable = this.store.getTableContain();
     if (
@@ -123,6 +146,7 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
           v.perCentIva === DataInvoicesConstant.IVA
       )
     ) {
+      // Add summary rows if they don't exist
       this.rowTable.push({
         id: '',
         description: '',
@@ -138,10 +162,13 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
         total: 0,
       });
     }
-
-    // this.updateFieldTableSumAllExcepIVA();
   }
 
+  /**
+   * Determines whether to hide the delete button for a specific row.
+   * @param row - The row to check.
+   * @returns True if the row is a summary row (IVA or TOTAL), otherwise false.
+   */
   hideLastRows(row: DataInvoicesTable): boolean {
     return (
       row.perCentIva === DataInvoicesConstant.IVA ||
@@ -149,26 +176,33 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
     );
   }
 
+  /**
+   * Deletes a row from the table.
+   * @param data - The row to delete.
+   */
   deleteRow(data: DataInvoicesTable) {
     this.rowTable = this.rowTable.filter(
       (v) => v.indexDelete !== data.indexDelete
     );
-    this.updateFieldTableSumAllExcepIVA();
+    this.updateFieldTableSumAllExcepIVA(); // Update summary rows after deletion
   }
 
+  /**
+   * Rounds a number to a specified number of decimal places.
+   * @param numero - The number to round.
+   * @param decimales - The number of decimal places.
+   * @returns The rounded number.
+   */
   redondearDecimal(numero: number, decimales: number): number {
-    // Multiplicar por 10^decimales para mover el decimal deseado a la posición de las unidades
     const factor = Math.pow(10, decimales);
     const numeroMultiplicado = numero * factor;
-
-    // Redondear el número
     const numeroRedondeado = Math.round(numeroMultiplicado);
-
-    // Dividir por 10^decimales para devolver el número a su escala original
     return numeroRedondeado / factor;
   }
 
-  // Método para abrir el modal con el componente dinámico
+  /**
+   * Opens a dialog to add new invoice data.
+   */
   show() {
     const dialogRef = this.customDialogService.openDialog(
       FormInvoicesDataComponent,
@@ -194,9 +228,7 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
                 2
               );
           save.sTotal = sTotal;
-
           save.perCentIva = perCentIvaValue;
-          /**82.6446 / 100 */
           this.rowTable.splice(position, 0, save);
         } else {
           this.rowTable.push(save);
@@ -215,11 +247,14 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
             total: 0,
           });
         }
-        this.updateFieldTableSumAllExcepIVA();
+        this.updateFieldTableSumAllExcepIVA(); // Update summary rows after adding new data
       }
     });
   }
 
+  /**
+   * Updates the summary rows (IVA and TOTAL) based on the current table data.
+   */
   updateFieldTableSumAllExcepIVA() {
     const positionTotal = this.rowTable.findIndex(
       (r) => r.perCentIva === DataInvoicesConstant.TOTAL
@@ -259,6 +294,12 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
     }
   }
 
+  /**
+   * Assigns a unique `indexDelete` value to a new row.
+   * @param arr - The array of existing rows.
+   * @param nuevoObjeto - The new row to assign an `indexDelete` value.
+   * @returns The new row with a unique `indexDelete` value.
+   */
   assingnIndexDeleteUltraOptimo(
     arr: DataInvoicesTable[],
     nuevoObjeto: DataInvoicesTable
@@ -277,6 +318,10 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
     return { ...nuevoObjeto, indexDelete };
   }
 
+  /**
+   * Lifecycle hook that runs when the component is destroyed.
+   * Updates the store with the current table data.
+   */
   ngOnDestroy(): void {
     this.store.updateTable(this.rowTable);
   }

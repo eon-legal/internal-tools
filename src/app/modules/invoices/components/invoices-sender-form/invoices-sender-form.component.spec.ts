@@ -1,23 +1,250 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { InvoicesSenderFormComponent } from './invoices-sender-form.component';
+import { FormGenericComponent } from '../../../../shared/components/form-generic/form-generic.component';
+import { InvoicesStore } from '../../../../store/app.component.store';
+import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+
+class MockInvoicesStore {
+  getAllMarkFieldForm = jest.fn(() => false);
+  getFirstForm = jest.fn(() => ({
+    numberInvoice: '',
+    dateOrDateRange: false,
+    date: null,
+    rangeDates: null,
+    name: '',
+    national: true,
+    address: '',
+    passport: ''
+  }));
+  firstForm = jest.fn(() => ({}));
+  updateFirstForm = jest.fn();
+  updateValidFirstForm = jest.fn();
+}
 
 describe('InvoicesSenderFormComponent', () => {
   let component: InvoicesSenderFormComponent;
   let fixture: ComponentFixture<InvoicesSenderFormComponent>;
+  let mockStore: MockInvoicesStore;
 
   beforeEach(async () => {
+    mockStore = new MockInvoicesStore();
+    
     await TestBed.configureTestingModule({
-      imports: [InvoicesSenderFormComponent]
-    })
-    .compileComponents();
+      imports: [
+        InvoicesSenderFormComponent,
+        FormGenericComponent,
+        ReactiveFormsModule
+      ],
+      providers: [
+        { provide: InvoicesStore, useValue: mockStore }
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
+    }).compileComponents();
+  });
 
+  beforeEach(() => {
     fixture = TestBed.createComponent(InvoicesSenderFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should initialize form with data from store', () => {
+    const storeData = {
+      numberInvoice: 'INV-001',
+      dateOrDateRange: true,
+      date: new Date(),
+      rangeDates: { start: new Date(), end: new Date() },
+      name: 'Test Name',
+      national: false,
+      address: 'Test Address',
+      passport: 'P1234567'
+    };
+    
+    mockStore.getFirstForm.mockReturnValue(storeData);
+    
+    fixture = TestBed.createComponent(InvoicesSenderFormComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    
+    expect(component.formConfig[0].initialData).toBe(storeData.numberInvoice);
+    expect(component.formConfig[1].initialData).toBe(storeData.dateOrDateRange);
+  });
+
+  it('should mark all fields as touched when required', () => {
+    mockStore.getAllMarkFieldForm.mockReturnValue(true);
+    const markAllSpy = jest.spyOn(component.formSenderGenericComponent.getGroupForm, 'markAllAsTouched');
+    
+    component.ngAfterViewInit();
+    
+    expect(markAllSpy).toHaveBeenCalled();
+  });
+
+  it('should update store on destroy with valid form', () => {
+    // Configurar datos completos del formulario
+    const formData = {
+      numberInvoice: 'INV-001',
+      dateOrDateRange: false,
+      date: new Date(),
+      rangeDates: null,
+      name: 'Test Name',
+      national: true,
+      address: 'Test Address',
+      passport: ''
+    };
+    
+    // Usar patchValue para evitar errores de campos requeridos
+    component.formSenderGenericComponent.getGroupForm.patchValue(formData);
+    component.ngOnDestroy();
+    
+    expect(mockStore.updateFirstForm).toHaveBeenCalled();
+    expect(mockStore.updateValidFirstForm).toHaveBeenCalledWith(true);
+  });
+
+  it('should update store on destroy with invalid form', () => {
+    // Configurar datos incompletos pero con todos los campos
+    component.formSenderGenericComponent.getGroupForm.patchValue({
+      numberInvoice: '',
+      dateOrDateRange: false,
+      date: null,
+      rangeDates: null,
+      name: '',
+      national: true,
+      address: '',
+      passport: ''
+    });
+    
+    component.ngOnDestroy();
+    
+    expect(mockStore.updateFirstForm).toHaveBeenCalled();
+    expect(mockStore.updateValidFirstForm).toHaveBeenCalledWith(false);
+  });
+
+  it('should toggle date fields based on dateOrDateRange value', fakeAsync(() => {
+    // Obtener controles después de inicialización
+    const dateOrDateRangeControl = component.formSenderGenericComponent.getFormControl('dateOrDateRange');
+    const dateControl = component.formSenderGenericComponent.getFormControl('date');
+    const rangeDatesControl = component.formSenderGenericComponent.getFormControl('rangeDates');
+    
+    // Estado inicial (fecha simple)
+    expect(dateControl?.enabled).toBe(true);
+    expect(rangeDatesControl?.enabled).toBe(false);
+    
+    // Cambiar a rango de fechas
+    dateOrDateRangeControl?.setValue(true);
+    tick();
+    fixture.detectChanges();
+    
+    expect(dateControl?.enabled).toBe(false);
+    expect(rangeDatesControl?.enabled).toBe(true);
+    
+    // Volver a fecha simple
+    dateOrDateRangeControl?.setValue(false);
+    tick();
+    fixture.detectChanges();
+    
+    expect(dateControl?.enabled).toBe(true);
+    expect(rangeDatesControl?.enabled).toBe(false);
+  }));
+
+  it('should toggle address/passport fields based on national value', fakeAsync(() => {
+    // Obtener controles
+    const nationalControl = component.formSenderGenericComponent.getFormControl('national');
+    const addressControl = component.formSenderGenericComponent.getFormControl('address');
+    const passportControl = component.formSenderGenericComponent.getFormControl('passport');
+    
+    // Estado inicial (nacional)
+    expect(addressControl?.enabled).toBe(true);
+    expect(passportControl?.enabled).toBe(false);
+    
+    // Cambiar a internacional
+    nationalControl?.setValue(false);
+    tick();
+    fixture.detectChanges();
+    
+    expect(addressControl?.enabled).toBe(false);
+    expect(passportControl?.enabled).toBe(true);
+    
+    // Volver a nacional
+    nationalControl?.setValue(true);
+    tick();
+    fixture.detectChanges();
+    
+    expect(addressControl?.enabled).toBe(true);
+    expect(passportControl?.enabled).toBe(false);
+  }));
+
+  it('should update validators when toggling dateOrDateRange', fakeAsync(() => {
+    // Obtener controles
+    const dateOrDateRangeControl = component.formSenderGenericComponent.getFormControl('dateOrDateRange');
+    const dateControl = component.formSenderGenericComponent.getFormControl('date');
+    const rangeDatesControl = component.formSenderGenericComponent.getFormControl('rangeDates');
+    
+    // Estado inicial (fecha simple)
+    expect(dateControl?.hasValidator(Validators.required)).toBe(true);
+    expect(rangeDatesControl?.validator).toBeNull();
+    
+    // Cambiar a rango de fechas
+    dateOrDateRangeControl?.setValue(true);
+    tick();
+    fixture.detectChanges();
+    expect(dateControl?.validator).toBeNull();
+    expect(rangeDatesControl?.hasValidator(Validators.required)).toBe(true);
+    
+    // Volver a fecha simple
+    dateOrDateRangeControl?.setValue(false);
+    tick();
+    fixture.detectChanges();
+    
+    expect(dateControl?.hasValidator(Validators.required)).toBe(true);
+    expect(rangeDatesControl?.validator).toBeNull();
+  }));
+
+  it('should update validators when toggling national', fakeAsync(() => {
+    // Obtener controles
+    const nationalControl = component.formSenderGenericComponent.getFormControl('national');
+    const addressControl = component.formSenderGenericComponent.getFormControl('address');
+    const passportControl = component.formSenderGenericComponent.getFormControl('passport');
+    
+    // Estado inicial (nacional)
+    expect(addressControl?.hasValidator(Validators.required)).toBe(true);
+    expect(passportControl?.validator).toBeNull();
+    
+    // Cambiar a internacional
+    nationalControl?.setValue(false);
+    tick();
+    fixture.detectChanges();
+    
+    expect(addressControl?.validator).toBeNull();
+    expect(passportControl?.hasValidator(Validators.required)).toBe(true);
+    
+    // Volver a nacional
+    nationalControl?.setValue(true);
+    tick();
+    fixture.detectChanges();
+    
+    expect(addressControl?.hasValidator(Validators.required)).toBe(true);
+    expect(passportControl?.validator).toBeNull();
+  }));
+
+  it('should patch form values when changeData is called', () => {
+    const testData = {
+      numberInvoice: 'TEST-123',
+      name: 'Test Name'
+    };
+    
+    const patchSpy = jest.spyOn(component.formSenderGenericComponent.getGroupForm, 'patchValue');
+    
+    component.changeData(testData);
+    
+    expect(patchSpy).toHaveBeenCalledWith(testData);
   });
 });

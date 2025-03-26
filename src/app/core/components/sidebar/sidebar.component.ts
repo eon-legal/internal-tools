@@ -2,24 +2,38 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
+  Output
 } from '@angular/core';
-import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { PanelMenuModule } from 'primeng/panelmenu';
 
+/**
+ * SidebarComponent is a reusable component that displays a sidebar menu.
+ * It receives the menu state and items as inputs and emits an event when the sidebar is closed.
+ */
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [PanelMenuModule, RouterModule],
-  templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.scss',
+  imports: [PanelMenuModule], // Imports necessary modules for the sidebar
+  templateUrl: './sidebar.component.html', // Template for the sidebar
+  styleUrl: './sidebar.component.scss', // Styles for the sidebar
 })
 export class SidebarComponent {
-  @Input() isOpen = false; // Recibe el estado del menú
-  @Input() menuItems: MenuItem[] = []; // Recibe los items del menú
-  @Output() close = new EventEmitter<void>(); // Emite el cierre del menú
+  /**
+   * Input property to receive the state of the sidebar (open or closed).
+   * @type {boolean}
+   */
+  @Input() isOpen = false;
+
+  /**
+   * Input property to receive the menu items to be displayed in the sidebar.
+   * @type {MenuItem[]}
+   */
+  @Input() menuItems: MenuItem[] = [];
+
+  /**
+   * Output property to emit an event when the sidebar is closed.
+   * @type {EventEmitter<void>}
+   */
+  @Output() close = new EventEmitter<void>();
 }

@@ -10,10 +10,14 @@ import {
 import { map, Observable } from 'rxjs';
 import { FormGenericComponent } from '../../../../../shared/components/form-generic/form-generic.component';
 import { DataInvoicesTable } from '../../../interfaces/data-invoices-table';
-import { FormField } from '../../../../../shared/interfaces/form-field';
-import { ButtonGenericInterface } from '../../../../../shared/interfaces/buttons';
+import { FormField } from '../../../../../shared/components/form-generic/interfaces/form-field';
+import { ButtonGenericInterface } from '../../../../../shared/components/button-generic/interfaces/buttons';
 import { ButtonGenericComponent } from '../../../../../shared/components/button-generic/button-generic.component';
 
+/**
+ * Component for managing invoice data in a form.
+ * This component is used within a dialog to add or edit invoice data.
+ */
 @Component({
   selector: 'app-form-invoices-data',
   standalone: true,
@@ -22,7 +26,10 @@ import { ButtonGenericComponent } from '../../../../../shared/components/button-
   styleUrl: './form-invoices-data.component.scss',
 })
 export class FormInvoicesDataComponent {
+  /** Reference to the FormGenericComponent for managing the form */
   @ViewChild('formTable') formTable!: FormGenericComponent<DataInvoicesTable>;
+
+  /** Configuration for buttons in the dialog */
   buttons: ButtonGenericInterface = {
     css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
     buttons: [
@@ -31,17 +38,19 @@ export class FormInvoicesDataComponent {
         icon: 'pi pi-trash',
         label: 'Cerrar',
         severity: 'danger',
-        action: () => this.close(),
+        action: () => this.close(), // Action to close the dialog
       },
       {
         id: 2,
         icon: 'pi pi-check',
         label: 'Agregar',
         severity: 'primary',
-        action: () => this.accept(),
+        action: () => this.accept(), // Action to accept and submit the form
       },
     ],
   };
+
+  /** Configuration for the form fields */
   formConfig: FormField<DataInvoicesTable>[] = [
     {
       name: 'description',
@@ -50,54 +59,29 @@ export class FormInvoicesDataComponent {
       cols: 12,
       validators: [
         { validator: Validators.required, message: 'Campo requerido.' },
-        /* { 
-          validator: this.createCustomValidatorD('customErrorTito', (value: string) => !value?.includes('test')), 
-          message: 'El nombre de usuario no puede contener "test".' 
-        },*/
-        /*{
-          validator: this.createAsyncValidator(
-            'createAsyncValidator',
-            (value: string) => of(value !== 'admin').pipe(delay(2000)) // Simula una validación asíncrona
-          ),
-          message: 'El nombre de usuario "admin" ya está en uso.',
-          async: true,
-        },*/
       ],
     },
     {
       name: 'perCentIva',
       label: '% IVA *',
-      type: 'dropdown',
+      type: 'select',
       primeNgConfig: {
         options: [
           { label: '21%', value: 21 },
-          {
-            label: '0%',
-            value: 0,
-          },
+          { label: '0%', value: 0 },
         ],
       },
       cols: 6,
       initialData: { label: '21%', value: 21 },
       validators: [
         { validator: Validators.required, message: 'Campo requerido.' },
-        /*{
-          validator: Validators.pattern(
-            /^(100(\.0{1,2})?$|^([0-9]{1,2})(\.[0-9]{1,2})?$)/
-          ),
-          message: 'Solos valores comprendidos entre 0 - 100',
-        },*/
       ],
     },
     {
       name: 'total',
       label: 'Total *',
       type: 'number_currency',
-      primeNgConfig: {
-        min: 0,
-      },
       cols: 6,
-      //initialData: 0,
       validators: [
         { validator: Validators.required, message: 'Campo requerido.' },
         {
@@ -106,27 +90,15 @@ export class FormInvoicesDataComponent {
         },
       ],
     },
-    /*{
-      name: 'id',
-      label: 'ID *',
-      type: 'input',
-      cols: 6,
-      validators: [
-        { validator: Validators.required, message: 'Campo requerido.' },
-      ],
-    },*/
     {
       name: 'qtt',
       label: 'QTT',
       type: 'decimal',
-      primeNgConfig: {
-        min: 0,
-      },
       cols: 6,
       validators: [
         {
           validator: Validators.pattern(/^(?!-)(?:\d+(?:\.\d*)?|\.\d+)?$/),
-          message: 'Deben ser valores positivos',
+          message: 'Deben ser valores positivos', // Positive value validator
         },
       ],
     },
@@ -134,61 +106,61 @@ export class FormInvoicesDataComponent {
       name: 'price',
       label: 'Precio',
       type: 'decimal',
-      primeNgConfig: {
-        min: 0,
-      },
       cols: 6,
       validators: [
         {
           validator: Validators.pattern(/^(?!-)(?:\d+(?:\.\d*)?|\.\d+)?$/),
-          message: 'Deben ser valores positivos',
+          message: 'Deben ser valores positivos', // Positive value validator
         },
       ],
     },
-    /*{
-      name: 'sTotal',
-      label: 'S.Total *',
-      type: 'number_currency',
-      primeNgConfig: {
-        min: 0
-      },
-      cols: 6,
-      initialData: 0,
-      validators: [
-        { validator: Validators.required, message: 'Campo requerido.' },
-        {
-          validator: Validators.min(0),
-          message: 'Deben ser valores positivos',
-        },
-      ],
-    },*/
   ];
-  //ref: DynamicDialogRef<DataInvoicesTable | null> = inject(DynamicDialogRef);
-  //config: DynamicDialogConfig = inject(DynamicDialogConfig);
+
+  /** Data passed to the dialog */
   data: any;
 
+  /** Injected DynamicDialogRef for managing the dialog
+   Injected DynamicDialogConfig for accessing dialog configuration */
   constructor(
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig
   ) {
-    // Recibir datos del modal
+    // Retrieve data passed to the dialog
     this.data = this.config.data;
   }
 
-  // Método para cerrar el modal
+  /**
+   * Closes the dialog without saving changes.
+   */
   closeModal() {
     this.ref.close(null);
   }
+
+  /**
+   * Submits the form data if valid and closes the dialog.
+   */
   accept() {
-    if (this.formTable.formValid()) {
+    if (this.formTable.getGroupForm.valid) {
+      // Close the dialog and return the form data
       this.ref.close(this.formTable.getDataFormComplete());
     }
-    this.formTable.doMarkField();
+    // Mark all form fields as touched to display validation errors
+    this.formTable.getGroupForm.markAllAsTouched();
   }
+
+  /**
+   * Closes the dialog without saving changes.
+   */
   close() {
     this.ref.close(null);
   }
-  // Validador sincrónico personalizado
+
+  /**
+   * Creates a custom synchronous validator.
+   * @param errorMio - The error key to return if validation fails.
+   * @param validationFn - The validation function to execute.
+   * @returns A ValidatorFn that returns a validation error if the condition fails.
+   */
   createCustomValidatorD(
     errorMio: string,
     validationFn: (value: any) => boolean
@@ -199,7 +171,12 @@ export class FormInvoicesDataComponent {
     };
   }
 
-  // Validador asíncrono personalizado
+  /**
+   * Creates a custom asynchronous validator.
+   * @param errorMio - The error key to return if validation fails.
+   * @param validationFn - The asynchronous validation function to execute.
+   * @returns An AsyncValidatorFn that returns a validation error if the condition fails.
+   */
   createAsyncValidator(
     errorMio: string,
     validationFn: (value: any) => Observable<boolean>
@@ -210,6 +187,4 @@ export class FormInvoicesDataComponent {
       );
     };
   }
-
-  //asignarCountsUltraOptimo<T extends { count?: number }>(arr: T[]): (T & { count: number })[] {
 }

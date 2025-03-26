@@ -11,7 +11,9 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('./modules/home/home.component').then((m) => m.HomeComponent),
+          import(
+            './modules/images-to-pdf/components/images-to-pdf/images-to-pdf.component'
+          ).then((m) => m.ImagesToPdfComponent),
         title: 'Convertidor Imágenes a PDF',
       },
       {

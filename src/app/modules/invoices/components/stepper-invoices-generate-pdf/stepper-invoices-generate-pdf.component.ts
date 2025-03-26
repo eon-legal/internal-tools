@@ -7,28 +7,28 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-sender-form.component';
 import { ContainInvoicesComponent } from '../table-invoices/contain-invoices/contain-invoices.component';
 import { InvoicesDestinationFormComponent } from '../invoices-destination-form/invoices-destination-form.component';
 import { ToastrService } from 'ngx-toastr';
-import { CreateInvoicePdfService } from '../services/create-invoice-pdf.service';
+import { CreateInvoicePdfService } from '../../services/create-invoice-pdf.service';
 import { StepperModule } from 'primeng/stepper';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { StepperContextComponent } from '../../../../shared/components/stepper-context/stepper-context.component';
 import { InvoicesStore } from '../../../../store/app.component.store';
-import { ThemeService } from '../../../../core/services/theme.service';
 import { DataInvoicesConstant } from '../../constants/data-invoices';
 import {
   ButtonConfig,
   ButtonGenericInterface,
-} from '../../../../shared/interfaces/buttons';
+} from '../../../../shared/components/button-generic/interfaces/buttons';
+import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-sender-form.component';
+import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
 
-// Diccionario de componentes
+/** Dictionary of components for each step */
 const stepComponents: { [key: number]: any } = {
-  1: InvoicesSenderFormComponent,
-  2: ContainInvoicesComponent,
-  3: InvoicesDestinationFormComponent,
+  1: InvoicesSenderFormComponent, // Step 1: Sender form
+  2: ContainInvoicesComponent, // Step 2: Invoice table
+  3: InvoicesDestinationFormComponent, // Step 3: Destination form
 };
 
 @Component({
@@ -39,11 +39,14 @@ const stepComponents: { [key: number]: any } = {
   styleUrl: './stepper-invoices-generate-pdf.component.scss',
 })
 export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
+  /** Reference to the container where dynamic components are rendered */
   @ViewChild('dynamicComponent', { read: ViewContainerRef, static: false })
   container!: ViewContainerRef;
-  // Señal para el paso activo
+
+  /** Signal to track the active step */
   data = signal(1);
-  // Arreglo único de botones
+
+  /** Array of all buttons for the stepper */
   private allButtons: ButtonConfig[] = [
     {
       id: 1,
@@ -51,8 +54,8 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
       icon: 'pi pi-times',
       severity: 'warn',
       iconPos: 'right',
-      action: () => this.cleanDataStep(),
-      hideDependsFunction: (step: number) => step === 1, // Solo hideDependsFunction en el paso 1
+      action: () => this.cleanDataStep(), // Action to clear all data
+      hideDependsFunction: (step: number) => step === 1, // Only visible in step 1
     },
     {
       id: 2,
@@ -60,9 +63,9 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
       icon: 'pi pi-arrow-right',
       iconPos: 'right',
       action: () => {
-        this.data.set(2);
+        this.data.set(2); // Move to step 2
       },
-      hideDependsFunction: (step: number) => step === 1, // Solo hideDependsFunction en el paso 1
+      hideDependsFunction: (step: number) => step === 1, // Only visible in step 1
     },
     {
       id: 3,
@@ -70,9 +73,9 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
       severity: 'secondary',
       icon: 'pi pi-arrow-left',
       action: () => {
-        this.data.set(1);
+        this.data.set(1); // Move back to step 1
       },
-      hideDependsFunction: (step: number) => step === 2, // Solo hideDependsFunction en el paso 2
+      hideDependsFunction: (step: number) => step === 2, // Only visible in step 2
     },
     {
       id: 4,
@@ -80,9 +83,9 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
       icon: 'pi pi-arrow-right',
       iconPos: 'right',
       action: () => {
-        this.data.set(3);
+        this.data.set(3); // Move to step 3
       },
-      hideDependsFunction: (step: number) => step === 2, // Solo hideDependsFunction en el paso 2
+      hideDependsFunction: (step: number) => step === 2, // Only visible in step 2
     },
     {
       id: 5,
@@ -90,105 +93,128 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
       severity: 'secondary',
       icon: 'pi pi-arrow-left',
       action: () => {
-        this.data.set(2);
+        this.data.set(2); // Move back to step 2
       },
-      hideDependsFunction: (step: number) => step === 3, // Solo hideDependsFunction en el paso 3
+      hideDependsFunction: (step: number) => step === 3, // Only visible in step 3
     },
     {
       id: 6,
       label: 'Generar Factura',
       icon: 'pi pi-file-pdf',
       iconPos: 'right',
-      action: () => this.notAllowedShowPdf(),
-      hideDependsFunction: (step: number) => step === 3, // Solo hideDependsFunction en el paso 3
+      action: () => this.notAllowedShowPdf(), // Action to generate the PDF
+      hideDependsFunction: (step: number) => step === 3, // Only visible in step 3
     },
   ];
-  // Señal para los botones
+
+  /** Signal to track visible buttons based on the active step */
   buttons = signal<ButtonConfig[]>(this.getVisibleButtons(this.data()));
-  // Interfaz para el stepper
+
+  /** Configuration for the stepper buttons */
   stepper: ButtonGenericInterface = {
     css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
-    buttons: this.buttons(), // Usamos la señal de botones
+    buttons: this.buttons(), // Use the signal for buttons
   };
-  // Nombres de los pasos
-  nameStepOne = 'Remitente Factura';
-  nameStepTwo = 'Tabla Factura';
-  nameStepThree = 'Destinatario - Generar Factura';
-  // Servicios inyectados
-  readonly store = inject(InvoicesStore);
-  toastr: ToastrService = inject(ToastrService);
-  themeService: ThemeService = inject(ThemeService);
+
+  /** Names of the steps */
+  nameStepOne = 'Remitente Factura'; // Step 1: Sender form
+  nameStepTwo = 'Tabla Factura'; // Step 2: Invoice table
+  nameStepThree = 'Destinatario - Generar Factura'; // Step 3: Destination form
+
+  /** Injected services */
+  readonly store = inject(InvoicesStore); // Store for managing invoice data
+  toastr: ToastrService = inject(ToastrService); // Toastr service for notifications
   createInvoicePdfService: CreateInvoicePdfService = inject(
     CreateInvoicePdfService
-  );
-  // Referencias a los componentes dinámicos
+  ); // Service for generating PDFs
+
+  /** References to dynamically created components */
   componentRefs: { [key: number]: any } = {};
 
   constructor() {
-    // Reaccionar a cambios en `data()` para actualizar los botones
+    // React to changes in the `data` signal to update buttons and components
     effect(
       () => {
-        this.buttons.set(this.getVisibleButtons(this.data())); // Actualizar los botones
-        this.stepper.buttons = this.buttons(); // Actualizar el stepper
-        this.updateCurrentComponent(); // Actualizar el componente dinámico
+        this.buttons.set(this.getVisibleButtons(this.data())); // Update visible buttons
+        this.stepper.buttons = this.buttons(); // Update stepper buttons
+        this.updateCurrentComponent(); // Update the dynamic component
       },
-      { allowSignalWrites: true } // Habilitar escritura en señales
+      { allowSignalWrites: true } // Allow signal writes within the effect
     );
   }
 
-  // Método para renderizar el componente inicial al cargar la página
+  /**
+   * Lifecycle hook that runs after the view is initialized.
+   * Renders the initial component for the active step.
+   */
   ngAfterViewInit() {
     this.updateCurrentComponent();
   }
 
-  // Función para obtener los botones visibles según el paso activo
-  private getVisibleButtons(step: number): ButtonConfig[] {
+  /**
+   * Filters and returns the visible buttons based on the active step.
+   * @param step - The active step.
+   * @returns An array of visible buttons.
+   */
+  public getVisibleButtons(step: number): ButtonConfig[] {
     return this.allButtons.filter((button) => button.hideDependsFunction(step));
   }
 
-  // Método para manejar el cambio de paso
+  /**
+   * Handles step changes in the stepper.
+   * @param newValue - The new step value.
+   */
   onStepChange(newValue: number) {
-    this.data.set(newValue); // Actualizamos la señal
+    this.data.set(newValue); // Update the active step
   }
 
-  // Método para actualizar el componente dinámico
-  private updateCurrentComponent() {
-    this.container.clear(); // Limpiar el contenedor antes de renderizar
+  /**
+   * Updates the dynamic component based on the active step.
+   */
+  public updateCurrentComponent() {
+    this.container.clear(); // Clear the container before rendering
 
-    // Obtener el componente correspondiente al paso actual
+    // Get the component corresponding to the active step
     const component =
       stepComponents[this.data()] || InvoicesSenderFormComponent;
 
-    // Crear el componente dinámicamente
+    // Create the component dynamically
     const componentRef = this.container.createComponent(component);
 
-    // Almacenar la referencia del componente
+    // Store the reference to the component instance
     this.componentRefs[this.data()] = componentRef.instance;
   }
 
-  // Método para limpiar los datos del paso
+  /**
+   * Clears all data in the current step.
+   */
   cleanDataStep() {
-    this.store.resetInvoices();
-    this.store.resetTableInvoices();
+    this.store.resetInvoices(); // Reset invoice data
+    this.store.resetTableInvoices(); // Reset table data
     const step1 = this.componentRefs[1] as InvoicesSenderFormComponent;
-    step1.changeData(this.store.getFirstForm());
+    step1.changeData(this.store.getFirstForm()); // Update the sender form with reset data
+    step1.formSenderGenericComponent?.getGroupForm?.markAsUntouched();
   }
 
-  // Método para validar y generar el PDF
+  /**
+   * Validates the form and generates the PDF if valid.
+   */
   notAllowedShowPdf() {
-    this.askHaveDataTableCreate();
+    this.askHaveDataTableCreate(); // Ensure the table has data
 
-    // Verificar si step3 está definido
+    // Check if step 3 is active and the component is defined
     if (this.data() !== 3 || !this.componentRefs[3]) {
       return;
     }
-    const step3 = this.componentRefs[3] as InvoicesDestinationFormComponent;
-    const isValidFirstForm = this.store.getIsValidFirstForm();
-    const isValidSecondForm = this.store.getIsValidSecondForm();
-    const messages = 'Deben ser válidos los formularios del paso 1.';
 
+    const step3 = this.componentRefs[3] as InvoicesDestinationFormComponent;
+    const isValidFirstForm = this.store.getIsValidFirstForm(); // Check if step 1 form is valid
+    const isValidSecondForm = this.store.getIsValidSecondForm(); // Check if step 2 form is valid
+    const messages = 'Deben ser válidos los formularios del paso 1.'; // Error message
+    step3.formDestinationGenericComponent?.getGroupForm?.markAllAsTouched();
+    // Show error if forms are invalid
     if (!isValidFirstForm || (!isValidSecondForm && !step3.isValidForm())) {
-      this.store.updateAllMarkFieldForm(true);
+      this.store.updateAllMarkFieldForm(true); // Mark all fields as touched
       this.toastr.error(
         !isValidFirstForm
           ? messages
@@ -196,11 +222,16 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
         'Error'
       );
     } else {
+      // Get data from the forms and table
       const first = this.store.getFirstForm();
       let second = this.store.getSeconfForm();
       const table = this.store.getTableContain();
+
+      // Use destination form data if valid
       if (step3.isValidForm())
         second = step3.formDestinationGenericComponent.getDataFormComplete();
+
+      // Generate the PDF
       this.createInvoicePdfService.newGeneratePDFInvoices(
         [first.name, first.national ? first.address : first.passport],
         second,
@@ -210,10 +241,13 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
     }
   }
 
-  // Método para asegurarse de que haya datos en la tabla
+  /**
+   * Ensures the table has data by adding summary rows if empty.
+   */
   askHaveDataTableCreate() {
-    let rowTable = this.store.getTableContain();
-    if (!rowTable.length) {
+    let rowTable: DataInvoicesTable[] = this.store.getTableContain() || [];
+    if (!rowTable?.length) {
+      // Add summary rows if the table is empty
       rowTable.push({
         id: '',
         description: '',
@@ -228,13 +262,16 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
         perCentIva: DataInvoicesConstant.TOTAL,
         total: 0,
       });
-      this.store.updateTable(rowTable);
+      this.store.updateTable(rowTable); // Update the store with the new table data
     }
   }
 
-  // Método para limpiar los datos al destruir el componente
+  /**
+   * Lifecycle hook that runs when the component is destroyed.
+   * Resets the store data.
+   */
   ngOnDestroy() {
-    this.store.resetTableInvoices();
-    this.store.resetInvoices();
+    this.store.resetTableInvoices(); // Reset table data
+    this.store.resetInvoices(); // Reset invoice data
   }
 }
