@@ -2,276 +2,298 @@ import { TestBed } from '@angular/core/testing';
 import { DownloadImagePdfService } from './download-image-pdf.service';
 import { ToastrService } from 'ngx-toastr';
 
-// Mock de ToastrService
-const mockToastrService = {
-  success: jest.fn(),
-  error: jest.fn(),
-  warning: jest.fn(),
-  info: jest.fn()
-};
-
-// Mock completo de jsPDF con configuración específica
-jest.mock('jspdf', () => {
-  const mockPdfMethods = {
-    addPage: jest.fn().mockReturnThis(),
-    addImage: jest.fn().mockReturnThis(),
-    setFontSize: jest.fn().mockReturnThis(),
-    setTextColor: jest.fn().mockReturnThis(),
-    text: jest.fn().mockReturnThis(),
-    output: jest.fn().mockReturnValue(new Blob()),
-    getTextDimensions: jest.fn().mockReturnValue({ w: 50 }),
-    internal: {
-      pageSize: { width: 210, height: 297 }, // Tamaño A4 en mm
-      getFontList: jest.fn().mockReturnValue({}),
-      events: []
-    }
-  };
-
-  // Función constructora que incluye la configuración
-  const JsPDF = function(options?: any) {
-    // Verificar que se llamó con los parámetros correctos
-    expect(options).toEqual({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-    return mockPdfMethods;
-  } as any;
-
-  return JsPDF;
-});
-
-describe('DownloadImagePdfService', () => {
-  let service: DownloadImagePdfService;
-  let toastr: ToastrService;
-
-  beforeEach(() => {
-    // Configuración de mocks globales (FileReader, Image, URL, window.open)
-    global.FileReader = class {
-      result = 'data:image/jpeg;base64,mock-data';
-      onload: () => void = () => {};
-      onerror: () => void = () => {};
-      readAsDataURL() {
-        this.onload();
-      }
-    } as any;
-
-    global.Image = class {
-      onload: () => void = () => {};
-      width = 100;
-      height = 100;
-      src = '';
-      constructor() {
-        setTimeout(() => this.onload(), 0);
-      }
-    } as any;
-
-    global.URL = {
-      createObjectURL: jest.fn().mockReturnValue('blob:mock-url'),
-      revokeObjectURL: jest.fn()
-    } as any;
-
-    global.window.open = jest.fn();
-
-    TestBed.configureTestingModule({
-      providers: [
-        DownloadImagePdfService,
-        { provide: ToastrService, useValue: mockToastrService }
-      ]
-    });
-
-    service = TestBed.inject(DownloadImagePdfService);
-    toastr = TestBed.inject(ToastrService);
-    jest.clearAllMocks();
-  });
-
-  it('should create PDF with correct configuration', async () => {
-    const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
-    
-    await service.uploadFilesImages([mockFile]);
-    
-    // El mock ya verifica internamente la configuración
-    // Podemos añadir verificaciones adicionales si es necesario
-    const JsPDF = require('jspdf');
-    const pdfInstance = new JsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-    
-    expect(pdfInstance.addImage).toHaveBeenCalled();
-  });
-
-  // Resto de pruebas...
-  it('should process valid image files and generate PDF', async () => {
-    const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
-    
-    await service.uploadFilesImages([mockFile]);
-    
-    const JsPDF = require('jspdf');
-    const pdfInstance = new JsPDF();
-    
-    expect(pdfInstance.addImage).toHaveBeenCalledWith(
-      'data:image/jpeg;base64,mock-data',
-      'JPEG',
-      expect.any(Number),
-      expect.any(Number),
-      expect.any(Number),
-      expect.any(Number)
-    );
-    
-    expect(toastr.success).toHaveBeenCalled();
-  });
-
-  it('should handle multiple pages correctly', async () => {
-    const mockFiles = [
-      new File([''], 'test1.jpg', { type: 'image/jpeg' }),
-      new File([''], 'test2.jpg', { type: 'image/jpeg' })
-    ];
-    
-    await service.uploadFilesImages(mockFiles);
-    
-    const JsPDF = require('jspdf');
-    const pdfInstance = new JsPDF();
-    
-    expect(pdfInstance.addPage).toHaveBeenCalledTimes(1);
-  });
-
-  it('should handle image processing errors', async () => {
-    global.FileReader = class {
-      onerror: () => void = () => {};
-      readAsDataURL() {
-        this.onerror();
-      }
-    } as any;
-    
-    const mockFile = new File([''], 'error.jpg', { type: 'image/jpeg' });
-    
-    await service.uploadFilesImages([mockFile]);
-    
-    expect(toastr.error).toHaveBeenCalledWith(
-      'Error al generar el PDF. Por favor, intente nuevamente.',
-      'Error'
-    );
-  });
-});
-/*    // Verificar que se llama al toastr con el mensaje de error adecuado/*import { TestBed } from '@angular/core/testing';
-import { DownloadImagePdfService } from './download-image-pdf.service';
-import { ToastrService } from 'ngx-toastr';
-import { jsPDF } from 'jspdf';
-
-const mockToastrService = {
-  info: jest.fn(),
-  success: jest.fn(),
-  warning: jest.fn(),
-  error: jest.fn(),
+// Mock de jsPDF
+const mockJsPDF = {
+  addPage: jest.fn(),
+  addImage: jest.fn(),
+  output: jest
+    .fn()
+    .mockReturnValue(new Blob(['dummy pdf'], { type: 'application/pdf' })),
+  internal: {
+    pageSize: {
+      width: 210,
+      height: 297,
+    },
+  },
+  setFontSize: jest.fn(),
+  setTextColor: jest.fn(),
+  text: jest.fn(),
+  getTextDimensions: jest.fn().mockReturnValue({ w: 50 }),
 };
 
 jest.mock('jspdf', () => {
   return {
-    jsPDF: jest.fn().mockImplementation(() => {
-      return {
-        text: jest.fn(),
-        addImage: jest.fn(),
-        addPage: jest.fn(),
-        output: jest.fn().mockReturnValue(new Blob()),
-        internal: {
-          pageSize: { height: 210, width: 297 }, // Tamaño A4
-        },
-        getTextDimensions: jest.fn().mockReturnValue({ w: 50 }),
-      };
-    }),
+    __esModule: true,
+    default: jest.fn(() => mockJsPDF),
+    jsPDF: jest.fn(() => mockJsPDF),
   };
 });
 
 describe('DownloadImagePdfService', () => {
   let service: DownloadImagePdfService;
+  let mockToastr: jest.Mocked<ToastrService>;
+  let mockWindowOpen: jest.Mock;
+  let mockCreateObjectURL: jest.Mock;
 
   beforeEach(() => {
+    // Mock de ToastrService
+    mockToastr = {
+      warning: jest.fn(),
+      error: jest.fn(),
+      success: jest.fn(),
+    } as unknown as jest.Mocked<ToastrService>;
+
+    // Mock de window y URL
+    mockWindowOpen = jest.fn();
+    mockCreateObjectURL = jest.fn().mockReturnValue('blob:mock-url');
+
+    global.URL.createObjectURL = mockCreateObjectURL;
+    global.window.open = mockWindowOpen;
+
     TestBed.configureTestingModule({
-      providers: [
-        DownloadImagePdfService,
-        { provide: ToastrService, useValue: mockToastrService },
-      ],
+      providers: [{ provide: ToastrService, useValue: mockToastr }],
     });
     service = TestBed.inject(DownloadImagePdfService);
+
+    // Resetear todos los mocks antes de cada test
+    jest.clearAllMocks();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should warn if no files are provided', () => {
-    service.uploadFilesImages([]);
-    expect(mockToastrService.warning).toHaveBeenCalledWith(
-      'No se han seleccionado imágenes para generar el PDF',
-      'Advertencia'
-    );
-  });
-
-  it('should warn if there are invalid files', () => {
-    const invalidFiles = [
-      new File([], 'test.txt', { type: 'text/plain' }),
-      new File([], 'test.pdf', { type: 'application/pdf' }),
-    ];
-
-    service.uploadFilesImages(invalidFiles);
-    expect(mockToastrService.warning).toHaveBeenCalledWith(
-      'Se encontraron 2 archivos que no son imágenes',
-      'Advertencia'
-    );
-  });
-
-  it('should generate PDF with valid image files', async () => {
-    const validImageFile = new File([''], 'test.png', { type: 'image/png' });
-
-    // Mock FileReader to simulate loading a base64 string
-    const originalReadAsDataURL = FileReader.prototype.readAsDataURL;
-    FileReader.prototype.readAsDataURL = function () {
-      this.onload();
-    };
-
-    // Mock the image loading to return specific dimensions
-    const getImageDimensionsSpy = jest.spyOn(service as any, 'getImageDimensions');
-    getImageDimensionsSpy.mockResolvedValue({ width: 100, height: 100 });
-
-    await service.uploadFilesImages([validImageFile]);
-
-    // Expect that the addImage method of jsPDF was called
-    const pdfInstance = new jsPDF();
-    expect(pdfInstance.addImage).toHaveBeenCalled(); // Verifica que se agregó una imagen
-    expect(pdfInstance.output).toHaveBeenCalled(); // Verifica que se generó el PDF
-
-    // Restore original FileReader method
-    FileReader.prototype.readAsDataURL = originalReadAsDataURL;
-  });
-
-  it('should show an error if an image fails to load', async () => {
-    jest.spyOn(window, 'open').mockImplementation(() => {
-      throw new Error('Cannot open window');
+  describe('uploadFilesImages', () => {
+    it('should show warning when no files are provided', () => {
+      service.uploadFilesImages([]);
+      expect(mockToastr.warning).toHaveBeenCalledWith(
+        'No se han seleccionado imágenes para generar el PDF',
+        'Advertencia'
+      );
     });
 
-    const validImageFile = new File([''], 'test.png', { type: 'image/png' });
+    it('should show warning when non-image files are provided', () => {
+      const invalidFile = new File([''], 'test.pdf', {
+        type: 'application/pdf',
+      });
+      service.uploadFilesImages([invalidFile]);
 
-    // We will mock FileReader to return a base64 string
-    const originalReadAsDataURL = FileReader.prototype.readAsDataURL;
-    FileReader.prototype.readAsDataURL = function () {
-      this.onload();
-    };
+      expect(mockToastr.warning).toHaveBeenCalledWith(
+        'Se encontraron 1 archivos que no son imágenes',
+        'Advertencia'
+      );
+    });
 
-    const getImageDimensions = jest.fn().mockRejectedValue(new Error('Image loading error'));
+    it('should show error when no valid images remain after filtering', () => {
+      const invalidFiles = [
+        new File([''], 'test.pdf', { type: 'application/pdf' }),
+        new File([''], 'test.doc', { type: 'application/msword' }),
+      ];
+      service.uploadFilesImages(invalidFiles);
 
-    // Override getImageDimensions function in the original service
-    service['getImageDimensions'] = getImageDimensions;
+      expect(mockToastr.error).toHaveBeenCalledWith(
+        'No hay imágenes válidas para generar el PDF',
+        'Error'
+      );
+    });
 
-    await service.uploadFilesImages([validImageFile]);
+    it('should process valid images and generate PDF', (done) => {
+      // Mock de archivos de imagen válidos
+      const mockImageFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
 
-    expect(mockToastrService.error).toHaveBeenCalledWith(
-      'Error al generar el PDF. Por favor, intente nuevamente.',
-      'Error'
-    );
+      // Mock de las funciones internas
+      jest
+        .spyOn(service, 'toBase64')
+        .mockResolvedValue('data:image/jpeg;base64,mock');
+      jest
+        .spyOn(service, 'getImageDimensions')
+        .mockResolvedValue({ width: 100, height: 100 });
 
-    // Restore original FileReader method
-    FileReader.prototype.readAsDataURL = originalReadAsDataURL;
+      service.uploadFilesImages([mockImageFile]);
+
+      // Usar setTimeout para esperar las promesas
+      setTimeout(() => {
+        // Verificar que se creó el PDF
+        const jsPDF = require('jspdf');
+        expect(jsPDF.jsPDF).toHaveBeenCalledWith({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+        });
+
+        // Verificar que se procesó la imagen
+        expect(service.toBase64).toHaveBeenCalledWith(mockImageFile);
+        expect(service.getImageDimensions).toHaveBeenCalledWith(
+          'data:image/jpeg;base64,mock'
+        );
+
+        // Verificar que se añadió la imagen al PDF
+        expect(mockJsPDF.addImage).toHaveBeenCalledWith(
+          'data:image/jpeg;base64,mock',
+          'JPEG',
+          expect.any(Number),
+          expect.any(Number),
+          expect.any(Number),
+          expect.any(Number)
+        );
+
+        // Verificar que se generó y abrió el PDF
+        expect(mockJsPDF.output).toHaveBeenCalledWith('blob');
+        expect(mockCreateObjectURL).toHaveBeenCalledWith(expect.any(Blob));
+        expect(mockWindowOpen).toHaveBeenCalledWith('blob:mock-url', '_blank');
+
+        done();
+      }, 0);
+    });
+
+    it('should handle multiple images with pages and footers', (done) => {
+      // Mock de archivos de imagen válidos
+      const mockImageFiles = [
+        new File([''], 'test1.jpg', { type: 'image/jpeg' }),
+        new File([''], 'test2.png', { type: 'image/png' }),
+      ];
+
+      // Mock de las funciones internas
+      jest
+        .spyOn(service, 'toBase64')
+        .mockImplementation((file) =>
+          Promise.resolve(`data:${file.type.split('/')[1]};base64,mock`)
+        );
+      jest
+        .spyOn(service, 'getImageDimensions')
+        .mockResolvedValue({ width: 100, height: 100 });
+
+      service.uploadFilesImages(mockImageFiles);
+
+      setTimeout(() => {
+        // Verificar que se añadió una página para la segunda imagen
+        expect(mockJsPDF.addPage).toHaveBeenCalledTimes(1);
+
+        // Verificar que se añadieron los pies de página
+        expect(mockJsPDF.setFontSize).toHaveBeenCalledWith(10);
+        expect(mockJsPDF.setTextColor).toHaveBeenCalledWith(100);
+        expect(mockJsPDF.text).toHaveBeenCalledWith(
+          'Página 1 de 2',
+          expect.any(Number),
+          287
+        );
+        expect(mockJsPDF.text).toHaveBeenCalledWith(
+          'Página 2 de 2',
+          expect.any(Number),
+          287
+        );
+
+        done();
+      }, 0);
+    });
+
+    it('should show error when image processing fails', (done) => {
+      const mockImageFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
+
+      // Simular error en el procesamiento
+      jest
+        .spyOn(service, 'toBase64')
+        .mockRejectedValue(new Error('Conversion error'));
+
+      service.uploadFilesImages([mockImageFile]);
+
+      setTimeout(() => {
+        expect(mockToastr.error).toHaveBeenCalledWith(
+          'Error al generar el PDF. Por favor, intente nuevamente.',
+          'Error'
+        );
+        done();
+      }, 0);
+    });
   });
-});*/
+
+  /*describe('toBase64', () => {
+    it('should convert file to base64', (done) => {
+      const mockFile = new File(['test content'], 'test.jpg', { type: 'image/jpeg' });
+      
+      // Mock FileReader success
+      jest.spyOn(global, 'FileReader').mockImplementation(function(this: FileReader) {
+        const reader = this;
+        setTimeout(() => {
+          reader.onload({
+            target: {
+              result: 'data:image/jpeg;base64,test'
+            }
+          } as any);
+        }, 0);
+        return reader;
+      });
+
+      service.toBase64(mockFile).then((result) => {
+        expect(result).toBe('data:image/jpeg;base64,test');
+        done();
+      });
+    });
+
+    it('should reject on error', (done) => {
+      const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
+      const mockError = new Error('Read error');
+      
+      // Mock FileReader error
+      jest.spyOn(global, 'FileReader').mockImplementation(function(this: FileReader) {
+        const reader = this;
+        setTimeout(() => {
+          reader.onerror(mockError);
+        }, 0);
+        return reader;
+      });
+
+      service.toBase64(mockFile).catch((error) => {
+        expect(error).toBe(mockError);
+        done();
+      });
+    });
+  });*/
+
+  /* describe('getImageDimensions', () => {
+    it('should return image dimensions', (done) => {
+      const mockBase64 = 'data:image/png;base64,mock';
+      const mockDimensions = { width: 800, height: 600 };
+      
+      // Mock Image success
+      jest.spyOn(global, 'Image').mockImplementation(function(this: HTMLImageElement) {
+        const img = this;
+        setTimeout(() => {
+          Object.assign(img, {
+            width: mockDimensions.width,
+            height: mockDimensions.height,
+            onload: null
+          });
+          if (img.onload) img.onload(new Event('load'));
+        }, 0);
+        return img;
+      });
+
+      service.getImageDimensions(mockBase64).then((dimensions) => {
+        expect(dimensions).toEqual(mockDimensions);
+        done();
+      });
+    });
+
+    it('should return default dimensions on error', (done) => {
+      const mockBase64 = 'data:image/png;base64,mock';
+      
+      // Mock Image error
+      jest.spyOn(global, 'Image').mockImplementation(function(this: HTMLImageElement) {
+        const img = this;
+        setTimeout(() => {
+          Object.assign(img, {
+            onerror: null
+          });
+          if (img.onerror) img.onerror(new Event('error'));
+        }, 0);
+        return img;
+      });
+
+      service.getImageDimensions(mockBase64).then((dimensions) => {
+        expect(dimensions).toEqual({ width: 100, height: 100 });
+        done();
+      });
+    });
+  });*/
+});

@@ -54,41 +54,13 @@ export class DownloadImagePdfService {
       format: 'a4',
     });
 
-    // Función para convertir archivo a base64
-    const toBase64 = (file: File) =>
-      new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
-      });
-
-    // Función para obtener dimensiones de imagen
-    const getImageDimensions = (
-      base64: string
-    ): Promise<{ width: number; height: number }> => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-          resolve({
-            width: img.width,
-            height: img.height,
-          });
-        };
-        img.onerror = () => {
-          // Si hay error al cargar la imagen, usar dimensiones por defecto
-          resolve({ width: 100, height: 100 });
-        };
-        img.src = base64;
-      });
-    };
-
     // Procesa cada imagen
     Promise.all(
       files.map(async (file, index) => {
         try {
-          const base64Image = await toBase64(file);
-          const { width, height } = await getImageDimensions(base64Image);
+          const base64Image = await this.toBase64(file);
+          console.log('Dime el base 64', base64Image);
+          const { width, height } = await this.getImageDimensions(base64Image);
 
           // Añade una página nueva
           if (index > 0) {
@@ -112,7 +84,7 @@ export class DownloadImagePdfService {
           // Calcula posición centrada
           const x = (pageWidth - newWidth) / 2;
           const y = (pageHeight - newHeight) / 2;
-         
+
           // Añade la imagen
           doc.addImage(
             base64Image,
@@ -153,9 +125,9 @@ export class DownloadImagePdfService {
         window.open(pdfUrl, '_blank');
 
         // Limpia la URL temporal después de abrir el PDF
-        setTimeout(() => {
+        /*setTimeout(() => {
           URL.revokeObjectURL(pdfUrl);
-        }, 1000);
+        }, 1000);*/
       })
       .catch(() => {
         this.toastr.error(
@@ -163,5 +135,31 @@ export class DownloadImagePdfService {
           'Error'
         );
       });
+  }
+  toBase64(file: File) {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  }
+  getImageDimensions(
+    base64: string
+  ): Promise<{ width: number; height: number }> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        resolve({
+          width: img.width,
+          height: img.height,
+        });
+      };
+      img.onerror = () => {
+        // Si hay error al cargar la imagen, usar dimensiones por defecto
+        resolve({ width: 100, height: 100 });
+      };
+      img.src = base64;
+    });
   }
 }

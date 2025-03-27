@@ -8,7 +8,9 @@
     "types": [
       "jest",
       "node"
-    ]
+    ],
+    "strict": true,
+    "noImplicitOverride": false
   },
   "include": [
     "src/**/*.spec.ts",
