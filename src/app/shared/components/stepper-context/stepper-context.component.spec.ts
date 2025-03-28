@@ -11,7 +11,7 @@ describe('StepperContextComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [StepperContextComponent, StepperModule, CommonModule],
-      //providers: [{provide: Stepper}]
+      providers: [{provide: Stepper}]
     })
     .compileComponents();
 
