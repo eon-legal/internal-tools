@@ -43,7 +43,6 @@
           "
           [id]="field.name"
           [formControlName]="field.name"
-          [max]="limitInput.INPUT_NUMBER_INT_MAX"
           [maxlength]="limitInput.INPUT_NUMBER_INT_MAX_LENGTH"
           [useGrouping]="false"
           (onInput)="validateInputInteger($event, field.name)"
@@ -62,7 +61,7 @@
           mode="decimal"
           [maxFractionDigits]="2"
           [useGrouping]="false"
-          [maxlength]="limitInput.INPUT_NUMBER_DECIMAL_MAX_LENGTH"
+          (onInput)="validateInputNumberDecimal($event, field.name)"
         />
         } @case('number_currency'){
         <p-inputnumber

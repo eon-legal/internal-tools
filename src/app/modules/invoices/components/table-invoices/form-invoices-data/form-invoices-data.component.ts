@@ -85,7 +85,7 @@ export class FormInvoicesDataComponent {
       validators: [
         { validator: Validators.required, message: 'Campo requerido.' },
         {
-          validator: Validators.min(1),
+          validator: Validators.pattern(/^(?!0+$)(?!0*\.0+$)\d*\.?\d+$/),
           message: 'Deben ser valores mayores que cero',
         },
       ],
@@ -109,7 +109,7 @@ export class FormInvoicesDataComponent {
       cols: 6,
       validators: [
         {
-          validator: Validators.pattern(/^(?!-)(?:\d+(?:\.\d*)?|\.\d+)?$/),
+          validator: Validators.pattern(/^(?!0+$)(?!0*\.0+$)\d*\.?\d+$/),
           message: 'Deben ser valores positivos', // Positive value validator
         },
       ],

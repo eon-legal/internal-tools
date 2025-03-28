@@ -157,7 +157,10 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
    * @returns An array of visible buttons.
    */
   public getVisibleButtons(step: number): ButtonConfig[] {
-    return this.allButtons.filter((button) => button.hideDependsFunction(step));
+    return this.allButtons.filter(
+      (button) =>
+        button?.hideDependsFunction && button?.hideDependsFunction(step)
+    );
   }
 
   /**

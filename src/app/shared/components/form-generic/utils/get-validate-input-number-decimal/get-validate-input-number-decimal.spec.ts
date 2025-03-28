@@ -22,6 +22,7 @@ describe('getValidateInputNumberDecimal', () => {
   });
 
   // Test 2: Valor entero positivo sin decimales
+
   it('should handle positive integer without decimals', () => {
     expect(
       getValidateInputNumberDecimal(createInputEvent('1234567890123'))
