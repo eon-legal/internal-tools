@@ -29,7 +29,7 @@ export class StepperContextComponent {
    * Contains the buttons to be displayed in the stepper.
    * @type {ButtonGenericInterface}
    */
-  @Input() stepper: ButtonGenericInterface;
+  @Input() stepper!: ButtonGenericInterface;
 
   /**
    * Returns an array of buttons to display based on the current step index.
@@ -37,7 +37,7 @@ export class StepperContextComponent {
    * @returns {ButtonGenericInterface['buttons']} - An array of buttons for the current step.
    */
   getArrayButtons() {
-    if (this.stepper?.buttons?.length >= this.index) {
+    if (this.stepper?.buttons?.length && this.stepper?.buttons?.length >= this.index) {
       // Filters buttons for the first step
       if (this.index === 1) {
         return this.stepper?.buttons?.filter((bt) => bt.id === 1 || bt.id === 2);

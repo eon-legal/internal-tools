@@ -167,11 +167,17 @@ describe('ImagesToPdfComponent', () => {
     component.setFormDataFile([file]);
 
     component.changeStateButton();
-    expect(component.buttons.buttons[0].disabled).toBe(false);
+    const mockButton = component.buttons?.buttons || [];
+    expect(mockButton).toBeDefined();
+    expect(mockButton.length).toBe(1);
+    expect(mockButton[0]?.disabled).toBe(false);
 
     component.setFormDataFile([]);
     component.changeStateButton();
-    expect(component.buttons.buttons[0].disabled).toBe(true);
+    const mockButtonNew = component.buttons?.buttons || [];
+    expect(mockButtonNew).toBeDefined();
+    expect(mockButtonNew.length).toBe(1);
+    expect(mockButtonNew[0]?.disabled).toBe(true);
   });
 
   it('should generate safe HTML for image preview', () => {

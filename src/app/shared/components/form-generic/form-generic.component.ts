@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberInputEvent, InputNumberModule } from 'primeng/inputnumber';
@@ -76,7 +76,7 @@ export class FormGenericComponent<T> implements OnInit {
    * @param fieldName - Nombre del campo que maneja los archivos.
    */
   onFileSelect(files: File[], fieldName: string) {
-    const currentFiles = this.form.get(fieldName)?.value || [];
+    const currentFiles = (this.form.get(fieldName)?.value || []) as File[];
     const fieldConfig = this.formConfig.find(
       (field) => field.name === fieldName
     );
@@ -160,11 +160,12 @@ export class FormGenericComponent<T> implements OnInit {
             field.type === 'file' && !field?.initialData
               ? []
               : field?.initialData,
-          disabled: field.showComponent === false
-            ? true
-            : field?.disabled !== undefined
-            ? field?.disabled
-            : false,
+          disabled:
+            field.showComponent === false
+              ? true
+              : field?.disabled !== undefined
+              ? field?.disabled
+              : false,
         },
         validators,
         asyncValidators,
@@ -214,7 +215,7 @@ export class FormGenericComponent<T> implements OnInit {
    * @returns Un array de mensajes de error.
    */
   getErrorMessages(fieldName: string): string[] {
-    const control = this.form.get(fieldName);
+    const control = this.form.get(fieldName) as AbstractControl<any, any>;
     return getErrorMessagesFn(fieldName, control, this.formConfig);
   }
 

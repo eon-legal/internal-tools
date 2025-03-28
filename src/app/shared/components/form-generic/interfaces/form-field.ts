@@ -21,7 +21,7 @@ export interface FormField<T> {
   name: Extract<keyof T, string>;
   label: string;
   type: FieldType;
-  validators?: FormValidation[];
+  validators?: FormValidation[] | null;
   primeNgConfig?: PrimeNgConfig;
   cols?: columns;
   showComponent?: boolean;

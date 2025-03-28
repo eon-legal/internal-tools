@@ -59,7 +59,6 @@ export class DownloadImagePdfService {
       files.map(async (file, index) => {
         try {
           const base64Image = await this.toBase64(file);
-          console.log('Dime el base 64', base64Image);
           const { width, height } = await this.getImageDimensions(base64Image);
 
           // Añade una página nueva

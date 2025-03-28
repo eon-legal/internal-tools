@@ -1,22 +1,40 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
 import { InvoicesSenderFormComponent } from './invoices-sender-form.component';
 import { FormGenericComponent } from '../../../../shared/components/form-generic/form-generic.component';
-import { InvoicesStore } from '../../../../store/app.component.store';
+import { InvoicesStore } from '../../../../store/app.store';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
+interface MockFirstForm {
+  numberInvoice: string;
+  dateOrDateRange: boolean;
+  date: Date | null;
+  rangeDates: { start: Date; end: Date } | null;
+  name: string;
+  national: boolean;
+  address: string;
+  passport: string;
+}
+
 class MockInvoicesStore {
   getAllMarkFieldForm = jest.fn(() => false);
-  getFirstForm = jest.fn(() => ({
-    numberInvoice: '',
-    dateOrDateRange: false,
-    date: null,
-    rangeDates: null,
-    name: '',
-    national: true,
-    address: '',
-    passport: ''
-  }));
+  getFirstForm = jest.fn(
+    (): MockFirstForm => ({
+      numberInvoice: '',
+      dateOrDateRange: false,
+      date: null,
+      rangeDates: null,
+      name: '',
+      national: true,
+      address: '',
+      passport: '',
+    })
+  );
   firstForm = jest.fn(() => ({}));
   updateFirstForm = jest.fn();
   updateValidFirstForm = jest.fn();
@@ -29,17 +47,15 @@ describe('InvoicesSenderFormComponent', () => {
 
   beforeEach(async () => {
     mockStore = new MockInvoicesStore();
-    
+
     await TestBed.configureTestingModule({
       imports: [
         InvoicesSenderFormComponent,
         FormGenericComponent,
-        ReactiveFormsModule
+        ReactiveFormsModule,
       ],
-      providers: [
-        { provide: InvoicesStore, useValue: mockStore }
-      ],
-      schemas: [NO_ERRORS_SCHEMA]
+      providers: [{ provide: InvoicesStore, useValue: mockStore }],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
   });
 
@@ -58,38 +74,61 @@ describe('InvoicesSenderFormComponent', () => {
   });
 
   it('should initialize form with data from store', () => {
-    const storeData = {
+    const storeData: MockFirstForm = {
       numberInvoice: 'INV-001',
       dateOrDateRange: true,
-      date: new Date(),
-      rangeDates: { start: new Date(), end: new Date() },
+      date: null,
+      rangeDates: null,
       name: 'Test Name',
       national: false,
       address: 'Test Address',
-      passport: 'P1234567'
+      passport: 'P1234567',
     };
-    
+
     mockStore.getFirstForm.mockReturnValue(storeData);
-    
+
     fixture = TestBed.createComponent(InvoicesSenderFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    
+
     expect(component.formConfig[0].initialData).toBe(storeData.numberInvoice);
     expect(component.formConfig[1].initialData).toBe(storeData.dateOrDateRange);
   });
 
+  it('should initialize form with date range data from store', () => {
+    const storeData: MockFirstForm = {
+      numberInvoice: 'INV-001',
+      dateOrDateRange: true,
+      date: null,
+      rangeDates: { start: new Date(), end: new Date() },
+      name: 'Test Name',
+      national: false,
+      address: 'Test Address',
+      passport: 'P1234567',
+    };
+
+    mockStore.getFirstForm.mockReturnValue(storeData);
+
+    fixture = TestBed.createComponent(InvoicesSenderFormComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.formConfig[3].initialData).toEqual(storeData.rangeDates);
+  });
+
   it('should mark all fields as touched when required', () => {
     mockStore.getAllMarkFieldForm.mockReturnValue(true);
-    const markAllSpy = jest.spyOn(component.formSenderGenericComponent.getGroupForm, 'markAllAsTouched');
-    
+    const markAllSpy = jest.spyOn(
+      component.formSenderGenericComponent.getGroupForm,
+      'markAllAsTouched'
+    );
+
     component.ngAfterViewInit();
-    
+
     expect(markAllSpy).toHaveBeenCalled();
   });
 
   it('should update store on destroy with valid form', () => {
-    // Configurar datos completos del formulario
     const formData = {
       numberInvoice: 'INV-001',
       dateOrDateRange: false,
@@ -98,19 +137,17 @@ describe('InvoicesSenderFormComponent', () => {
       name: 'Test Name',
       national: true,
       address: 'Test Address',
-      passport: ''
+      passport: '',
     };
-    
-    // Usar patchValue para evitar errores de campos requeridos
+
     component.formSenderGenericComponent.getGroupForm.patchValue(formData);
     component.ngOnDestroy();
-    
+
     expect(mockStore.updateFirstForm).toHaveBeenCalled();
     expect(mockStore.updateValidFirstForm).toHaveBeenCalledWith(true);
   });
 
   it('should update store on destroy with invalid form', () => {
-    // Configurar datos incompletos pero con todos los campos
     component.formSenderGenericComponent.getGroupForm.patchValue({
       numberInvoice: '',
       dateOrDateRange: false,
@@ -119,118 +156,126 @@ describe('InvoicesSenderFormComponent', () => {
       name: '',
       national: true,
       address: '',
-      passport: ''
+      passport: '',
     });
-    
+
     component.ngOnDestroy();
-    
+
     expect(mockStore.updateFirstForm).toHaveBeenCalled();
     expect(mockStore.updateValidFirstForm).toHaveBeenCalledWith(false);
   });
 
   it('should toggle date fields based on dateOrDateRange value', fakeAsync(() => {
-    // Obtener controles después de inicialización
-    const dateOrDateRangeControl = component.formSenderGenericComponent.getFormControl('dateOrDateRange');
-    const dateControl = component.formSenderGenericComponent.getFormControl('date');
-    const rangeDatesControl = component.formSenderGenericComponent.getFormControl('rangeDates');
-    
-    // Estado inicial (fecha simple)
+    const dateOrDateRangeControl =
+      component.formSenderGenericComponent.getFormControl('dateOrDateRange');
+    const dateControl =
+      component.formSenderGenericComponent.getFormControl('date');
+    const rangeDatesControl =
+      component.formSenderGenericComponent.getFormControl('rangeDates');
+
+    // Initial state (single date)
     expect(dateControl?.enabled).toBe(true);
     expect(rangeDatesControl?.enabled).toBe(false);
-    
-    // Cambiar a rango de fechas
+
+    // Change to date range
     dateOrDateRangeControl?.setValue(true);
     tick();
     fixture.detectChanges();
-    
+
     expect(dateControl?.enabled).toBe(false);
     expect(rangeDatesControl?.enabled).toBe(true);
-    
-    // Volver a fecha simple
+
+    // Back to single date
     dateOrDateRangeControl?.setValue(false);
     tick();
     fixture.detectChanges();
-    
+
     expect(dateControl?.enabled).toBe(true);
     expect(rangeDatesControl?.enabled).toBe(false);
   }));
 
   it('should toggle address/passport fields based on national value', fakeAsync(() => {
-    // Obtener controles
-    const nationalControl = component.formSenderGenericComponent.getFormControl('national');
-    const addressControl = component.formSenderGenericComponent.getFormControl('address');
-    const passportControl = component.formSenderGenericComponent.getFormControl('passport');
-    
-    // Estado inicial (nacional)
+    const nationalControl =
+      component.formSenderGenericComponent.getFormControl('national');
+    const addressControl =
+      component.formSenderGenericComponent.getFormControl('address');
+    const passportControl =
+      component.formSenderGenericComponent.getFormControl('passport');
+
+    // Initial state (national)
     expect(addressControl?.enabled).toBe(true);
     expect(passportControl?.enabled).toBe(false);
-    
-    // Cambiar a internacional
+
+    // Change to international
     nationalControl?.setValue(false);
     tick();
     fixture.detectChanges();
-    
+
     expect(addressControl?.enabled).toBe(false);
     expect(passportControl?.enabled).toBe(true);
-    
-    // Volver a nacional
+
+    // Back to national
     nationalControl?.setValue(true);
     tick();
     fixture.detectChanges();
-    
+
     expect(addressControl?.enabled).toBe(true);
     expect(passportControl?.enabled).toBe(false);
   }));
 
   it('should update validators when toggling dateOrDateRange', fakeAsync(() => {
-    // Obtener controles
-    const dateOrDateRangeControl = component.formSenderGenericComponent.getFormControl('dateOrDateRange');
-    const dateControl = component.formSenderGenericComponent.getFormControl('date');
-    const rangeDatesControl = component.formSenderGenericComponent.getFormControl('rangeDates');
-    
-    // Estado inicial (fecha simple)
+    const dateOrDateRangeControl =
+      component.formSenderGenericComponent.getFormControl('dateOrDateRange');
+    const dateControl =
+      component.formSenderGenericComponent.getFormControl('date');
+    const rangeDatesControl =
+      component.formSenderGenericComponent.getFormControl('rangeDates');
+
+    // Initial state (single date)
     expect(dateControl?.hasValidator(Validators.required)).toBe(true);
     expect(rangeDatesControl?.validator).toBeNull();
-    
-    // Cambiar a rango de fechas
+
+    // Change to date range
     dateOrDateRangeControl?.setValue(true);
     tick();
     fixture.detectChanges();
     expect(dateControl?.validator).toBeNull();
     expect(rangeDatesControl?.hasValidator(Validators.required)).toBe(true);
-    
-    // Volver a fecha simple
+
+    // Back to single date
     dateOrDateRangeControl?.setValue(false);
     tick();
     fixture.detectChanges();
-    
+
     expect(dateControl?.hasValidator(Validators.required)).toBe(true);
     expect(rangeDatesControl?.validator).toBeNull();
   }));
 
   it('should update validators when toggling national', fakeAsync(() => {
-    // Obtener controles
-    const nationalControl = component.formSenderGenericComponent.getFormControl('national');
-    const addressControl = component.formSenderGenericComponent.getFormControl('address');
-    const passportControl = component.formSenderGenericComponent.getFormControl('passport');
-    
-    // Estado inicial (nacional)
+    const nationalControl =
+      component.formSenderGenericComponent.getFormControl('national');
+    const addressControl =
+      component.formSenderGenericComponent.getFormControl('address');
+    const passportControl =
+      component.formSenderGenericComponent.getFormControl('passport');
+
+    // Initial state (national)
     expect(addressControl?.hasValidator(Validators.required)).toBe(true);
     expect(passportControl?.validator).toBeNull();
-    
-    // Cambiar a internacional
+
+    // Change to international
     nationalControl?.setValue(false);
     tick();
     fixture.detectChanges();
-    
+
     expect(addressControl?.validator).toBeNull();
     expect(passportControl?.hasValidator(Validators.required)).toBe(true);
-    
-    // Volver a nacional
+
+    // Back to national
     nationalControl?.setValue(true);
     tick();
     fixture.detectChanges();
-    
+
     expect(addressControl?.hasValidator(Validators.required)).toBe(true);
     expect(passportControl?.validator).toBeNull();
   }));
@@ -238,13 +283,16 @@ describe('InvoicesSenderFormComponent', () => {
   it('should patch form values when changeData is called', () => {
     const testData = {
       numberInvoice: 'TEST-123',
-      name: 'Test Name'
+      name: 'Test Name',
     };
-    
-    const patchSpy = jest.spyOn(component.formSenderGenericComponent.getGroupForm, 'patchValue');
-    
+
+    const patchSpy = jest.spyOn(
+      component.formSenderGenericComponent.getGroupForm,
+      'patchValue'
+    );
+
     component.changeData(testData);
-    
+
     expect(patchSpy).toHaveBeenCalledWith(testData);
   });
 });

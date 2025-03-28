@@ -9,7 +9,7 @@ import {
 import { Validators } from '@angular/forms';
 import { FormGenericComponent } from '../../../../shared/components/form-generic/form-generic.component';
 import { FisrtForm } from '../../interfaces/first-form';
-import { InvoicesStore } from '../../../../store/app.component.store';
+import { InvoicesStore } from '../../../../store/app.store';
 import {
   dateRangeValidator,
   noOneDateValidator,

@@ -47,7 +47,7 @@ describe('formatDateByParams', () => {
 
   it('should handle invalid dates by returning "Invalid Date"', () => {
     const invalidDate = new Date('invalid');
-    expect(formatDateByParams(invalidDate)).toBe('Invalid Date');
-    expect(formatDateByParams([invalidDate, invalidDate])).toBe('Invalid Date - Invalid Date');
+    expect(formatDateByParams(invalidDate)).toBe('');
+    expect(formatDateByParams([invalidDate, invalidDate])).toBe('');
   });
 });

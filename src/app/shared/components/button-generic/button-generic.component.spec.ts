@@ -71,6 +71,7 @@ describe('ButtonGenericComponent', () => {
   });
 
   it('should call the action function when a button is clicked', () => {
+    const mockAction = jest.fn();
     const buttonsConfig: ButtonGenericInterface = {
       css: 'flex justify-content-center gap-3',
       buttons: [
@@ -78,7 +79,7 @@ describe('ButtonGenericComponent', () => {
           id: 1,
           label: 'Guardar',
           severity: 'primary',
-          action: jest.fn(),
+          action: mockAction,
         },
       ],
     };
@@ -88,7 +89,8 @@ describe('ButtonGenericComponent', () => {
 
     const button = fixture.nativeElement.querySelector('p-button button');
     button.click();
-
-    expect(buttonsConfig.buttons[0].action).toHaveBeenCalled();
+    expect(buttonsConfig.buttons).toBeDefined();
+    expect(buttonsConfig.buttons?.length).toBeGreaterThan(0);
+    expect(mockAction).toHaveBeenCalled();
   });
 });

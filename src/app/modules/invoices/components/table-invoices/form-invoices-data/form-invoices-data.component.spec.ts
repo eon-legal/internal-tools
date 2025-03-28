@@ -60,9 +60,10 @@ describe('FormInvoicesDataComponent', () => {
     });
 
     it('should initialize buttons configuration correctly', () => {
-      expect(component.buttons.buttons.length).toBe(2);
-      expect(component.buttons.buttons[0].label).toBe('Cerrar');
-      expect(component.buttons.buttons[1].label).toBe('Agregar');
+      expect(component.buttons).toBeDefined();
+      expect(component.buttons?.buttons?.length).toBe(2);
+      expect(component.buttons?.buttons?.[0]?.label).toBe('Cerrar');
+      expect(component.buttons?.buttons?.[1]?.label).toBe('Agregar');
     });
   });
 
@@ -87,8 +88,8 @@ describe('FormInvoicesDataComponent', () => {
   describe('Button Actions', () => {
     it('should call accept method when add button is clicked', () => {
       const markAllAsTouchedSpy = jest.spyOn(component.formTable.getGroupForm, 'markAllAsTouched');
-      const addButton = component.buttons.buttons[1];
-      addButton.action();
+      const addButton = component.buttons?.buttons?.[1];
+      addButton?.action?.();
       expect(markAllAsTouchedSpy).toHaveBeenCalled();
     });
   });

@@ -14,7 +14,7 @@ export class ButtonGenericComponent {
   /**
    *  Recibe una entrada llamada 'buttons' que sigue la interfaz ButtonGenericInterface
    */
-  @Input() buttons: ButtonGenericInterface;
+  @Input() buttons!: ButtonGenericInterface;
 
   /**
    * Método para mostrar u ocultar un botón basado en una condición.

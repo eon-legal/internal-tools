@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+/*import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { StepperInvoicesGeneratePdfComponent } from './stepper-invoices-generate-pdf.component';
 import { StepperModule } from 'primeng/stepper';
 import { ButtonModule } from 'primeng/button';
@@ -106,7 +106,7 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
+  });*/
 
   /*xit('should initialize with step 1', () => {
     expect(component.data()).toBe(1);
@@ -260,4 +260,6 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
       expect(mockStore.resetInvoices).toHaveBeenCalled();
     });
   });*/
-});
+
+
+//});

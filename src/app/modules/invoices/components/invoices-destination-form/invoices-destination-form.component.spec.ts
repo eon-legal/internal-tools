@@ -2,7 +2,7 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { InvoicesDestinationFormComponent } from './invoices-destination-form.component';
 import { FormGenericComponent } from '../../../../shared/components/form-generic/form-generic.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { InvoicesStore } from '../../../../store/app.component.store';
+import { InvoicesStore } from '../../../../store/app.store';
 
 // Complete mock for InvoicesStore
 class MockInvoicesStore {
@@ -13,7 +13,7 @@ class MockInvoicesStore {
     addressDestination: '',
     nameBank: '',
     addressBank: '',
-    nif: ''
+    nif: '',
   }));
   updateSecondForm = jest.fn();
   updateValidSecondForm = jest.fn();
@@ -26,16 +26,11 @@ describe('InvoicesDestinationFormComponent', () => {
 
   beforeEach(async () => {
     mockStore = new MockInvoicesStore();
-    
+
     await TestBed.configureTestingModule({
-      imports: [
-        InvoicesDestinationFormComponent, 
-        FormGenericComponent
-      ],
-      providers: [
-        { provide: InvoicesStore, useValue: mockStore }
-      ],
-      schemas: [NO_ERRORS_SCHEMA]
+      imports: [InvoicesDestinationFormComponent, FormGenericComponent],
+      providers: [{ provide: InvoicesStore, useValue: mockStore }],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
   });
 
@@ -58,17 +53,21 @@ describe('InvoicesDestinationFormComponent', () => {
   it('should mark all fields as touched when store requires field marking', () => {
     mockStore.getAllMarkFieldForm.mockReturnValue(true);
     fixture.detectChanges();
-    
+
     expect(mockStore.getAllMarkFieldForm).toHaveBeenCalled();
-    expect(component.formDestinationGenericComponent.getGroupForm.touched).toBe(true);
+    expect(component.formDestinationGenericComponent.getGroupForm.touched).toBe(
+      true
+    );
   });
 
   it('should not mark fields when store does not require field marking', () => {
     mockStore.getAllMarkFieldForm.mockReturnValue(false);
     fixture.detectChanges();
-    
+
     expect(mockStore.getAllMarkFieldForm).toHaveBeenCalled();
-    expect(component.formDestinationGenericComponent.getGroupForm.touched).toBe(false);
+    expect(component.formDestinationGenericComponent.getGroupForm.touched).toBe(
+      false
+    );
   });
 
   // Tests para ngOnDestroy
@@ -79,13 +78,13 @@ describe('InvoicesDestinationFormComponent', () => {
       addressDestination: 'Test Address',
       nameBank: 'Test Bank',
       addressBank: 'Bank Address',
-      nif: '12345678A'
+      nif: '12345678A',
     };
-    
+
     fixture.detectChanges();
     component.formDestinationGenericComponent.getGroupForm.setValue(testData);
     component.ngOnDestroy();
-    
+
     expect(mockStore.updateSecondForm).toHaveBeenCalledWith(testData);
   });
 
@@ -96,13 +95,13 @@ describe('InvoicesDestinationFormComponent', () => {
       addressDestination: 'Valid Address',
       nameBank: 'Valid Bank',
       addressBank: 'Bank Address',
-      nif: '12345678A'
+      nif: '12345678A',
     };
-    
+
     fixture.detectChanges();
     component.formDestinationGenericComponent.getGroupForm.setValue(validData);
     component.ngOnDestroy();
-    
+
     expect(mockStore.updateValidSecondForm).toHaveBeenCalledWith(true);
   });
 
@@ -113,13 +112,15 @@ describe('InvoicesDestinationFormComponent', () => {
       addressDestination: '',
       nameBank: '',
       addressBank: '',
-      nif: ''
+      nif: '',
     };
-    
+
     fixture.detectChanges();
-    component.formDestinationGenericComponent.getGroupForm.setValue(invalidData);
+    component.formDestinationGenericComponent.getGroupForm.setValue(
+      invalidData
+    );
     component.ngOnDestroy();
-    
+
     expect(mockStore.updateValidSecondForm).toHaveBeenCalledWith(false);
   });
 
@@ -137,9 +138,9 @@ describe('InvoicesDestinationFormComponent', () => {
       addressDestination: 'Valid Address',
       nameBank: 'Valid Bank',
       addressBank: 'Bank Address',
-      nif: '12345678A'
+      nif: '12345678A',
     };
-    
+
     fixture.detectChanges();
     component.formDestinationGenericComponent.getGroupForm.setValue(validData);
     expect(component.isValidForm()).toBe(true);
@@ -152,11 +153,13 @@ describe('InvoicesDestinationFormComponent', () => {
       addressDestination: '',
       nameBank: '',
       addressBank: '',
-      nif: ''
+      nif: '',
     };
-    
+
     fixture.detectChanges();
-    component.formDestinationGenericComponent.getGroupForm.setValue(invalidData);
+    component.formDestinationGenericComponent.getGroupForm.setValue(
+      invalidData
+    );
     expect(component.isValidForm()).toBe(false);
   });
 
@@ -168,9 +171,9 @@ describe('InvoicesDestinationFormComponent', () => {
       addressDestination: 'Test Address',
       nameBank: 'Test Bank',
       addressBank: 'Bank Address',
-      nif: '12345678A'
+      nif: '12345678A',
     };
-    
+
     fixture.detectChanges();
     component.formDestinationGenericComponent.getGroupForm.setValue(testData);
     expect(component.getValueForm()).toEqual(testData);
@@ -184,21 +187,25 @@ describe('InvoicesDestinationFormComponent', () => {
       addressDestination: 'Store Address',
       nameBank: 'Store Bank',
       addressBank: 'Store Bank Address',
-      nif: '98765432B'
+      nif: '98765432B',
     };
-    
+
     // Configurar el mock ANTES de crear el componente
     mockStore.getSeconfForm.mockReturnValue(storeData);
-    
+
     // Recrear el componente con los nuevos datos del mock
     fixture = TestBed.createComponent(InvoicesDestinationFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    
+
     // Verificar que los datos del store se usaron para inicializar el formulario
     expect(component.formConfig[0].initialData).toBe(storeData.nameDestination);
-    expect(component.formConfig[1].initialData).toBe(storeData.accountDestination);
-    expect(component.formConfig[2].initialData).toBe(storeData.addressDestination);
+    expect(component.formConfig[1].initialData).toBe(
+      storeData.accountDestination
+    );
+    expect(component.formConfig[2].initialData).toBe(
+      storeData.addressDestination
+    );
     expect(component.formConfig[3].initialData).toBe(storeData.nameBank);
     expect(component.formConfig[4].initialData).toBe(storeData.addressBank);
     expect(component.formConfig[5].initialData).toBe(storeData.nif);
@@ -231,5 +238,3 @@ describe('InvoicesDestinationFormComponent', () => {
       getDataFormComplete: mockFormGeneric.getDataFormComplete
     } as any;
   });*/
-
- 

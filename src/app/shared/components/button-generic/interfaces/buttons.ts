@@ -1,17 +1,19 @@
-export interface FlexibleFunction<
+/*export interface FlexibleFunction<
   Args extends unknown[] = unknown[],
   ReturnType = void
 > {
   (...args: Args): ReturnType;
-}
+}*/
+export type FlexibleFunction = (...args: any[]) => void;
 
-export interface FlexibleBooleanFunction<
+/*export interface FlexibleBooleanFunction<
   Args extends unknown[] = unknown[],
   ReturnType = boolean
 > {
   (...args: Args): ReturnType;
 }
-
+*/
+export type FlexibleBooleanFunction = (...args: any[]) => boolean;
 // Definimos un tipo que asegura que al menos uno de los campos esté presente
 type AtLeastOne<T, Keys extends keyof T = keyof T> = Partial<T> &
   {

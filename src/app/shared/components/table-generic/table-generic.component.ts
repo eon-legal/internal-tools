@@ -44,7 +44,7 @@ export class TableGenericComponent<T extends object> {
   @Input() dataTable!: T[];
 
   /** Configuración de los botones de operaciones. */
-  @Input() operation: ButtonGenericInterface;
+  @Input() operation!: ButtonGenericInterface;
 
   /** Opciones de formato para los valores de la tabla. */
   @Input() formatOptions?: FormatOptions<T>;
@@ -111,8 +111,11 @@ export class TableGenericComponent<T extends object> {
    * @param op - Configuración del botón.
    * @param file - Fila sobre la que se ejecuta la acción.
    */
+
   handleOperation(op: ButtonConfig, file: T) {
-    op.action(file);
+    if (op.action) {
+      op.action(file);
+    }
   }
 
   /**
@@ -168,15 +171,22 @@ export class TableGenericComponent<T extends object> {
    * @returns Configuración de los botones.
    */
   getButtons(op: ButtonConfig, row: T): ButtonGenericInterface {
+    // Valor por defecto para icono si es undefined
+    const icon = op.icon ?? 'pi pi-question-circle'; // Icono por defecto
+
     return {
       buttons: [
         {
           id: op.id,
-          icon: op.icon,
+          icon: icon, // Aseguramos que siempre tenga valor
           label: op.label,
           severity: op.severity,
           disabled: this.isDisabled(op, row),
-          action: () => (this.isDisabled(op, row) ? null : op.action(row)),
+          action: () => {
+            if (!this.isDisabled(op, row) && op.action) {
+              op.action(row);
+            }
+          },
         },
       ],
     };

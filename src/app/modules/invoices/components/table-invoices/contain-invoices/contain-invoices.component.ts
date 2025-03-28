@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { TableGenericComponent } from '../../../../../shared/components/table-generic/table-generic.component';
-import { InvoicesStore } from '../../../../../store/app.component.store';
+import { InvoicesStore } from '../../../../../store/app.store';
 import { DataInvoicesTable } from '../../../interfaces/data-invoices-table';
 import {
   ButtonGenericInterface,
@@ -29,7 +29,7 @@ import { getNextID } from '../../../utils/next-id/next-id';
   styleUrl: './contain-invoices.component.scss',
 })
 export class ContainInvoicesComponent implements OnDestroy, OnInit {
-  /** Injected store for managing invoice data */ 
+  /** Injected store for managing invoice data */
   readonly store = inject(InvoicesStore);
 
   /** List of pagination options for the table */

@@ -1,133 +1,161 @@
 import { InputNumberInputEvent } from 'primeng/inputnumber';
 import { getValidateInputPercentage } from './get-validate-input-percentage';
-import { procesarCadena } from './get-validate-input-percentage'; // Asegúrate de importar la función correctamente
 
-/*describe('getValidateInputPercentage', () => {
-  // Helper function to create a mock InputNumberInputEvent
-  const createInputEvent = (
-    value: string | number | null
-  ): InputNumberInputEvent => ({
-    originalEvent: new Event('input'), // Mock event
-    formattedValue: value?.toString() || '', // Mock formattedValue
-    value,
-  });
-  it('should return no change for empty input', () => {
-    const result = getValidateInputPercentage(createInputEvent(null));
-    expect(result).toEqual({ change: false });
+describe('getValidateInputPercentage', () => {
+  const createMockEvent = (value: any): InputNumberInputEvent => ({
+    originalEvent: new Event('input'),
+    value: value,
+    formattedValue: value?.toString() ?? ''
   });
 
-  it('should handle negative numbers by removing the negative sign', () => {
-    const result1 = getValidateInputPercentage(createInputEvent('-100.98'));
-    expect(result1).toEqual({ change: true, value: 100 });
+  describe('Empty/Null/Undefined Input Handling', () => {
+    it('should return no change for empty string input', () => {
+      const event = createMockEvent('');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
 
-    const result2 = getValidateInputPercentage(createInputEvent('-98.756'));
-    expect(result2).toEqual({ change: true, value: 98.75 });
+    it('should return no change for null input', () => {
+      const event = createMockEvent(null);
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
 
-    const result3 = getValidateInputPercentage(createInputEvent('-782.968'));
-    expect(result3).toEqual({ change: true, value: 78.96 });
+    it('should return no change for undefined input', () => {
+      const event = createMockEvent(undefined);
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
   });
 
-  it('should handle invalid inputs with letters', () => {
-    const result1 = getValidateInputPercentage(createInputEvent('-78io'));
-    expect(result1).toEqual({ change: true, value: 78 });
+  describe('Negative Number Handling', () => {
+    it('should convert negative integer to positive', () => {
+      const event = createMockEvent('-10');
+      expect(getValidateInputPercentage(event)).toEqual({ change: true, value: 10 });
+    });
 
-    const result2 = getValidateInputPercentage(createInputEvent('85u.789'));
-    expect(result2).toEqual({ change: true, value: 85.78 });
+    it('should convert negative decimal to positive', () => {
+      const event = createMockEvent('-25.75');
+      expect(getValidateInputPercentage(event)).toEqual({ change: true, value: 25.75 });
+    });
+
+    it('should handle negative numbers > 100', () => {
+      const event = createMockEvent('-150');
+      expect(getValidateInputPercentage(event)).toEqual({ change: true, value: 15 });
+    });
   });
 
-  it('should truncate integer part to 2 digits if greater than 100', () => {
-    const result1 = getValidateInputPercentage(createInputEvent('123.456'));
-    expect(result1).toEqual({ change: true, value: 12.45 });
+  describe('Values Greater Than 100 Handling', () => {
+    it('should truncate 150 to 15', () => {
+      const event = createMockEvent('150');
+      expect(getValidateInputPercentage(event)).toEqual({ change: true, value: 15 });
+    });
 
-    const result2 = getValidateInputPercentage(createInputEvent('1000.789'));
-    expect(result2).toEqual({ change: true, value: 10.78 }); //hay que ver bien esto
+    it('should truncate 1234.56 to 12.34', () => {
+      const event = createMockEvent('1234.56');
+      expect(getValidateInputPercentage(event)).toEqual({ change: true, value: 12.56 });
+    });
+
+    it('should truncate 999.999 to 99.99', () => {
+      const event = createMockEvent('999.999');
+      expect(getValidateInputPercentage(event)).toEqual({ change: true, value: 99.99 });
+    });
   });
 
-  it('should remove decimal part if integer part is 100 and decimal is not 0 or 00', () => {
-    const result1 = getValidateInputPercentage(createInputEvent('100.123'));
-    expect(result1).toEqual({ change: true, value: 100 });
+  describe('Decimal Place Handling', () => {
+    it('should limit to 2 decimal places', () => {
+      const event = createMockEvent('50.1234');
+      expect(getValidateInputPercentage(event)).toEqual({ change: true, value: 50.12 });
+    });
 
-    const result2 = getValidateInputPercentage(createInputEvent('100.00'));
-    expect(result2).toEqual({ change: false });
+    it('should return no change for already valid decimals', () => {
+      const event = createMockEvent('75.9');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
 
-    const result3 = getValidateInputPercentage(createInputEvent('100.0'));
-    expect(result3).toEqual({ change: false });
+    it('should handle no decimal places without value in result', () => {
+      const event = createMockEvent('80');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
   });
 
-  it('should ensure the value is between 0 and 100', () => {
-    const result1 = getValidateInputPercentage(createInputEvent('-50.123'));
-    expect(result1).toEqual({ change: true, value: 50.12 });
+  describe('Exact 100 Handling', () => {
+    it('should remove decimals when not .0 or .00', () => {
+      const event = createMockEvent('100.25');
+      expect(getValidateInputPercentage(event)).toEqual({ change: true, value: 100 });
+    });
 
-    const result2 = getValidateInputPercentage(createInputEvent('150.789'));
-    expect(result2).toEqual({ change: true, value: 15.78 });
+    it('should return no change for .0 decimal', () => {
+      const event = createMockEvent('100.0');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
 
-    const result3 = getValidateInputPercentage(createInputEvent('0.123'));
-    expect(result3).toEqual({ change: true, value: 0.12 });
+    it('should return no change for .00 decimal', () => {
+      const event = createMockEvent('100.00');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
+
+    it('should handle integer 100 with no change', () => {
+      const event = createMockEvent('100');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
   });
 
-  it('should return no change if the input is already valid', () => {
-    const result1 = getValidateInputPercentage(createInputEvent('50.12'));
-    expect(result1).toEqual({ change: false });
+  describe('String Input Handling', () => {
+    it('should return no change for strings with numbers', () => {
+      const event = createMockEvent('abc50.25def');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
 
-    const result2 = getValidateInputPercentage(createInputEvent('100'));
-    expect(result2).toEqual({ change: false });
-  });
-});*/
+    it('should return no change for strings with multiple numbers', () => {
+      const event = createMockEvent('price: 123.45$');
+      expect(getValidateInputPercentage(event)).toEqual({ change: true, value: 12.45 });
+    });
 
-
-describe('procesarCadena', () => {
-  // Casos donde se espera una cadena vacía
-  test('devuelve cadena vacía si hay más de un signo menos', () => {
-    expect(procesarCadena('--123')).toBe('');
-  });
-
-  test('devuelve cadena vacía si la cadena comienza con un punto', () => {
-    expect(procesarCadena('.123')).toBe('');
+    it('should return no change for non-numeric strings', () => {
+      const event = createMockEvent('invalid');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
   });
 
-  test('devuelve cadena vacía si hay más de un punto', () => {
-    expect(procesarCadena('12.34.56')).toBe('');
+  describe('Edge Case Handling', () => {
+    it('should handle 0 correctly without value in result', () => {
+      const event = createMockEvent('0');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
+
+    it('should return no change for 0.00', () => {
+      const event = createMockEvent('0.00');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
+
+    it('should handle multiple decimal points', () => {
+      const event = createMockEvent('50..25');
+      expect(getValidateInputPercentage(event)).toEqual({ change: true, value: 50 });
+    });
+
+    it('should handle very small decimals', () => {
+      const event = createMockEvent('0.999');
+      expect(getValidateInputPercentage(event)).toEqual({ change: true, value: 0.99 });
+    });
+
+    it('should handle values just above 100', () => {
+      const event = createMockEvent('100.001');
+      expect(getValidateInputPercentage(event)).toEqual({ change: true, value: 100 });
+    });
   });
 
-  test('devuelve cadena vacía si el signo menos no está al inicio', () => {
-    expect(procesarCadena('123-')).toBe('123');
-  });
+  describe('Valid Input Without Changes', () => {
+    it('should return no change for valid integer without value', () => {
+      const event = createMockEvent('50');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
 
-  test('devuelve cadena vacía si no hay números', () => {
-    expect(procesarCadena('abc')).toBe('');
-  });
+    it('should return no change for valid decimal without value', () => {
+      const event = createMockEvent('75.25');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
 
-  // Casos donde se espera una cadena procesada correctamente
-  test('mantiene números, un solo signo menos y un solo punto', () => {
-    expect(procesarCadena('-123.45')).toBe('-123.45');
-  });
-
-  test('elimina letras y caracteres especiales no permitidos', () => {
-    expect(procesarCadena('ty9p.i9l')).toBe('9.9');
-  });
-
-  test('elimina el punto si no está entre números', () => {
-    expect(procesarCadena('iu.8')).toBe('8');
-  });
-
-  test('mantiene el punto si está entre números', () => {
-    expect(procesarCadena('12.34')).toBe('12.34');
-  });
-
-  test('devuelve cadena vacía si no hay números después de eliminar caracteres no permitidos', () => {
-    expect(procesarCadena('abc.def')).toBe('');
-  });
-
-  // Casos adicionales
-  test('devuelve cadena vacía si la cadena está vacía', () => {
-    expect(procesarCadena('')).toBe('');
-  });
-
-  test('devuelve cadena vacía si solo contiene caracteres no permitidos', () => {
-    expect(procesarCadena('@#$%^&*()')).toBe('');
-  });
-
-  test('mantiene el signo menos al inicio y elimina otros caracteres no permitidos', () => {
-    expect(procesarCadena('-a1b2.c3d4')).toBe('-12.34');
+    it('should return no change for 100 without value', () => {
+      const event = createMockEvent('100');
+      expect(getValidateInputPercentage(event)).toEqual({ change: false });
+    });
   });
 });

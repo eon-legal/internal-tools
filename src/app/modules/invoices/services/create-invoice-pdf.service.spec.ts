@@ -147,7 +147,7 @@ describe('CreateInvoicePdfService', () => {
     it('should handle date range when date is not provided', async () => {
       const invoiceWithDateRange: FisrtForm = {
         ...completeMockRightInvoice,
-        date: undefined,
+        date: null,
         dateOrDateRange: false
       };
 

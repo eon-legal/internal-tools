@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { FormGenericComponent } from '../../../../shared/components/form-generic/form-generic.component';
-import { InvoicesStore } from '../../../../store/app.component.store';
+import { InvoicesStore } from '../../../../store/app.store';
 import { SecondForm } from '../../interfaces/second-form';
 import { FormField } from '../../../../shared/components/form-generic/interfaces/form-field';
 

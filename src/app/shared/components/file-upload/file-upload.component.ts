@@ -26,9 +26,9 @@ import {
 export class FileUploadComponent {
   // Input properties
   @Input() accept: string[] = []; // Allowed file types (e.g., ['.pdf', '.jpg'])
-  @Input() uploadIcon: string; // Icon for the upload button
-  @Input() styleClass: string; // Custom CSS class for styling
-  @Input() name: string; // Name attribute for the file input
+  @Input() uploadIcon!: string; // Icon for the upload button
+  @Input() styleClass!: string; // Custom CSS class for styling
+  @Input() name!: string; // Name attribute for the file input
   @Input() auto: boolean = false; // Whether to upload files automatically
   @Input() noFooter: boolean = false; // Whether to hide the footer section
   @Input() multiple: boolean = false; // Whether to allow multiple file selection

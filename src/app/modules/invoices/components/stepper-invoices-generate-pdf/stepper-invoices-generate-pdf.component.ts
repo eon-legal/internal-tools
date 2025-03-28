@@ -15,7 +15,7 @@ import { StepperModule } from 'primeng/stepper';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { StepperContextComponent } from '../../../../shared/components/stepper-context/stepper-context.component';
-import { InvoicesStore } from '../../../../store/app.component.store';
+import { InvoicesStore } from '../../../../store/app.store';
 import { DataInvoicesConstant } from '../../constants/data-invoices';
 import {
   ButtonConfig,

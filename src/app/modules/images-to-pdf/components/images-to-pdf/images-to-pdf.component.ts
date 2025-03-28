@@ -9,6 +9,7 @@ import { TableGenericComponent } from '../../../../shared/components/table-gener
 import { HeaderTable } from '../../../../shared/components/table-generic/interfaces/header-table';
 import {
   ButtonGenericInterface,
+  FlexibleFunction,
   FormatOptions,
 } from '../../../../shared/components/button-generic/interfaces/buttons';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -411,6 +412,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
    * Updates the state of the buttons based on the form data.
    */
   changeStateButton() {
+    if(this.buttons?.buttons?.length)
     this.buttons.buttons[0].disabled = !this.getFormDataFile().length;
     if (!this.getFormDataFile().length) {
       this.orderTable = false;
