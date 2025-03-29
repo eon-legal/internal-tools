@@ -27,7 +27,13 @@ import { ButtonGenericComponent } from '../../../../../shared/components/button-
 })
 export class FormInvoicesDataComponent {
   /** Reference to the FormGenericComponent for managing the form */
-  @ViewChild('formTable') formTable!: FormGenericComponent<DataInvoicesTable>;
+  @ViewChild('formTable') formTable!: FormGenericComponent<{
+    description: string;
+    perCentIva: number | string | { label: string; value: number };
+    price?: number;
+    qtt?: number;
+    total: number;
+  }>;
 
   /** Configuration for buttons in the dialog */
   buttons: ButtonGenericInterface = {

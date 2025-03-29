@@ -1,4 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -204,8 +209,8 @@ describe('FormGenericComponent', () => {
     expect(component.getGroupForm.get('file')?.value).toEqual([]);
   });
 
-  it('should validate and format decimal input', () => {
-    const formConfig: FormField<any>[] = [
+  it('should validate and format decimal input', fakeAsync(() => {
+    const formConfig: FormField<{ price: number }>[] = [
       {
         name: 'price',
         type: 'decimal',
@@ -220,12 +225,12 @@ describe('FormGenericComponent', () => {
 
     const mockEvent = { value: '123.456' };
     component.validateInputNumberDecimal(mockEvent as any, 'price');
-
+    tick();
     expect(component.getGroupForm.get('price')?.value).toBe(123.45); // Redondeado a 2 decimales
-  });
+  }));
 
-  it('should validate and format percentage input', () => {
-    const formConfig: FormField<any>[] = [
+  it('should validate and format percentage input', fakeAsync(() => {
+    const formConfig: FormField<{ discount: number }>[] = [
       {
         name: 'discount',
         type: 'number_percent',
@@ -240,7 +245,7 @@ describe('FormGenericComponent', () => {
 
     const mockEvent = { value: '50.123' };
     component.validateInputPercentaje(mockEvent as any, 'discount');
-
+    tick();
     expect(component.getGroupForm.get('discount')?.value).toBe(50.12); // Redondeado a 2 decimales
-  });
+  }));
 });

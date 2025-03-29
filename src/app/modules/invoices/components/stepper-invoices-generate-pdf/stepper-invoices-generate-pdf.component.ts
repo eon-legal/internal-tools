@@ -121,12 +121,16 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
   nameStepTwo = 'Tabla Factura'; // Step 2: Invoice table
   nameStepThree = 'Destinatario - Generar Factura'; // Step 3: Destination form
 
-  /** Injected services */
-  readonly store = inject(InvoicesStore); // Store for managing invoice data
-  toastr: ToastrService = inject(ToastrService); // Toastr service for notifications
+  /** Store for managing invoice data */
+  readonly store = inject(InvoicesStore); 
+
+  /** Toastr service for notifications */
+  toastr: ToastrService = inject(ToastrService); 
+
+  /** Service for generating PDFs */
   createInvoicePdfService: CreateInvoicePdfService = inject(
     CreateInvoicePdfService
-  ); // Service for generating PDFs
+  ); 
 
   /** References to dynamically created components */
   componentRefs: { [key: number]: any } = {};

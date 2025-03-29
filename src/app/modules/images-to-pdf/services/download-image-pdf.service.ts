@@ -124,9 +124,9 @@ export class DownloadImagePdfService {
         window.open(pdfUrl, '_blank');
 
         // Limpia la URL temporal después de abrir el PDF
-        /*setTimeout(() => {
+        setTimeout(() => {
           URL.revokeObjectURL(pdfUrl);
-        }, 1000);*/
+        }, 1000);
       })
       .catch(() => {
         this.toastr.error(
