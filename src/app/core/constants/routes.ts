@@ -9,16 +9,21 @@ export const MENU_ITEMS: MenuItem[] = [
     styleClass: '', // Clase CSS inicial
   },
   {
-    label: 'Reportes',
+    /*label: 'Reportes',
     icon: 'pi pi-chart-bar',
     expanded: false, // Estado inicial del ítem
     styleClass: '', // Clase CSS inicial
-    items: [
-      {
-        label: 'Facturas',
-        icon: 'pi pi-id-card',
-        routerLink: ['/invoices'],
-      },
-    ],
+    items: [*/
+    //{
+    label: 'Facturas',
+    icon: 'pi pi-chart-bar',
+    routerLink: ['/invoices'],
+    //},
+    //],
+  },
+  {
+    label: 'Destinarios',
+    icon: 'pi pi-id-card',
+    routerLink: ['/addressee'],
   },
 ];

@@ -1,20 +1,8 @@
-/*export interface FlexibleFunction<
-  Args extends unknown[] = unknown[],
-  ReturnType = void
-> {
-  (...args: Args): ReturnType;
-}*/
+import { DynamicDialogRef } from "primeng/dynamicdialog";
+
 export type FlexibleFunction = (...args: any[]) => void;
 
-/*export interface FlexibleBooleanFunction<
-  Args extends unknown[] = unknown[],
-  ReturnType = boolean
-> {
-  (...args: Args): ReturnType;
-}
-*/
 export type FlexibleBooleanFunction = (...args: any[]) => boolean;
-// Definimos un tipo que asegura que al menos uno de los campos esté presente
 type AtLeastOne<T, Keys extends keyof T = keyof T> = Partial<T> &
   {
     [K in Keys]: Required<Pick<T, K>>;
@@ -82,4 +70,19 @@ export type FormatOptions<T extends object> = {
 export interface ButtonGenericInterface {
   css?: string;
   buttons?: ButtonConfig[];
+}
+
+export interface ModalRef<T = any> {
+  close: (result?: any) => void;
+  onClose: (callback: (result?: any) => void) => void;
+  getInstance: () => T | undefined;
+}
+
+export interface ModalConfig {
+  title?: string;
+  width?: string;
+  buttons?: ButtonConfig[];
+  data?: any;
+  closable?: boolean;
+  registerInstance?: (instance: any) => void;
 }

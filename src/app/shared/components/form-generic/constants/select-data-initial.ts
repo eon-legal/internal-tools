@@ -1,0 +1,1 @@
+export const SELECT_DATA_INITIAL = { label: 'Seleccione', value: '' };

@@ -1,0 +1,1 @@
+export const MESSAGE_ERROR = 'Ha ocurrido un error al consumir el servicio';

@@ -9,6 +9,7 @@ import { computed } from '@angular/core';
 import { FisrtForm } from '../modules/invoices/interfaces/first-form';
 import { SecondForm } from '../modules/invoices/interfaces/second-form';
 import { DataInvoicesTable } from '../modules/invoices/interfaces/data-invoices-table';
+import { SELECT_DATA_INITIAL } from '../shared/components/form-generic/constants/select-data-initial';
 
 /**
  * Represents the state structure for the invoices store.
@@ -40,6 +41,7 @@ const initialState: InvoicesState = {
     passport: '',
   },
   second: {
+    chooseDestination: SELECT_DATA_INITIAL,
     nameDestination: '',
     accountDestination: '',
     addressDestination: '',

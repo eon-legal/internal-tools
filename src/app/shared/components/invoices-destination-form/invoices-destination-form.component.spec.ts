@@ -1,8 +1,8 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { InvoicesDestinationFormComponent } from './invoices-destination-form.component';
-import { FormGenericComponent } from '../../../../shared/components/form-generic/form-generic.component';
+import { FormGenericComponent } from '../form-generic/form-generic.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { InvoicesStore } from '../../../../store/app.store';
+import { InvoicesStore } from '../../../store/app.store';
 
 // Complete mock for InvoicesStore
 class MockInvoicesStore {

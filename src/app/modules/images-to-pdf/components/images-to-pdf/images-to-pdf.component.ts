@@ -65,7 +65,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
           uploadIcon: 'pi pi-arrow-down', // Icon for the upload button
           multiple: true, // Allow multiple file uploads
           chooseLabel: 'Seleccionar', // Label for the file selection button
-          uploadLabel: 'Subir Archivo', // Label for the upload button
+          uploadLabel: 'Descargar Archivo', // Label for the upload button
           cancelLabel: 'Limpiar', // Label for the clear button
           noFooter: true, // Hide the footer in the file upload dialog
           uploadHandler: () => {

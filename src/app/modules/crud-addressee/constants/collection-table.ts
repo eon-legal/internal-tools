@@ -1,0 +1,1 @@
+export const ADDRESSEE_TABLE = 'addressee';

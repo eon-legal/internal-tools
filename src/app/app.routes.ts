@@ -24,6 +24,14 @@ export const routes: Routes = [
           ).then((m) => m.StepperInvoicesGeneratePdfComponent),
         title: 'Convertidor Imágenes a PDF',
       },
+      {
+        path: 'addressee',
+        loadComponent: () =>
+          import(
+            './modules/crud-addressee/components/crud-addressee.component'
+          ).then((m) => m.CrudAddresseeComponent),
+        title: 'Convertidor Imágenes a PDF',
+      },
     ],
   },
   {

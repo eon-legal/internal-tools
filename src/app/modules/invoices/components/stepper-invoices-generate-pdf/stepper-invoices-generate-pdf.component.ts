@@ -8,7 +8,7 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { ContainInvoicesComponent } from '../table-invoices/contain-invoices/contain-invoices.component';
-import { InvoicesDestinationFormComponent } from '../invoices-destination-form/invoices-destination-form.component';
+import { InvoicesDestinationFormComponent } from '../../../../shared/components/invoices-destination-form/invoices-destination-form.component';
 import { ToastrService } from 'ngx-toastr';
 import { CreateInvoicePdfService } from '../../services/create-invoice-pdf.service';
 import { StepperModule } from 'primeng/stepper';
@@ -63,7 +63,10 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
       icon: 'pi pi-arrow-right',
       iconPos: 'right',
       action: () => {
-        this.data.set(2); // Move to step 2
+        const step1 = this.componentRefs[1] as InvoicesSenderFormComponent;
+        const valid = step1.formSenderGenericComponent?.getGroupForm?.valid;
+        if (valid) this.data.set(2); // Move to step 2
+        else step1.formSenderGenericComponent?.getGroupForm?.markAllAsTouched();
       },
       hideDependsFunction: (step: number) => step === 1, // Only visible in step 1
     },
@@ -122,15 +125,15 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
   nameStepThree = 'Destinatario - Generar Factura'; // Step 3: Destination form
 
   /** Store for managing invoice data */
-  readonly store = inject(InvoicesStore); 
+  readonly store = inject(InvoicesStore);
 
   /** Toastr service for notifications */
-  toastr: ToastrService = inject(ToastrService); 
+  toastr: ToastrService = inject(ToastrService);
 
   /** Service for generating PDFs */
   createInvoicePdfService: CreateInvoicePdfService = inject(
     CreateInvoicePdfService
-  ); 
+  );
 
   /** References to dynamically created components */
   componentRefs: { [key: number]: any } = {};

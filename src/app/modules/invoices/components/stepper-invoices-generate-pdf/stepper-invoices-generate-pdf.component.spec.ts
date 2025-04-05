@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { StepperContextComponent } from '../../../../shared/components/stepper-context/stepper-context.component';
 import { InvoicesStore } from '../../../../store/app.store';
 import { ContainInvoicesComponent } from '../table-invoices/contain-invoices/contain-invoices.component';
-import { InvoicesDestinationFormComponent } from '../invoices-destination-form/invoices-destination-form.component';
+import { InvoicesDestinationFormComponent } from '../../../../shared/components/invoices-destination-form/invoices-destination-form.component';
 import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-sender-form.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
@@ -90,7 +90,7 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
     } as unknown as jest.Mocked<CreateInvoicePdfService>;
 
     mockDialogService = {
-      open: jest.fn()
+      open: jest.fn(),
     } as unknown as jest.Mocked<DialogService>;
 
     mockInvoicesStore = {
@@ -126,9 +126,12 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
       ],
       providers: [
         { provide: ToastrService, useValue: mockToastrService },
-        { provide: CreateInvoicePdfService, useValue: mockCreateInvoicePdfService },
+        {
+          provide: CreateInvoicePdfService,
+          useValue: mockCreateInvoicePdfService,
+        },
         { provide: InvoicesStore, useValue: mockInvoicesStore },
-        { provide: DialogService, useValue: mockDialogService }
+        { provide: DialogService, useValue: mockDialogService },
       ],
     }).compileComponents();
 
@@ -359,13 +362,17 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
     it('should update store when first form validation changes', () => {
       const isValid = true;
       mockInvoicesStore.updateValidFirstForm(isValid);
-      expect(mockInvoicesStore.updateValidFirstForm).toHaveBeenCalledWith(isValid);
+      expect(mockInvoicesStore.updateValidFirstForm).toHaveBeenCalledWith(
+        isValid
+      );
     });
 
     it('should update store when second form validation changes', () => {
       const isValid = false;
       mockInvoicesStore.updateValidSecondForm(isValid);
-      expect(mockInvoicesStore.updateValidSecondForm).toHaveBeenCalledWith(isValid);
+      expect(mockInvoicesStore.updateValidSecondForm).toHaveBeenCalledWith(
+        isValid
+      );
     });
   });
 });

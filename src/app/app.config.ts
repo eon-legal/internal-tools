@@ -22,6 +22,17 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { getAuth, provideAuth } from '@angular/fire/auth';
+
+import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import {
+  provideRemoteConfig,
+  getRemoteConfig,
+} from '@angular/fire/remote-config';
+
+import { getStorage, provideStorage } from '@angular/fire/storage';
+
 export const provideTranslation = () => ({
   //defaultLanguage: "en",
   loader: {
@@ -34,6 +45,16 @@ export const provideTranslation = () => ({
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyACfLV8asrf62FJcpiPSVbN7jMZT42IusM',
+  authDomain: 'eontech-solutions-web.firebaseapp.com',
+  projectId: 'eontech-solutions-web',
+  storageBucket: 'eontech-solutions-web.firebasestorage.app',
+  messagingSenderId: '790481331254',
+  appId: '1:790481331254:web:9c9d41b78ba00ef09ba497',
+  measurementId: 'G-2RRB8ZYXJ5',
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -49,6 +70,18 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     importProvidersFrom([TranslateModule.forRoot(provideTranslation())]),
-    //provideStore({ user: userReducer }),
+    // aqui viene firebase
+    provideFirebaseApp(() => initializeApp(firebaseConfig)),
+    provideAuth(() => getAuth()), // Provides Firebase Authentication service
+    // Provide Firebase Authentication service
+    provideFirestore(() => getFirestore()), // Provides Firebase Firestore service
+    provideStorage(() => getStorage()), // Fournit le service Firebase Storage
+    provideRemoteConfig(() => getRemoteConfig()),
+    //provideHttpClient(withInterceptors([loggingInterceptor])),
+    provideRemoteConfig(() => {
+      const remoteConfig = getRemoteConfig();
+      remoteConfig.settings.minimumFetchIntervalMillis = 1000;
+      return remoteConfig;
+    }),
   ],
 };
