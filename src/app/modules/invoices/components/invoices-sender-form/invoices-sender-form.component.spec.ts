@@ -119,7 +119,7 @@ describe('InvoicesSenderFormComponent', () => {
   it('should mark all fields as touched when required', () => {
     mockStore.getAllMarkFieldForm.mockReturnValue(true);
     const markAllSpy = jest.spyOn(
-      component.formSenderGenericComponent.getGroupForm,
+      component.formSenderGenericComponent.getForm,
       'markAllAsTouched'
     );
 
@@ -140,7 +140,7 @@ describe('InvoicesSenderFormComponent', () => {
       passport: '',
     };
 
-    component.formSenderGenericComponent.getGroupForm.patchValue(formData);
+    component.formSenderGenericComponent.getForm.patchValue(formData);
     component.ngOnDestroy();
 
     expect(mockStore.updateFirstForm).toHaveBeenCalled();
@@ -148,7 +148,7 @@ describe('InvoicesSenderFormComponent', () => {
   });
 
   it('should update store on destroy with invalid form', () => {
-    component.formSenderGenericComponent.getGroupForm.patchValue({
+    component.formSenderGenericComponent.getForm.patchValue({
       numberInvoice: '',
       dateOrDateRange: false,
       date: null,
@@ -287,7 +287,7 @@ describe('InvoicesSenderFormComponent', () => {
     };
 
     const patchSpy = jest.spyOn(
-      component.formSenderGenericComponent.getGroupForm,
+      component.formSenderGenericComponent.getForm,
       'patchValue'
     );
 

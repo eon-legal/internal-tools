@@ -1,30 +1,30 @@
-import { Injectable, Type } from '@angular/core';
+import { inject, Injectable, Type } from '@angular/core';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import {
   ModalConfig,
   ModalRef,
-} from '../components/button-generic/interfaces/buttons';
-import { ModalContainerComponent } from './app-modal-container/app-modal-container.component';
+} from '../../components/button-generic/interfaces/buttons';
+import { AppModalContainerComponent } from '../../components/app-modal-container/app-modal-container.component';
+import { TEXT_ERROR_SERVICE } from './constant/text-error-service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ModalService {
-  constructor(private dialogService: DialogService) {}
+export class CustomModalService {
+  private dialogService = inject(DialogService);
 
   open<T = any>(
     component: Type<T>,
     config: ModalConfig = {}
   ): { modalRef: DynamicDialogRef; modalServiceRef: ModalRef<T> } {
     if (!component) {
-      throw new Error('Debe proporcionar un componente válido para el modal');
+      throw new Error(TEXT_ERROR_SERVICE);
     }
-
     let componentInstance: T | undefined;
-    const dialogRef = this.dialogService.open(ModalContainerComponent, {
+    const dialogRef = this.dialogService.open(AppModalContainerComponent, {
       header: config.title,
-      focusOnShow: false, // Disables auto-focus on the dialog when it opens
-      modal: true, // Enables modal behavior (blocks interaction with the rest of the app)
+      focusOnShow: false,
+      modal: true,
       closable: true,
       width: config.width || '50vw',
       contentStyle: {
@@ -56,7 +56,7 @@ export class ModalService {
         return componentInstance;
       },
     };
-  
+
     return { modalRef: dialogRef, modalServiceRef };
   }
 }

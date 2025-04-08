@@ -146,8 +146,8 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     const first = this.store.firstForm();
     if (this.store.getAllMarkFieldForm())
-      this.formSenderGenericComponent?.getGroupForm?.markAllAsTouched();
-    this.formSenderGenericComponent?.getGroupForm?.patchValue(first);
+      this.formSenderGenericComponent?.getForm?.markAllAsTouched();
+    this.formSenderGenericComponent?.getForm?.patchValue(first);
 
     // Set up conditional validators for date and national fields
     this.setupConditionaDateRemitenteValidation();
@@ -162,10 +162,9 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
     this.formSenderGenericComponent
       ?.getFormControl('dateOrDateRange')
       ?.valueChanges.subscribe((value: boolean) => {
-        const fieldDate =
-          this.formSenderGenericComponent?.getGroupForm?.get('date');
+        const fieldDate = this.formSenderGenericComponent?.getForm?.get('date');
         const fieldRangeDate =
-          this.formSenderGenericComponent?.getGroupForm?.get('rangeDates');
+          this.formSenderGenericComponent?.getForm?.get('rangeDates');
         const positionDate = this.formConfig.findIndex(
           (v) => v.name === 'date'
         );
@@ -225,9 +224,9 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
       ?.getFormControl('national')
       ?.valueChanges.subscribe((value: boolean) => {
         const fieldAddress =
-          this.formSenderGenericComponent?.getGroupForm?.get('address');
+          this.formSenderGenericComponent?.getForm?.get('address');
         const fieldPassport =
-          this.formSenderGenericComponent?.getGroupForm?.get('passport');
+          this.formSenderGenericComponent?.getForm?.get('passport');
         const positionAddress = this.formConfig.findIndex(
           (v) => v.name === 'address'
         );
@@ -279,7 +278,7 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
    * @param data - The data to update the form with.
    */
   changeData(data: object) {
-    this.formSenderGenericComponent.getGroupForm.patchValue(data);
+    this.formSenderGenericComponent.getForm.patchValue(data);
   }
 
   /**
@@ -290,7 +289,7 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
     this.store.updateFirstForm(
       this.formSenderGenericComponent?.getDataFormComplete()
     );
-    if (this.formSenderGenericComponent?.getGroupForm.valid) {
+    if (this.formSenderGenericComponent?.getForm.valid) {
       this.store.updateValidFirstForm(true);
     } else {
       this.store.updateValidFirstForm(false);

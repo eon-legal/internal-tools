@@ -1,6 +1,5 @@
 import {
   Component,
-  Inject,
   OnDestroy,
   OnInit,
   TemplateRef,
@@ -8,9 +7,8 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-//import { DynamicDialogRef } from 'primeng/dynamicdialog';
+
 import {
-  ButtonConfig,
   ButtonGenericInterface,
 } from '../button-generic/interfaces/buttons';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -49,9 +47,9 @@ export class GenericModalComponent implements OnInit, OnDestroy {
 
   private validateInput(): void {
     if (!this.config.data?.content) {
-      console.error(
+      /*console.error(
         'GenericModalComponent: No se proporcionó contenido para el modal'
-      );
+      );*/
     }
   }
 
@@ -63,11 +61,11 @@ export class GenericModalComponent implements OnInit, OnDestroy {
         this.loadComponent(content);
       } else if (this.isTemplate(content)) {
         this.loadTemplate(content);
-      } else {
+      } /*else {
         console.error('Tipo de contenido no soportado:', content);
-      }
+      }*/
     } catch (error) {
-      console.error('Error al cargar el contenido:', error);
+      //console.error('Error al cargar el contenido:', error);
     }
   }
 
@@ -107,7 +105,7 @@ export class GenericModalComponent implements OnInit, OnDestroy {
   }
 
   private handleChildEvent(event: any): void {
-    console.log('Evento del componente hijo:', event);
+    //console.log('Evento del componente hijo:', event);
   }
 
   private cleanupSubscriptions(): void {

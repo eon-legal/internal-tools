@@ -8,10 +8,10 @@ import { FormGenericComponent } from '../../../../shared/components/form-generic
 import { DomSanitizer } from '@angular/platform-browser';
 import { DownloadImagePdfService } from '../../services/download-image-pdf.service';
 import { ConfirmationService } from '../../../../shared/services/confirmation/confirmation.service';
-import { of } from 'rxjs';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ModalRef } from '../../../../shared/components/button-generic/interfaces/buttons';
+import { ConfirmationComponent } from '../../../../shared/components/confirmation/confirmation.component';
 
 // Mock jsPDF
 jest.mock('jspdf', () => {
@@ -19,7 +19,6 @@ jest.mock('jspdf', () => {
     return {
       addImage: jest.fn(),
       save: jest.fn(),
-      // Agrega otros métodos que uses de jsPDF
     };
   });
 });
@@ -34,15 +33,24 @@ describe('ImagesToPdfComponent', () => {
   let mockConfirmationService: jest.Mocked<ConfirmationService>;
   let mockDomSanitizer: jest.Mocked<DomSanitizer>;
 
+  // Create a complete mock ModalRef
+  const createMockModalRef = (result: boolean): ModalRef<ConfirmationComponent> => {
+    return {
+      onClose: jest.fn((callback: (data: boolean) => void) => callback(result)),
+      close: jest.fn(),
+      getInstance: jest.fn(() => ({ 
+        message: 'Test message',
+      } as ConfirmationComponent))
+    };
+  };
+
   beforeEach(async () => {
     mockDownloadImagePdfService = {
       uploadFilesImages: jest.fn(),
     } as unknown as jest.Mocked<DownloadImagePdfService>;
 
     mockConfirmationService = {
-      openConfirmation: jest.fn(() => ({
-        onClose: of(true), // Simulate dialog confirmation
-      })),
+      openConfirmation: jest.fn(() => createMockModalRef(true)),
     } as unknown as jest.Mocked<ConfirmationService>;
 
     mockDomSanitizer = {
@@ -51,7 +59,7 @@ describe('ImagesToPdfComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [
-        ImagesToPdfComponent, // Import the standalone component
+        ImagesToPdfComponent,
         TableGenericComponent,
         ButtonGenericComponent,
         MessagesComponent,
@@ -99,7 +107,6 @@ describe('ImagesToPdfComponent', () => {
   it('should handle file drop event', () => {
     const validFile = new File([''], 'test.png', { type: 'image/png' });
 
-    // Create a mock FileList
     const fileList = {
       0: validFile,
       length: 1,
@@ -113,44 +120,46 @@ describe('ImagesToPdfComponent', () => {
   it('should handle file upload confirmation', () => {
     const file = new File([''], 'test.png', { type: 'image/png' });
 
-    // Simula el método getFormDataFile
+    // Mock component state
     jest.spyOn(component, 'getFormDataFile').mockReturnValue([file]);
-
-    // Simula la tabla y su propiedad dataTable
     component.tableGenericComponent = {
-      dataTable: [file], // Asigna un arreglo de archivos a dataTable
+      dataTable: [file],
     } as TableGenericComponent<File>;
 
-    // Simula el objeto DynamicDialogRef
-    const mockDialogRef: Partial<DynamicDialogRef> = {
-      onClose: of(true), // Simula que el usuario confirma
-      close: jest.fn(), // Simula el método close
-      destroy: jest.fn(), // Simula el método destroy
-      dragStart: jest.fn(),
-      dragEnd: jest.fn(),
-      resizeInit: jest.fn(),
-      resizeEnd: jest.fn(),
-      // Agrega otros métodos según sea necesario
-    };
-
-    // Simula la llamada a openConfirmation
-    mockConfirmationService.openConfirmation.mockReturnValue(
-      mockDialogRef as DynamicDialogRef
-    );
-
-    // Simula el método setFormDataFile
+    // Spy on service methods
+    const uploadSpy = jest.spyOn(mockDownloadImagePdfService, 'uploadFilesImages');
     const setFormDataFileSpy = jest.spyOn(component, 'setFormDataFile');
 
-    component.onUpload(); // Llama al método onUpload
+    // Test the method
+    component.onUpload();
 
-    // Verifica que el servicio se haya llamado con los archivos correctos
+    // Verify interactions
     expect(mockConfirmationService.openConfirmation).toHaveBeenCalled();
-    expect(mockDownloadImagePdfService.uploadFilesImages).toHaveBeenCalledWith([
-      file,
-    ]);
-
-    // Verifica que el formulario se haya limpiado
+    expect(uploadSpy).toHaveBeenCalledWith([file]);
     expect(setFormDataFileSpy).toHaveBeenCalledWith([]);
+  });
+
+  it('should not upload files when confirmation is cancelled', () => {
+    const file = new File([''], 'test.png', { type: 'image/png' });
+    
+    // Mock cancelled confirmation
+    mockConfirmationService.openConfirmation.mockImplementationOnce(() => 
+      createMockModalRef(false)
+    );
+
+    jest.spyOn(component, 'getFormDataFile').mockReturnValue([file]);
+    component.tableGenericComponent = {
+      dataTable: [file],
+    } as TableGenericComponent<File>;
+
+    const uploadSpy = jest.spyOn(mockDownloadImagePdfService, 'uploadFilesImages');
+    const setFormDataFileSpy = jest.spyOn(component, 'setFormDataFile');
+
+    component.onUpload();
+
+    expect(mockConfirmationService.openConfirmation).toHaveBeenCalled();
+    expect(uploadSpy).not.toHaveBeenCalled();
+    expect(setFormDataFileSpy).not.toHaveBeenCalled();
   });
 
   it('should reset the table to initial state', () => {
@@ -167,29 +176,17 @@ describe('ImagesToPdfComponent', () => {
     component.setFormDataFile([file]);
 
     component.changeStateButton();
-    const mockButton = component.buttons?.buttons || [];
-    expect(mockButton).toBeDefined();
-    expect(mockButton.length).toBe(1);
-    expect(mockButton[0]?.disabled).toBe(false);
+    expect(component.buttons?.buttons?.[0]?.disabled).toBe(false);
 
     component.setFormDataFile([]);
     component.changeStateButton();
-    const mockButtonNew = component.buttons?.buttons || [];
-    expect(mockButtonNew).toBeDefined();
-    expect(mockButtonNew.length).toBe(1);
-    expect(mockButtonNew[0]?.disabled).toBe(true);
+    expect(component.buttons?.buttons?.[0]?.disabled).toBe(true);
   });
 
   it('should generate safe HTML for image preview', () => {
     const file = new File([''], 'test.png', { type: 'image/png' });
-
-    // Simula el método customContentTemplate1
     const safeHtml = component.customContentTemplate1(file);
-
-    // Verifica que se haya generado el HTML seguro
     expect(safeHtml).toBeDefined();
-
-    // Verifica que se haya llamado al sanitizador
     expect(mockDomSanitizer.bypassSecurityTrustHtml).toHaveBeenCalled();
   });
 });

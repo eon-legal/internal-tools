@@ -39,7 +39,7 @@ export class GenericFirestoreService<T extends { id?: string }> {
    *
    * @example
    * // Usage example:
-   * this.firestoreService.add('users', { name: 'John', age: 30 })
+   * this.genericFirestoreService.add('users', { name: 'John', age: 30 })
    *   .subscribe({
    *     next: docRef => console.log('Added with ID:', docRef.id),
    *     error: err => console.error('Error:', err)
@@ -93,13 +93,13 @@ export class GenericFirestoreService<T extends { id?: string }> {
    * @param item - The complete item including ID
    * @returns Promise that resolves when update completes
    */
-  update(collectionName: string, item: T): Promise<void> {
+  update(collectionName: string, item: T): Observable<any> {
     const documentRef = doc(
       this.firestore,
       `${collectionName}/${item.id}`
     ) as DocumentReference<T>;
     const { id, ...data } = item;
-    return updateDoc(documentRef, data as DocumentData);
+    return from(updateDoc(documentRef, data as DocumentData));
   }
 
   /**
@@ -108,11 +108,11 @@ export class GenericFirestoreService<T extends { id?: string }> {
    * @param id - Document ID to delete
    * @returns Promise that resolves when deletion completes
    */
-  delete(collectionName: string, id: string): Promise<void> {
+  delete(collectionName: string, id: string): Observable<any> {
     const documentRef = doc(
       this.firestore,
       `${collectionName}/${id}`
     ) as DocumentReference<T>;
-    return deleteDoc(documentRef);
+    return from(deleteDoc(documentRef));
   }
 }

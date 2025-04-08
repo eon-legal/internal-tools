@@ -14,6 +14,7 @@ import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-se
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { DialogService } from 'primeng/dynamicdialog';
+import { Firestore } from '@angular/fire/firestore';
 
 // Mock para pdfmake-wrapper
 jest.mock('pdfmake-wrapper', () => ({
@@ -55,7 +56,7 @@ type MockInvoicesStore = Partial<typeof InvoicesStore> & {
   tableContain: jest.Mock;
   getFirstForm: jest.Mock;
   getSecondForm: jest.Mock;
-  getSeconfForm?: jest.Mock; // Added optional typo version
+  //getSecondForm?: jest.Mock; // Added optional typo version
   getTableContain: jest.Mock;
   getIsValidFirstForm: jest.Mock;
   getIsValidSecondForm: jest.Mock;
@@ -102,7 +103,6 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
       getFirstForm: jest.fn().mockReturnValue({}),
       getSecondForm: jest.fn().mockReturnValue({}),
       // Add the typo method to the mock
-      getSeconfForm: jest.fn().mockReturnValue({}),
       getTableContain: jest.fn().mockReturnValue([]),
       getIsValidFirstForm: jest.fn().mockReturnValue(false),
       getIsValidSecondForm: jest.fn().mockReturnValue(false),
@@ -125,6 +125,7 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
         StepperContextComponent,
       ],
       providers: [
+        { provide: Firestore, useValue: {} },
         { provide: ToastrService, useValue: mockToastrService },
         {
           provide: CreateInvoicePdfService,
@@ -230,7 +231,7 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
       const mockForm = {
         changeData: jest.fn(),
         formSenderGenericComponent: {
-          getGroupForm: { markAsUntouched: jest.fn() },
+          getForm: { markAsUntouched: jest.fn() },
         },
       };
       component.componentRefs[1] = mockForm;
@@ -242,7 +243,7 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
       expect(mockInvoicesStore.resetTableInvoices).toHaveBeenCalled();
       expect(mockForm.changeData).toHaveBeenCalledWith({});
       expect(
-        mockForm.formSenderGenericComponent.getGroupForm.markAsUntouched
+        mockForm.formSenderGenericComponent.getForm.markAsUntouched
       ).toHaveBeenCalled();
     });
   });
@@ -265,7 +266,7 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
       component.componentRefs[3] = {
         isValidForm: jest.fn().mockReturnValue(true),
         formDestinationGenericComponent: {
-          getGroupForm: { markAllAsTouched: jest.fn() },
+          getForm: { markAllAsTouched: jest.fn() },
         },
       };
       mockInvoicesStore.getIsValidFirstForm.mockReturnValue(false);
@@ -286,7 +287,7 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
       component.componentRefs[3] = {
         isValidForm: jest.fn().mockReturnValue(false),
         formDestinationGenericComponent: {
-          getGroupForm: { markAllAsTouched: jest.fn() },
+          getForm: { markAllAsTouched: jest.fn() },
         },
       };
       mockInvoicesStore.getIsValidFirstForm.mockReturnValue(true);
@@ -309,7 +310,7 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
         isValidForm: jest.fn().mockReturnValue(true),
         formDestinationGenericComponent: {
           getDataFormComplete: jest.fn().mockReturnValue({}),
-          getGroupForm: { markAllAsTouched: jest.fn() },
+          getForm: { markAllAsTouched: jest.fn() },
         },
       };
       mockInvoicesStore.getIsValidFirstForm.mockReturnValue(true);

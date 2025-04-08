@@ -57,7 +57,7 @@ describe('FormGenericComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should create the getGroupForm based on formConfig', () => {
+  it('should create the getForm based on formConfig', () => {
     const formConfig: FormField<any>[] = [
       {
         name: 'name',
@@ -76,9 +76,9 @@ describe('FormGenericComponent', () => {
     component.formConfig = formConfig;
     component.ngOnInit(); // Llama a ngOnInit para crear el formulario
 
-    expect(component.getGroupForm).toBeInstanceOf(FormGroup);
-    expect(component.getGroupForm.contains('name')).toBeTruthy();
-    expect(component.getGroupForm.contains('age')).toBeTruthy();
+    expect(component.getForm).toBeInstanceOf(FormGroup);
+    expect(component.getForm.contains('name')).toBeTruthy();
+    expect(component.getForm.contains('age')).toBeTruthy();
   });
 
   it('should render input fields based on formConfig', () => {
@@ -116,9 +116,9 @@ describe('FormGenericComponent', () => {
     component.ngOnInit(); // Inicializa el formulario
 
     // Marcar el campo como "tocado" y "sucio" para forzar la validación
-    component.getGroupForm.get('name')?.markAsTouched();
+    component.getForm.get('name')?.markAsTouched();
 
-    component.getGroupForm.get('name')?.markAsDirty();
+    component.getForm.get('name')?.markAsDirty();
 
     fixture.detectChanges(); // Actualizar vista
 
@@ -151,7 +151,7 @@ describe('FormGenericComponent', () => {
     const mockFiles = [new File([''], 'test.pdf', { type: 'application/pdf' })];
     component.onFileSelect(mockFiles, 'file');
 
-    expect(component.getGroupForm.get('file')?.value).toEqual(mockFiles);
+    expect(component.getForm.get('file')?.value).toEqual(mockFiles);
   });
 
   it('should handle file upload', () => {
@@ -175,7 +175,7 @@ describe('FormGenericComponent', () => {
     fixture.detectChanges(); // Asegúrate de que el template se actualice
 
     const mockFiles = [new File([''], 'test.pdf', { type: 'application/pdf' })];
-    component.getGroupForm.get('file')?.setValue(mockFiles);
+    component.getForm.get('file')?.setValue(mockFiles);
     component.onUpload('file');
 
     expect(
@@ -203,10 +203,10 @@ describe('FormGenericComponent', () => {
     fixture.detectChanges(); // Asegúrate de que el template se actualice
 
     const mockFiles = [new File([''], 'test.pdf', { type: 'application/pdf' })];
-    component.getGroupForm.get('file')?.setValue(mockFiles);
+    component.getForm.get('file')?.setValue(mockFiles);
     component.onClear('file');
 
-    expect(component.getGroupForm.get('file')?.value).toEqual([]);
+    expect(component.getForm.get('file')?.value).toEqual([]);
   });
 
   it('should validate and format decimal input', fakeAsync(() => {
@@ -226,7 +226,7 @@ describe('FormGenericComponent', () => {
     const mockEvent = { value: '123.456' };
     component.validateInputNumberDecimal(mockEvent as any, 'price');
     tick();
-    expect(component.getGroupForm.get('price')?.value).toBe(123.45); // Redondeado a 2 decimales
+    expect(component.getForm.get('price')?.value).toBe(123.45); // Redondeado a 2 decimales
   }));
 
   it('should validate and format percentage input', fakeAsync(() => {
@@ -246,6 +246,6 @@ describe('FormGenericComponent', () => {
     const mockEvent = { value: '50.123' };
     component.validateInputPercentaje(mockEvent as any, 'discount');
     tick();
-    expect(component.getGroupForm.get('discount')?.value).toBe(50.12); // Redondeado a 2 decimales
+    expect(component.getForm.get('discount')?.value).toBe(50.12); // Redondeado a 2 decimales
   }));
 });

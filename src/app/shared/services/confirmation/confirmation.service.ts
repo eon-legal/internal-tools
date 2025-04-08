@@ -1,20 +1,17 @@
 import { inject, Injectable } from '@angular/core';
-import { CustomDialogService } from '../modal/custom-dialog.service';
 import { ConfirmationComponent } from '../../components/confirmation/confirmation.component';
+import { CustomModalService } from '../custom-modal/custom-modal.service';
 
 /**
  * ConfirmationService is a service that provides a simple way to open a confirmation dialog.
- * It uses the CustomDialogService to display a confirmation dialog with a customizable message.
+ * It uses the CustomModalService to display a confirmation dialog with a customizable message.
  */
 @Injectable({
   providedIn: 'root', // Makes the service available application-wide
 })
 export class ConfirmationService {
-  /**
-   * Injects the CustomDialogService to handle the opening and closing of dialogs.
-   * @type {CustomDialogService}
-   */
-  private customDialogService: CustomDialogService = inject(CustomDialogService);
+  /** Injected service for managing custom dialogs */
+  customModalService: CustomModalService = inject(CustomModalService);
 
   /**
    * Opens a confirmation dialog with a customizable message.
@@ -25,8 +22,32 @@ export class ConfirmationService {
   openConfirmation(
     message: string = '¿Estás seguro de que deseas realizar esta acción?'
   ) {
-    return this.customDialogService.openDialog(ConfirmationComponent, '', {
-      message, // Passes the message to the confirmation dialog
-    });
+    const { modalServiceRef } = this.customModalService.open(
+      ConfirmationComponent,
+      {
+        title: '',
+        data: { message },
+        buttons: {
+          css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
+          buttons: [
+            {
+              id: 1,
+              icon: 'pi pi-times',
+              label: 'Cancelar',
+              severity: 'danger',
+              action: () => modalServiceRef.close(false),
+            },
+            {
+              id: 2,
+              icon: 'pi pi-check',
+              label: 'Aceptar',
+              severity: 'primary',
+              action: () => modalServiceRef.close(true),
+            },
+          ],
+        },
+      }
+    );
+    return modalServiceRef;
   }
 }

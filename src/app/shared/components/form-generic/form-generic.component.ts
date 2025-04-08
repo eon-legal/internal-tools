@@ -44,7 +44,7 @@ import { SelectModule } from 'primeng/select';
     CheckboxModule,
     MessagesModule,
     InputNumberModule,
-    FileUploadComponent
+    FileUploadComponent,
   ],
   templateUrl: './form-generic.component.html',
   styleUrl: './form-generic.component.scss',
@@ -193,7 +193,7 @@ export class FormGenericComponent<T> implements OnInit {
   /**
    * Provides access to the form group
    */
-  get getGroupForm(): FormGroup {
+  get getForm(): FormGroup {
     return this.form;
   }
 

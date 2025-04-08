@@ -1,2 +1,5 @@
-<p>{{ messages }}</p>
-<app-button-generic [buttons]="buttons" />
+@if(message){
+<div class="flex justify-content-center">
+  <p>{{ message }}</p>
+</div>
+}

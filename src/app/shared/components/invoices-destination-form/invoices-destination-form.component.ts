@@ -10,15 +10,18 @@ import {
 import { Validators } from '@angular/forms';
 import { FormGenericComponent } from '../form-generic/form-generic.component';
 import { InvoicesStore } from '../../../store/app.store';
-import { SecondForm } from '../../../modules/invoices/interfaces/second-form';
+import {
+  DestinationBDReal,
+  SecondForm,
+} from '../../../modules/invoices/interfaces/second-form';
 import { FormField } from '../form-generic/interfaces/form-field';
 import { GenericFirestoreService } from '../../services/generic-firestore/generic-firestore.service';
 import { ADDRESSEE_TABLE } from '../../../modules/crud-addressee/constants/collection-table';
 import { catchError, of, Subscription, tap } from 'rxjs';
 import { SELECT_DATA_INITIAL } from '../form-generic/constants/select-data-initial';
-import { LoadingService } from '../../services/loading.service';
 import { ToastrService } from 'ngx-toastr';
 import { MESSAGE_ERROR } from '../../constants/message-error';
+import { LoadingService } from '../../services/loading/loading.service';
 
 /**
  * Component for managing the destination form in the invoice generation process.
@@ -63,10 +66,10 @@ export class InvoicesDestinationFormComponent
 
   ngOnInit(): void {
     if (this.isModal) this.createForm();
-    else this.consumeService();
+    else this.isNotModalConsumeService();
   }
 
-  consumeService() {
+  isNotModalConsumeService() {
     this.loadingService.show();
     this.createForm();
     this.subscription.push(
@@ -74,13 +77,23 @@ export class InvoicesDestinationFormComponent
         .getAll(ADDRESSEE_TABLE)
         .pipe(
           tap((v) => {
-            this.formConfig[0].primeNgConfig.options = [
-              SELECT_DATA_INITIAL,
-              ...v.map((e) => ({
-                label: e.nameDestination,
-                value: e.id,
-              })),
-            ];
+            const result = v as DestinationBDReal[];
+            const arrayTrasnsformDropDown = result.map((e) => ({
+              label: e.nameDestination,
+              value: e.id,
+            }));
+            if (
+              this.formConfig.length &&
+              Array.isArray(arrayTrasnsformDropDown)
+            ) {
+              if (this.formConfig[0]) {
+                this.formConfig[0]!.primeNgConfig!.options = [
+                  SELECT_DATA_INITIAL,
+                  ...arrayTrasnsformDropDown,
+                ];
+              }
+            }
+
             this.loadingService.hide();
           }),
           catchError((error) => {
@@ -100,7 +113,7 @@ export class InvoicesDestinationFormComponent
       label: 'Seleccione Destino',
       type: 'select',
       cols: 12,
-      initialData: this.getSecondFormStore().chooseDestination,
+      initialData: this.getSecondFormStore()?.chooseDestination,
       primeNgConfig: {
         options: [SELECT_DATA_INITIAL],
       },
@@ -113,12 +126,12 @@ export class InvoicesDestinationFormComponent
         cols: this.isModal ? 6 : 4,
         initialData: this.isModal
           ? this.initialField?.nameDestination
-          : this.getSecondFormStore().nameDestination,
+          : this.getSecondFormStore()?.nameDestination,
         validators: [
           { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
         ],
         disabled:
-          !this.isModal && !!this.getSecondFormStore().chooseDestination?.value,
+          !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'accountDestination',
@@ -127,12 +140,12 @@ export class InvoicesDestinationFormComponent
         cols: this.isModal ? 6 : 4,
         initialData: this.isModal
           ? this.initialField?.accountDestination
-          : this.getSecondFormStore().accountDestination,
+          : this.getSecondFormStore()?.accountDestination,
         validators: [
           { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
         ],
         disabled:
-          !this.isModal && !!this.getSecondFormStore().chooseDestination?.value,
+          !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'addressDestination',
@@ -141,12 +154,12 @@ export class InvoicesDestinationFormComponent
         cols: this.isModal ? 6 : 4,
         initialData: this.isModal
           ? this.initialField?.addressDestination
-          : this.getSecondFormStore().addressDestination,
+          : this.getSecondFormStore()?.addressDestination,
         validators: [
           { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
         ],
         disabled:
-          !this.isModal && !!this.getSecondFormStore().chooseDestination?.value,
+          !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'nameBank',
@@ -154,13 +167,13 @@ export class InvoicesDestinationFormComponent
         type: 'input',
         initialData: this.isModal
           ? this.initialField?.nameBank
-          : this.getSecondFormStore().nameBank,
+          : this.getSecondFormStore()?.nameBank,
         cols: this.isModal ? 6 : 4,
         validators: [
           { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
         ],
         disabled:
-          !this.isModal && !!this.getSecondFormStore().chooseDestination?.value,
+          !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'addressBank',
@@ -168,13 +181,13 @@ export class InvoicesDestinationFormComponent
         type: 'input',
         initialData: this.isModal
           ? this.initialField?.addressBank
-          : this.getSecondFormStore().addressBank,
+          : this.getSecondFormStore()?.addressBank,
         cols: this.isModal ? 6 : 4,
         validators: [
           { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
         ],
         disabled:
-          !this.isModal && !!this.getSecondFormStore().chooseDestination?.value,
+          !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'nif',
@@ -182,13 +195,13 @@ export class InvoicesDestinationFormComponent
         type: 'input',
         initialData: this.isModal
           ? this.initialField?.nif
-          : this.getSecondFormStore().nif,
+          : this.getSecondFormStore()?.nif,
         cols: this.isModal ? 6 : 4,
         validators: [
           { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
         ],
         disabled:
-          !this.isModal && !!this.getSecondFormStore().chooseDestination?.value,
+          !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
     ];
     if (!this.isModal) {
@@ -196,6 +209,7 @@ export class InvoicesDestinationFormComponent
     } else {
       this.formConfig = [...restArray];
     }
+    
   }
 
   /**
@@ -206,7 +220,7 @@ export class InvoicesDestinationFormComponent
     if (!this.isModal) {
       this.setupConditionaChooseDestinationValidation();
       if (this.store.getAllMarkFieldForm())
-        this.formDestinationGenericComponent?.getGroupForm?.markAllAsTouched();
+        this.formDestinationGenericComponent?.getForm?.markAllAsTouched();
     }
   }
 
@@ -216,7 +230,7 @@ export class InvoicesDestinationFormComponent
       ?.valueChanges.subscribe(
         (value: { label: string; value: string } | undefined) => {
           if (!value) {
-            this.formDestinationGenericComponent?.getGroupForm?.patchValue(
+            this.formDestinationGenericComponent?.getForm?.patchValue(
               { chooseDestination: SELECT_DATA_INITIAL },
               { emitEvent: false }
             );
@@ -224,12 +238,15 @@ export class InvoicesDestinationFormComponent
           if (value && value?.value) {
             this.loadingService.show();
             Object.keys(
-              this.formDestinationGenericComponent?.getGroupForm?.controls
+              this.formDestinationGenericComponent?.getForm?.controls
             ).forEach((controlName) => {
-              if (controlName !== 'chooseDestination') {
-                this.formDestinationGenericComponent?.getGroupForm
+              if (
+                controlName !== 'chooseDestination' &&
+                this.formDestinationGenericComponent?.getForm?.get(controlName)
+              ) {
+                this.formDestinationGenericComponent?.getForm
                   ?.get(controlName)
-                  .disable();
+                  ?.disable();
               }
             });
             this.subscription.push(
@@ -237,7 +254,7 @@ export class InvoicesDestinationFormComponent
                 .getById(ADDRESSEE_TABLE, value.value)
                 .pipe(
                   tap((v) => {
-                    this.formDestinationGenericComponent?.getGroupForm?.patchValue(
+                    this.formDestinationGenericComponent?.getForm?.patchValue(
                       v
                     );
                     this.loadingService.hide();
@@ -253,12 +270,15 @@ export class InvoicesDestinationFormComponent
             );
           } else {
             Object.keys(
-              this.formDestinationGenericComponent?.getGroupForm?.controls
+              this.formDestinationGenericComponent?.getForm?.controls
             ).forEach((controlName) => {
-              if (controlName !== 'chooseDestination') {
-                this.formDestinationGenericComponent?.getGroupForm
+              if (
+                controlName !== 'chooseDestination' &&
+                this.formDestinationGenericComponent?.getForm?.get(controlName)
+              ) {
+                this.formDestinationGenericComponent?.getForm
                   ?.get(controlName)
-                  .enable();
+                  ?.enable();
               }
             });
           }
@@ -289,7 +309,7 @@ export class InvoicesDestinationFormComponent
    * @returns True if the form is valid, otherwise false.
    */
   isValidForm(): boolean {
-    return this.formDestinationGenericComponent?.getGroupForm.valid;
+    return this.formDestinationGenericComponent?.getForm?.valid;
   }
 
   /**
@@ -305,6 +325,6 @@ export class InvoicesDestinationFormComponent
    * @returns The second form data.
    */
   getSecondFormStore() {
-    return this.store.getSeconfForm();
+    return this.store.getSecondForm();
   }
 }

@@ -8,11 +8,12 @@ import { ContainInvoicesComponent } from './contain-invoices.component';
 import { TableGenericComponent } from '../../../../../shared/components/table-generic/table-generic.component';
 import { ButtonGenericComponent } from '../../../../../shared/components/button-generic/button-generic.component';
 import { InvoicesStore } from '../../../../../store/app.store';
-import { CustomDialogService } from '../../../../../shared/services/modal/custom-dialog.service';
 import { DataInvoicesTable } from '../../../interfaces/data-invoices-table';
 import { DataInvoicesConstant } from '../../../constants/data-invoices';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormInvoicesDataComponent } from '../form-invoices-data/form-invoices-data.component';
+import { CustomModalService } from '../../../../../shared/services/custom-modal/custom-modal.service';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
 
 // Mocks
 class MockInvoicesStore {
@@ -20,10 +21,17 @@ class MockInvoicesStore {
   updateTable = jest.fn();
 }
 
-class MockCustomDialogService {
-  openDialog = jest.fn().mockReturnValue({
-    onClose: {
-      subscribe: jest.fn((callback) => {
+describe('ContainInvoicesComponent', () => {
+  let component: ContainInvoicesComponent;
+  let fixture: ComponentFixture<ContainInvoicesComponent>;
+  let mockStore: MockInvoicesStore;
+  let customModalService: jest.Mocked<CustomModalService>;
+  let dialogRefMock: DynamicDialogRef;
+
+  beforeEach(async () => {
+    dialogRefMock = {
+      close: jest.fn(),
+      onClose: jest.fn((callback) => {
         callback({
           description: 'Test Item',
           qtt: 1,
@@ -32,17 +40,7 @@ class MockCustomDialogService {
           total: 100,
         });
       }),
-    },
-  });
-}
-
-describe('ContainInvoicesComponent', () => {
-  let component: ContainInvoicesComponent;
-  let fixture: ComponentFixture<ContainInvoicesComponent>;
-  let mockStore: MockInvoicesStore;
-  let mockDialogService: MockCustomDialogService;
-
-  beforeEach(async () => {
+    } as unknown as DynamicDialogRef;
     await TestBed.configureTestingModule({
       imports: [
         TableGenericComponent,
@@ -52,8 +50,10 @@ describe('ContainInvoicesComponent', () => {
       providers: [
         { provide: InvoicesStore, useValue: new MockInvoicesStore() },
         {
-          provide: CustomDialogService,
-          useValue: new MockCustomDialogService(),
+          provide: CustomModalService,
+          useValue: {
+            open: jest.fn().mockReturnValue({ modalServiceRef: dialogRefMock }),
+          },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -62,9 +62,9 @@ describe('ContainInvoicesComponent', () => {
     fixture = TestBed.createComponent(ContainInvoicesComponent);
     component = fixture.componentInstance;
     mockStore = TestBed.inject(InvoicesStore) as unknown as MockInvoicesStore;
-    mockDialogService = TestBed.inject(
-      CustomDialogService
-    ) as unknown as MockCustomDialogService;
+    customModalService = TestBed.inject(
+      CustomModalService
+    ) as jest.Mocked<CustomModalService>;
     fixture.detectChanges();
   });
 
@@ -191,10 +191,15 @@ describe('ContainInvoicesComponent', () => {
     component.show();
     tick();
 
-    expect(mockDialogService.openDialog).toHaveBeenCalledWith(
+    expect(customModalService.open).toHaveBeenCalledWith(
       FormInvoicesDataComponent,
-      'Inserte Datos Factura'
+      expect.objectContaining({
+        title: 'Inserte Datos Factura',
+        width: '60vw',
+        data: {},
+      })
     );
+    dialogRefMock.onClose;
     expect(component.rowTable.length).toBe(3);
   }));
 

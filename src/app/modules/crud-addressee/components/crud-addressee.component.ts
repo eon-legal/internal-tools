@@ -3,15 +3,18 @@ import { TableGenericComponent } from '../../../shared/components/table-generic/
 import { ButtonGenericComponent } from '../../../shared/components/button-generic/button-generic.component';
 import { ButtonGenericInterface } from '../../../shared/components/button-generic/interfaces/buttons';
 import { HeaderTable } from '../../../shared/components/table-generic/interfaces/header-table';
-import { SecondForm } from '../../invoices/interfaces/second-form';
+import {
+  DestinationBDReal,
+  SecondForm,
+} from '../../invoices/interfaces/second-form';
 import { InvoicesDestinationFormComponent } from '../../../shared/components/invoices-destination-form/invoices-destination-form.component';
-import { ModalService } from '../../../shared/services/custom-modal.service';
 import { catchError, of, Subscription, tap } from 'rxjs';
 import { GenericFirestoreService } from '../../../shared/services/generic-firestore/generic-firestore.service';
 import { ADDRESSEE_TABLE } from '../constants/collection-table';
-import { LoadingService } from '../../../shared/services/loading.service';
 import { ToastrService } from 'ngx-toastr';
 import { MESSAGE_ERROR } from '../../../shared/constants/message-error';
+import { CustomModalService } from '../../../shared/services/custom-modal/custom-modal.service';
+import { LoadingService } from '../../../shared/services/loading/loading.service';
 
 @Component({
   selector: 'app-crud-addressee',
@@ -78,8 +81,8 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
         id: 1,
         icon: 'pi pi-trash',
         severity: 'danger',
-        action: (row: SecondForm) => {
-          this.deleteAddressee(row?.id);
+        action: (row: DestinationBDReal) => {
+          this.deleteAddressee(row.id);
         },
       },
       {
@@ -92,13 +95,13 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
       },
     ],
   };
+  dataTable: SecondForm[] = [];
   /** Injected service for managing custom dialogs */
-  modalService: ModalService = inject(ModalService);
+  customModalService: CustomModalService = inject(CustomModalService);
   /** Injected service for managing CRUD Firestore */
-  firestoreService: GenericFirestoreService<SecondForm> = inject(
+  genericFirestoreService: GenericFirestoreService<SecondForm> = inject(
     GenericFirestoreService
   );
-  dataTable: SecondForm[] = [];
   loadingService: LoadingService = inject(LoadingService);
   ngOnInit(): void {
     this.loadAddressee();
@@ -107,7 +110,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
   loadAddressee() {
     this.loadingService.show();
     this.subscription.push(
-      this.firestoreService
+      this.genericFirestoreService
         .getAll(ADDRESSEE_TABLE)
         .pipe(
           tap((v) => {
@@ -115,9 +118,10 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
             this.loadingService.hide();
           }),
           catchError((error) => {
+            this.dataTable = [];
             this.loadingService.hide();
             this.toastr.error(MESSAGE_ERROR, 'Error');
-            
+
             // Opción 2: Devolver un array vacío para que la aplicación continúe
             return of([]); // of() de 'rxjs'
           })
@@ -126,39 +130,43 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
     );
   }
   opneAddEditAddressee(row: SecondForm | undefined = undefined) {
-    const { modalServiceRef } = this.modalService.open(
+    const { modalServiceRef } = this.customModalService.open(
       InvoicesDestinationFormComponent,
       {
         title: 'Adicionar Destinario',
         width: '60vw',
         data: { isModal: true, initialField: row },
-        buttons: [
-          {
-            id: 1,
-            label: 'Guardar',
-            icon: 'pi pi-save',
-            severity: 'success',
-            action: () => {
-              const formInstance = modalServiceRef.getInstance();
-              if (
-                formInstance &&
-                formInstance.isValidForm &&
-                formInstance.isValidForm()
-              ) {
-                modalServiceRef.close(formInstance.getValueForm());
-              } else {
-                formInstance?.formDestinationGenericComponent?.getGroupForm.markAllAsTouched();
-              }
+        buttons: {
+          css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
+
+          buttons: [
+            {
+              id: 1,
+              label: 'Guardar',
+              icon: 'pi pi-save',
+              severity: 'success',
+              action: () => {
+                const formInstance = modalServiceRef.getInstance();
+                if (
+                  formInstance &&
+                  formInstance.isValidForm &&
+                  formInstance.isValidForm()
+                ) {
+                  modalServiceRef.close(formInstance.getValueForm());
+                } else {
+                  formInstance?.formDestinationGenericComponent?.getForm.markAllAsTouched();
+                }
+              },
             },
-          },
-          {
-            id: 2,
-            label: 'Cancelar',
-            icon: 'pi pi-times',
-            severity: 'danger',
-            action: () => modalServiceRef.close(),
-          },
-        ],
+            {
+              id: 2,
+              label: 'Cancelar',
+              icon: 'pi pi-times',
+              severity: 'danger',
+              action: () => modalServiceRef.close(),
+            },
+          ],
+        },
       }
     );
 
@@ -176,45 +184,73 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
     });
   }
 
-  async addAddressee(newAddressee: Omit<SecondForm, 'id'>): Promise<void> {
-    try {
-      await this.loadingService.withLoading(async () => {
-        const result = await this.firestoreService
-          .add(ADDRESSEE_TABLE, newAddressee)
-          .toPromise();
+  addAddressee(newAddressee: Omit<SecondForm, 'id'>) {
+    this.loadingService.show();
+    this.subscription.push(
+      this.genericFirestoreService
+        .add(ADDRESSEE_TABLE, newAddressee)
+        .pipe(
+          tap(() => {
+            //this.dataTable = v;
+            this.loadingService.hide();
+          }),
+          catchError((error) => {
+            this.loadingService.hide();
+            this.toastr.error(MESSAGE_ERROR, 'Error');
 
-        //this.loadAddressee(); // Recargar la lista
-        return result;
-      });
-    } catch (err) {
-      this.toastr.error(MESSAGE_ERROR, 'Error');
-    }
+            // Opción 2: Devolver un array vacío para que la aplicación continúe
+            return of([]); // of() de 'rxjs'
+          })
+        )
+        .subscribe()
+    );
   }
 
-  async updateAddressee(product: SecondForm): Promise<void> {
-    if (!product.id) return;
+  updateAddressee(addressee: SecondForm) {
+    if (!addressee.id) return;
+    this.loadingService.show();
+    this.subscription.push(
+      this.genericFirestoreService
+        .update(ADDRESSEE_TABLE, addressee)
+        .pipe(
+          tap(() => {
+            //this.dataTable = v;
+            this.loadingService.hide();
+          }),
+          catchError((error) => {
+            //this.dataTable = [];
+            this.loadingService.hide();
+            this.toastr.error(MESSAGE_ERROR, 'Error');
 
-    try {
-      await this.loadingService.withLoading(async () => {
-        await this.firestoreService.update(ADDRESSEE_TABLE, product);
-
-        //this.loadAddressee(); // Recargar la lista
-      });
-    } catch (err) {
-      this.toastr.error(MESSAGE_ERROR, 'Error');
-    }
+            // Opción 2: Devolver un array vacío para que la aplicación continúe
+            return of([]); // of() de 'rxjs'
+          })
+        )
+        .subscribe()
+    );
   }
 
-  async deleteAddressee(id: string): Promise<void> {
-    try {
-      await this.loadingService.withLoading(async () => {
-        await this.firestoreService.delete(ADDRESSEE_TABLE, id);
+  deleteAddressee(id: string) {
+    this.loadingService.show();
+    this.subscription.push(
+      this.genericFirestoreService
+        .delete(ADDRESSEE_TABLE, id)
+        .pipe(
+          tap(() => {
+            //this.dataTable = v;
+            this.loadingService.hide();
+          }),
+          catchError((error) => {
+            //this.dataTable = [];
+            this.loadingService.hide();
+            this.toastr.error(MESSAGE_ERROR, 'Error');
 
-        //this.loadAddressee(); // Recargar la lista
-      });
-    } catch (err) {
-      this.toastr.error(MESSAGE_ERROR, 'Error');
-    }
+            // Opción 2: Devolver un array vacío para que la aplicación continúe
+            return of([]); // of() de 'rxjs'
+          })
+        )
+        .subscribe()
+    );
   }
 
   ngOnDestroy(): void {

@@ -8,13 +8,13 @@ import {
 } from '../../../../../shared/components/button-generic/interfaces/buttons';
 import { HeaderTable } from '../../../../../shared/components/table-generic/interfaces/header-table';
 import { DataInvoicesConstant } from '../../../constants/data-invoices';
-import { CustomDialogService } from '../../../../../shared/services/modal/custom-dialog.service';
 import { FormInvoicesDataComponent } from '../form-invoices-data/form-invoices-data.component';
 import { getSumArrayNumber } from '../../../utils/sum-attribute-object/sum-attribute-object';
 import { ButtonGenericComponent } from '../../../../../shared/components/button-generic/button-generic.component';
 
 import { mapAtrribute } from '../../../utils/mapeo/mapeo';
 import { getNextID } from '../../../utils/next-id/next-id';
+import { CustomModalService } from '../../../../../shared/services/custom-modal/custom-modal.service';
 
 /**
  * Component for managing and displaying invoice data in a table.
@@ -130,7 +130,7 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
   rowTable: DataInvoicesTable[] = [];
 
   /** Injected service for managing custom dialogs */
-  customDialogService: CustomDialogService = inject(CustomDialogService);
+  customModalService: CustomModalService = inject(CustomModalService);
 
   /**
    * Lifecycle hook that runs when the component is initialized.
@@ -204,11 +204,44 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
    * Opens a dialog to add new invoice data.
    */
   show() {
-    const dialogRef = this.customDialogService.openDialog(
+    const { modalServiceRef } = this.customModalService.open(
       FormInvoicesDataComponent,
-      'Inserte Datos Factura'
+      {
+        title: 'Inserte Datos Factura',
+        width: '60vw',
+        data: {},
+        buttons: {
+          css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
+          buttons: [
+            {
+              id: 1,
+              label: 'Guardar',
+              icon: 'pi pi-save',
+              severity: 'success',
+              action: () => {
+                const formInstance = modalServiceRef.getInstance();
+                if (formInstance && formInstance?.formTable?.getForm?.valid) {
+                  modalServiceRef.close(
+                    formInstance?.formTable?.getDataFormComplete()
+                  );
+                } else {
+                  formInstance?.formTable?.getForm?.markAllAsTouched();
+                }
+              },
+            },
+            {
+              id: 2,
+              label: 'Cancelar',
+              icon: 'pi pi-times',
+              severity: 'danger',
+              action: () => modalServiceRef.close(),
+            },
+          ],
+        },
+      }
     );
-    dialogRef.onClose.subscribe((data: DataInvoicesTable | null) => {
+
+    modalServiceRef.onClose((data: DataInvoicesTable | undefined) => {
       if (data) {
         const position = this.rowTable.findIndex(
           (r) => r.perCentIva === DataInvoicesConstant.IVA
@@ -250,6 +283,48 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
         this.updateFieldTableSumAllExcepIVA(); // Update summary rows after adding new data
       }
     });
+    /*dialogRef.onClose.subscribe((data: DataInvoicesTable | null) => {
+      if (data) {
+        const position = this.rowTable.findIndex(
+          (r) => r.perCentIva === DataInvoicesConstant.IVA
+        );
+        const save = this.assingnIndexDeleteUltraOptimo(this.rowTable, data);
+        if (position !== -1) {
+          save.id = getNextID(this.rowTable);
+          const perCentIva = save.perCentIva as {
+            label: string;
+            value: number;
+          };
+          let perCentIvaValue = perCentIva.value;
+          const sTotal = !perCentIvaValue
+            ? save.total
+            : this.redondearDecimal(
+                (82.6446 / 100) * (save.total as number),
+                2
+              );
+          save.sTotal = sTotal;
+          save.perCentIva = perCentIvaValue;
+          this.rowTable.splice(position, 0, save);
+        } else {
+          this.rowTable.push(save);
+          this.rowTable.push({
+            id: '',
+            description: '',
+            sTotal: '',
+            perCentIva: DataInvoicesConstant.IVA,
+            total: 0,
+          });
+          this.rowTable.push({
+            id: '',
+            description: '',
+            sTotal: '',
+            perCentIva: DataInvoicesConstant.TOTAL,
+            total: 0,
+          });
+        }
+        this.updateFieldTableSumAllExcepIVA(); // Update summary rows after adding new data
+      }
+    });*/
   }
 
   /**

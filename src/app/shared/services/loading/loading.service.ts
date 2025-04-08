@@ -10,32 +10,17 @@ export class LoadingService {
   // Observable público para suscribirse al estado de loading
   loading$ = this.loadingSubject.asObservable();
 
-  constructor() {}
-
   /**
-   * Muestra el loading
+   * show loading
    */
   show(): void {
     this.loadingSubject.next(true);
   }
 
   /**
-   * Oculta el loading
+   * hide  loading
    */
   hide(): void {
     this.loadingSubject.next(false);
-  }
-
-  /**
-   * Ejecuta una operación mostrando el loading automáticamente
-   * @param operation Operación a ejecutar (debe devolver Promise)
-   */
-  async withLoading<T>(operation: () => Promise<T>): Promise<T> {
-    try {
-      this.show();
-      return await operation();
-    } finally {
-      this.hide();
-    }
   }
 }

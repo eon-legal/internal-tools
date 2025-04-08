@@ -1,5 +1,4 @@
 import { Component, ViewChild } from '@angular/core';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import {
   AbstractControl,
   AsyncValidatorFn,
@@ -11,8 +10,6 @@ import { map, Observable } from 'rxjs';
 import { FormGenericComponent } from '../../../../../shared/components/form-generic/form-generic.component';
 import { DataInvoicesTable } from '../../../interfaces/data-invoices-table';
 import { FormField } from '../../../../../shared/components/form-generic/interfaces/form-field';
-import { ButtonGenericInterface } from '../../../../../shared/components/button-generic/interfaces/buttons';
-import { ButtonGenericComponent } from '../../../../../shared/components/button-generic/button-generic.component';
 
 /**
  * Component for managing invoice data in a form.
@@ -21,7 +18,7 @@ import { ButtonGenericComponent } from '../../../../../shared/components/button-
 @Component({
   selector: 'app-form-invoices-data',
   standalone: true,
-  imports: [FormGenericComponent, ButtonGenericComponent],
+  imports: [FormGenericComponent],
   templateUrl: './form-invoices-data.component.html',
   styleUrl: './form-invoices-data.component.scss',
 })
@@ -34,27 +31,6 @@ export class FormInvoicesDataComponent {
     qtt?: number;
     total: number;
   }>;
-
-  /** Configuration for buttons in the dialog */
-  buttons: ButtonGenericInterface = {
-    css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
-    buttons: [
-      {
-        id: 1,
-        icon: 'pi pi-trash',
-        label: 'Cerrar',
-        severity: 'danger',
-        action: () => this.close(), // Action to close the dialog
-      },
-      {
-        id: 2,
-        icon: 'pi pi-check',
-        label: 'Agregar',
-        severity: 'primary',
-        action: () => this.accept(), // Action to accept and submit the form
-      },
-    ],
-  };
 
   /** Configuration for the form fields */
   formConfig: FormField<DataInvoicesTable>[] = [
@@ -121,45 +97,6 @@ export class FormInvoicesDataComponent {
       ],
     },
   ];
-
-  /** Data passed to the dialog */
-  data: any;
-
-  /** Injected DynamicDialogRef for managing the dialog
-   Injected DynamicDialogConfig for accessing dialog configuration */
-  constructor(
-    public ref: DynamicDialogRef,
-    public config: DynamicDialogConfig
-  ) {
-    // Retrieve data passed to the dialog
-    this.data = this.config.data;
-  }
-
-  /**
-   * Closes the dialog without saving changes.
-   */
-  closeModal() {
-    this.ref.close(null);
-  }
-
-  /**
-   * Submits the form data if valid and closes the dialog.
-   */
-  accept() {
-    if (this.formTable.getGroupForm.valid) {
-      // Close the dialog and return the form data
-      this.ref.close(this.formTable.getDataFormComplete());
-    }
-    // Mark all form fields as touched to display validation errors
-    this.formTable.getGroupForm.markAllAsTouched();
-  }
-
-  /**
-   * Closes the dialog without saving changes.
-   */
-  close() {
-    this.ref.close(null);
-  }
 
   /**
    * Creates a custom synchronous validator.

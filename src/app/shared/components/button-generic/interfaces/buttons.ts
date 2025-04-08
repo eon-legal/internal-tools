@@ -81,7 +81,7 @@ export interface ModalRef<T = any> {
 export interface ModalConfig {
   title?: string;
   width?: string;
-  buttons?: ButtonConfig[];
+  buttons?: ButtonGenericInterface;
   data?: any;
   closable?: boolean;
   registerInstance?: (instance: any) => void;

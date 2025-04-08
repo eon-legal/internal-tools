@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GenericModalComponent } from './generic-modal.component';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 
 describe('GenericModalComponent', () => {
   let component: GenericModalComponent;
@@ -8,9 +9,12 @@ describe('GenericModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GenericModalComponent]
-    })
-    .compileComponents();
+      imports: [GenericModalComponent],
+      providers: [
+        { provide: DynamicDialogRef, useValue: { close: jest.fn() } },
+        { provide: DynamicDialogConfig, useValue: {} },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(GenericModalComponent);
     component = fixture.componentInstance;

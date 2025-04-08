@@ -9,7 +9,6 @@ import { TableGenericComponent } from '../../../../shared/components/table-gener
 import { HeaderTable } from '../../../../shared/components/table-generic/interfaces/header-table';
 import {
   ButtonGenericInterface,
-  FlexibleFunction,
   FormatOptions,
 } from '../../../../shared/components/button-generic/interfaces/buttons';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -230,7 +229,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
     });
 
     // Subscribe to form value changes to update button states
-    this.formGenericComponent.getGroupForm.valueChanges.subscribe(() => {
+    this.formGenericComponent.getForm.valueChanges.subscribe(() => {
       this.changeStateButton();
     });
   }
@@ -326,8 +325,8 @@ export class ImagesToPdfComponent implements AfterViewInit {
    * Handles the file upload process.
    */
   onUpload() {
-    const dialogRef = this.confirmationService.openConfirmation();
-    dialogRef.onClose.subscribe((data: boolean | null | undefined) => {
+    const { onClose } = this.confirmationService.openConfirmation();
+    onClose((data: boolean | null | undefined) => {
       if (data) {
         this.downloadImagePdfService.uploadFilesImages(
           this.tableGenericComponent?.dataTable
@@ -360,7 +359,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
    * @returns An array of files.
    */
   getFormDataFile() {
-    return (this.formGenericComponent?.getGroupForm?.getRawValue()?.file ||
+    return (this.formGenericComponent?.getForm?.getRawValue()?.file ||
       []) as File[];
   }
 
@@ -369,7 +368,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
    * @param file - The files to set.
    */
   setFormDataFile(file: File[]) {
-    this.formGenericComponent?.getGroupForm?.patchValue({ file });
+    this.formGenericComponent?.getForm?.patchValue({ file });
   }
 
   /**
@@ -412,8 +411,8 @@ export class ImagesToPdfComponent implements AfterViewInit {
    * Updates the state of the buttons based on the form data.
    */
   changeStateButton() {
-    if(this.buttons?.buttons?.length)
-    this.buttons.buttons[0].disabled = !this.getFormDataFile().length;
+    if (this.buttons?.buttons?.length)
+      this.buttons.buttons[0].disabled = !this.getFormDataFile().length;
     if (!this.getFormDataFile().length) {
       this.orderTable = false;
       this.arrayFileWhitOutChange = [];

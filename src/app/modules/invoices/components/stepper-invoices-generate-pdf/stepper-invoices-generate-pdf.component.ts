@@ -64,9 +64,9 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
       iconPos: 'right',
       action: () => {
         const step1 = this.componentRefs[1] as InvoicesSenderFormComponent;
-        const valid = step1.formSenderGenericComponent?.getGroupForm?.valid;
+        const valid = step1.formSenderGenericComponent?.getForm?.valid;
         if (valid) this.data.set(2); // Move to step 2
-        else step1.formSenderGenericComponent?.getGroupForm?.markAllAsTouched();
+        else step1.formSenderGenericComponent?.getForm?.markAllAsTouched();
       },
       hideDependsFunction: (step: number) => step === 1, // Only visible in step 1
     },
@@ -203,7 +203,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
     this.store.resetTableInvoices(); // Reset table data
     const step1 = this.componentRefs[1] as InvoicesSenderFormComponent;
     step1.changeData(this.store.getFirstForm()); // Update the sender form with reset data
-    step1.formSenderGenericComponent?.getGroupForm?.markAsUntouched();
+    step1.formSenderGenericComponent?.getForm?.markAsUntouched();
   }
 
   /**
@@ -221,7 +221,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
     const isValidFirstForm = this.store.getIsValidFirstForm(); // Check if step 1 form is valid
     const isValidSecondForm = this.store.getIsValidSecondForm(); // Check if step 2 form is valid
     const messages = 'Deben ser válidos los formularios del paso 1.'; // Error message
-    step3.formDestinationGenericComponent?.getGroupForm?.markAllAsTouched();
+    step3.formDestinationGenericComponent?.getForm?.markAllAsTouched();
     // Show error if forms are invalid
     if (!isValidFirstForm || (!isValidSecondForm && !step3.isValidForm())) {
       this.store.updateAllMarkFieldForm(true); // Mark all fields as touched
@@ -234,7 +234,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
     } else {
       // Get data from the forms and table
       const first = this.store.getFirstForm();
-      let second = this.store.getSeconfForm();
+      let second = this.store.getSecondForm();
       const table = this.store.getTableContain();
 
       // Use destination form data if valid

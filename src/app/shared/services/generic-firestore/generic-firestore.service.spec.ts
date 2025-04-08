@@ -113,7 +113,7 @@ describe('GenericFirestoreService', () => {
 
   describe('deleteItem', () => {
     it('should call deleteDoc with the correct arguments', async () => {
-      const item: SecondForm = {
+      const item = {
         id: '1',
         nameDestination: '1',
         accountDestination: '1',
@@ -126,7 +126,7 @@ describe('GenericFirestoreService', () => {
 
       (deleteDoc as jest.Mock).mockResolvedValue(Promise.resolve());
 
-      await service.delete('addressee', item?.id);
+      await service.delete('addressee', item.id);
       expect(deleteDoc).toHaveBeenCalledWith(itemDocRefMock);
     });
   });

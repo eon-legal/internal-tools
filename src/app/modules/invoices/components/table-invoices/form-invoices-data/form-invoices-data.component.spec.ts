@@ -8,7 +8,6 @@ import { FormInvoicesDataComponent } from './form-invoices-data.component';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import {
   ReactiveFormsModule,
-  Validators,
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
@@ -42,7 +41,7 @@ describe('FormInvoicesDataComponent', () => {
 
     // Mock completo del FormGenericComponent con funciones jest.fn()
     component.formTable = {
-      getGroupForm: {
+      getForm: {
         markAllAsTouched: jest.fn(),
         get valid() {
           return false;
@@ -67,13 +66,6 @@ describe('FormInvoicesDataComponent', () => {
       expect(component.formConfig).toBeDefined();
       expect(component.formConfig.length).toBe(5);
     });
-
-    it('should initialize buttons configuration correctly', () => {
-      expect(component.buttons).toBeDefined();
-      expect(component.buttons?.buttons?.length).toBe(2);
-      expect(component.buttons?.buttons?.[0]?.label).toBe('Cerrar');
-      expect(component.buttons?.buttons?.[1]?.label).toBe('Agregar');
-    });
   });
 
   describe('Form Validation', () => {
@@ -91,48 +83,6 @@ describe('FormInvoicesDataComponent', () => {
         (v) => v.message === 'Deben ser valores mayores que cero'
       );
       expect(minValidator).toBeDefined();
-    });
-  });
-
-  describe('Button Actions', () => {
-    it('should call accept method when add button is clicked', () => {
-      const markAllAsTouchedSpy = jest.spyOn(
-        component.formTable.getGroupForm,
-        'markAllAsTouched'
-      );
-      const addButton = component.buttons?.buttons?.[1];
-      addButton?.action?.();
-      expect(markAllAsTouchedSpy).toHaveBeenCalled();
-    });
-  });
-
-  describe('Dialog Methods', () => {
-    it('should not close dialog when accept is called with invalid form', () => {
-      const markAllAsTouchedSpy = jest.spyOn(
-        component.formTable.getGroupForm,
-        'markAllAsTouched'
-      );
-      component.accept();
-      expect(mockDialogRef.close).not.toHaveBeenCalled();
-      expect(markAllAsTouchedSpy).toHaveBeenCalled();
-    });
-
-    it('should close dialog with form data when accept is called with valid form', () => {
-      const testData = {
-        description: 'Test',
-        perCentIva: { label: '21%', value: 21 },
-        total: 100,
-      };
-
-      // Mock form as valid
-      jest
-        .spyOn(component.formTable.getGroupForm, 'valid', 'get')
-        .mockReturnValue(true);
-      component.formTable.getDataFormComplete = jest.fn(() => testData);
-
-      component.accept();
-
-      expect(mockDialogRef.close).toHaveBeenCalledWith(testData);
     });
   });
 
