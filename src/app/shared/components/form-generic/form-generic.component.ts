@@ -12,7 +12,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
-import { InputTextModule } from 'primeng/inputtext';
+import { InputText, InputTextModule } from 'primeng/inputtext';
 import { InputNumberInputEvent, InputNumberModule } from 'primeng/inputnumber';
 import { FormField } from './interfaces/form-field';
 import { InputSwitchModule } from 'primeng/inputswitch';
@@ -25,6 +25,7 @@ import { getValidateInputPercentage } from './utils/get-validate-input-percentag
 import { VALUES_FORM_LIMIT } from './constants/values-form-limit';
 import { getValidateInputInteger } from './utils/get-validate-input-number-integer/get-validate-input-number-integer';
 import { SelectModule } from 'primeng/select';
+import { getValidateInputText } from './utils/get-validate-input-text/get-validate-input-text';
 
 /**
  * Generic dynamic form component that renders fields based on configuration
@@ -218,7 +219,7 @@ export class FormGenericComponent<T> implements OnInit {
     event: InputNumberInputEvent,
     field: string
   ): void {
-    this.handleNumberInput(event, field, getValidateInputNumberDecimal);
+    this.handleInput(event, field, getValidateInputNumberDecimal);
   }
 
   /**
@@ -227,7 +228,7 @@ export class FormGenericComponent<T> implements OnInit {
    * @param field - Target field name
    */
   validateInputPercentaje(event: InputNumberInputEvent, field: string): void {
-    this.handleNumberInput(event, field, getValidateInputPercentage);
+    this.handleInput(event, field, getValidateInputPercentage);
   }
 
   /**
@@ -236,21 +237,30 @@ export class FormGenericComponent<T> implements OnInit {
    * @param field - Target field name
    */
   validateInputInteger(event: InputNumberInputEvent, field: string): void {
-    this.handleNumberInput(event, field, getValidateInputInteger);
+    this.handleInput(event, field, getValidateInputInteger);
   }
 
   /**
-   * Common handler for number input validation
+   * Validates and length text input
+   * @param event - event
+   * @param field - Target field name
+   */
+  validateInputText(event: Event, field: string): void {
+    this.handleInput(event, field, getValidateInputText);
+  }
+
+  /**
+   * Common handler for input validation
    * @param event - Input event
    * @param field - Field name
    * @param validatorFn - Validation function to use
    */
-  private handleNumberInput(
-    event: InputNumberInputEvent,
+  private handleInput(
+    event: InputNumberInputEvent | Event,
     field: string,
-    validatorFn: (event: InputNumberInputEvent) => {
+    validatorFn: (event: InputNumberInputEvent | Event) => {
       change: boolean;
-      value?: number | null;
+      value?: number | null | string;
     }
   ): void {
     const { change, value } = validatorFn(event);

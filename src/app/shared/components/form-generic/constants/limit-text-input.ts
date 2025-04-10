@@ -1,0 +1,1 @@
+export const LIMIT_TEXT_INPUT: number = 200;

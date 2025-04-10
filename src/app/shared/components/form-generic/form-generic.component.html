@@ -31,6 +31,7 @@
             getFormControl(field.name)?.invalid &&
             getFormControl(field.name)?.touched
           "
+          (input)="validateInputText($event, field.name)"
         />
         } @case('number'){
         <p-inputnumber

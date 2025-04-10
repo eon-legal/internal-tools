@@ -4,9 +4,9 @@ const config: Config = {
   preset: 'jest-preset-angular',
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
   moduleDirectories: ['node_modules', '<rootDir>'],
-  moduleNameMapper: {
+  /*moduleNameMapper: {
     '^jspdf$': '<rootDir>/__mocks__/jspdf.ts', // lo nuevo
-  },
+  },*/
   //testEnvironment: 'jsdom',
   testMatch: ['**/+(*.)+(spec).+(ts)'],
   testEnvironment: 'jest-environment-jsdom',

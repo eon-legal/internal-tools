@@ -66,10 +66,10 @@ export class InvoicesDestinationFormComponent
 
   ngOnInit(): void {
     if (this.isModal) this.createForm();
-    else this.isNotModalConsumeService();
+    else this.isNotModalCallService();
   }
 
-  isNotModalConsumeService() {
+  isNotModalCallService() {
     this.loadingService.show();
     this.createForm();
     this.subscription.push(
