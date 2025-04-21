@@ -1,4 +1,5 @@
 import { InputNumberInputEvent } from 'primeng/inputnumber';
+import { ResultMethodValidationNumberForm } from '../../interfaces/validators-text-number';
 
 /**
  * Validates and formats a numeric input value to ensure it adheres to specific rules for integer values.
@@ -19,10 +20,7 @@ import { InputNumberInputEvent } from 'primeng/inputnumber';
  * const result = getValidateInputInteger(inputEvent);
  * result // { change: true, value: -123456789012345 }
  */
-export function getValidateInputInteger(event: InputNumberInputEvent): {
-  change: boolean;
-  value?: number | null;
-} {
+export function getValidateInputInteger(event: InputNumberInputEvent): ResultMethodValidationNumberForm {
   // Convert the input value to a string or default to an empty string if null/undefined
   const valor = event.value?.toString() || '';
 

@@ -1,9 +1,7 @@
 import { InputNumberInputEvent } from 'primeng/inputnumber';
+import { ResultMethodValidationNumberForm } from '../../interfaces/validators-text-number';
 
-export function getValidateInputPercentage(event: InputNumberInputEvent): {
-  change: boolean;
-  value?: number | null;
-} {
+export function getValidateInputPercentage(event: InputNumberInputEvent): ResultMethodValidationNumberForm {
   // Handle undefined input
   if (event.value === undefined) {
     return { change: false };

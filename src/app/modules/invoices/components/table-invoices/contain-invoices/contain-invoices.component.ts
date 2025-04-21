@@ -15,6 +15,7 @@ import { ButtonGenericComponent } from '../../../../../shared/components/button-
 import { mapAtrribute } from '../../../utils/mapeo/mapeo';
 import { getNextID } from '../../../utils/next-id/next-id';
 import { CustomModalService } from '../../../../../shared/services/custom-modal/custom-modal.service';
+import { IVA } from '../constants/iva-constants';
 
 /**
  * Component for managing and displaying invoice data in a table.
@@ -137,7 +138,7 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
    * Initializes the table data and ensures the presence of summary rows (IVA and TOTAL).
    */
   ngOnInit() {
-    this.rowTable = this.store.getTableContain();
+    this.rowTable = this.store.getTableContain() || [];
     if (
       !this.rowTable.length ||
       this.rowTable.some(
@@ -147,20 +148,23 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
       )
     ) {
       // Add summary rows if they don't exist
-      this.rowTable.push({
-        id: '',
-        description: '',
-        sTotal: '',
-        perCentIva: DataInvoicesConstant.IVA,
-        total: 0,
-      });
-      this.rowTable.push({
-        id: '',
-        description: '',
-        sTotal: '',
-        perCentIva: DataInvoicesConstant.TOTAL,
-        total: 0,
-      });
+      this.rowTable = [
+        ...this.rowTable,
+        {
+          id: '',
+          description: '',
+          sTotal: '',
+          perCentIva: DataInvoicesConstant.IVA,
+          total: 0,
+        },
+        {
+          id: '',
+          description: '',
+          sTotal: '',
+          perCentIva: DataInvoicesConstant.TOTAL,
+          total: 0,
+        },
+      ];
     }
   }
 
@@ -243,11 +247,11 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
 
     modalServiceRef.onClose((data: DataInvoicesTable | undefined) => {
       if (data) {
-        const position = this.rowTable.findIndex(
+        const positionIVA = this.rowTable.findIndex(
           (r) => r.perCentIva === DataInvoicesConstant.IVA
         );
         const save = this.assingnIndexDeleteUltraOptimo(this.rowTable, data);
-        if (position !== -1) {
+        if (positionIVA !== -1) {
           save.id = getNextID(this.rowTable);
           const perCentIva = save.perCentIva as {
             label: string;
@@ -257,74 +261,17 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
           const sTotal = !perCentIvaValue
             ? save.total
             : this.redondearDecimal(
-                (82.6446 / 100) * (save.total as number),
+                //82.6446 / 100
+                IVA * (save.total as number),
                 2
               );
           save.sTotal = sTotal;
           save.perCentIva = perCentIvaValue;
-          this.rowTable.splice(position, 0, save);
-        } else {
-          this.rowTable.push(save);
-          this.rowTable.push({
-            id: '',
-            description: '',
-            sTotal: '',
-            perCentIva: DataInvoicesConstant.IVA,
-            total: 0,
-          });
-          this.rowTable.push({
-            id: '',
-            description: '',
-            sTotal: '',
-            perCentIva: DataInvoicesConstant.TOTAL,
-            total: 0,
-          });
+          this.rowTable.splice(positionIVA, 0, save);
         }
         this.updateFieldTableSumAllExcepIVA(); // Update summary rows after adding new data
       }
     });
-    /*dialogRef.onClose.subscribe((data: DataInvoicesTable | null) => {
-      if (data) {
-        const position = this.rowTable.findIndex(
-          (r) => r.perCentIva === DataInvoicesConstant.IVA
-        );
-        const save = this.assingnIndexDeleteUltraOptimo(this.rowTable, data);
-        if (position !== -1) {
-          save.id = getNextID(this.rowTable);
-          const perCentIva = save.perCentIva as {
-            label: string;
-            value: number;
-          };
-          let perCentIvaValue = perCentIva.value;
-          const sTotal = !perCentIvaValue
-            ? save.total
-            : this.redondearDecimal(
-                (82.6446 / 100) * (save.total as number),
-                2
-              );
-          save.sTotal = sTotal;
-          save.perCentIva = perCentIvaValue;
-          this.rowTable.splice(position, 0, save);
-        } else {
-          this.rowTable.push(save);
-          this.rowTable.push({
-            id: '',
-            description: '',
-            sTotal: '',
-            perCentIva: DataInvoicesConstant.IVA,
-            total: 0,
-          });
-          this.rowTable.push({
-            id: '',
-            description: '',
-            sTotal: '',
-            perCentIva: DataInvoicesConstant.TOTAL,
-            total: 0,
-          });
-        }
-        this.updateFieldTableSumAllExcepIVA(); // Update summary rows after adding new data
-      }
-    });*/
   }
 
   /**

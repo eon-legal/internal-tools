@@ -26,6 +26,10 @@ import { VALUES_FORM_LIMIT } from './constants/values-form-limit';
 import { getValidateInputInteger } from './utils/get-validate-input-number-integer/get-validate-input-number-integer';
 import { SelectModule } from 'primeng/select';
 import { getValidateInputText } from './utils/get-validate-input-text/get-validate-input-text';
+import {
+  NumberValidator,
+  TextValidator,
+} from './interfaces/validators-text-number';
 
 /**
  * Generic dynamic form component that renders fields based on configuration
@@ -258,12 +262,9 @@ export class FormGenericComponent<T> implements OnInit {
   private handleInput(
     event: InputNumberInputEvent | Event,
     field: string,
-    validatorFn: (event: InputNumberInputEvent | Event) => {
-      change: boolean;
-      value?: number | null | string;
-    }
+    validatorFn: NumberValidator | TextValidator
   ): void {
-    const { change, value } = validatorFn(event);
+    const { change, value } = validatorFn(event as any);
 
     if (change && value !== undefined) {
       setTimeout(() => {
