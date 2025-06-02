@@ -6,9 +6,9 @@ import {
   withState,
 } from '@ngrx/signals';
 import { computed } from '@angular/core';
-import { FisrtForm } from '../modules/invoices/interfaces/first-form';
-import { SecondForm } from '../modules/invoices/interfaces/second-form';
-import { DataInvoicesTable } from '../modules/invoices/interfaces/data-invoices-table';
+import { FisrtForm } from '../features/invoices/interfaces/first-form';
+import { SecondForm } from '../features/invoices/interfaces/second-form';
+import { DataInvoicesTable } from '../features/invoices/interfaces/data-invoices-table';
 import { SELECT_DATA_INITIAL } from '../shared/components/form-generic/constants/select-data-initial';
 
 /**

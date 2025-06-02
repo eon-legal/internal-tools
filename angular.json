@@ -36,6 +36,7 @@
           ],
             "scripts": [],
             "allowedCommonJsDependencies": [
+              "pako",
               "jspdf",
               "core-js",
               "raf",

@@ -1,0 +1,25 @@
+<app-drag-drop-area (fileDrop)="onDrop($event)" [note]="note">
+  <app-form-generic [formConfig]="formConfig"></app-form-generic>
+</app-drag-drop-area>
+
+@if (errorMessage) {
+<app-messages [errorMessage]="errorMessage" />
+}
+
+<div class="mt-4">
+  <app-button-generic [buttons]="buttons" />
+</div>
+
+<div class="mt-4">
+  <app-table-generic
+    [itemInitialPagination]="itemInitialPagination"
+    [formatOptions]="formatOptions"
+    [listPagination]="listPagination"
+    [dataTable]="getFormDataFile()"
+    [headerData]="headerData"
+    [operation]="operation"
+    [enableDragDrop]="enableDragDrop"
+    (reordered)="organizeRow($event)"
+  >
+  </app-table-generic>
+</div>

@@ -12,15 +12,23 @@ export const routes: Routes = [
         path: '',
         loadComponent: () =>
           import(
-            './modules/images-to-pdf/components/images-to-pdf/images-to-pdf.component'
+            './features/images-to-pdf/components/images-to-pdf/images-to-pdf.component'
           ).then((m) => m.ImagesToPdfComponent),
+        title: 'Convertidor Imágenes a PDF',
+      },
+      {
+        path: 'pdf-merge',
+        loadComponent: () =>
+          import(
+            './features/pdf-merge/components/pdf-merge/pdf-merge.component'
+          ).then((m) => m.PdfMergeComponent),
         title: 'Convertidor Imágenes a PDF',
       },
       {
         path: 'invoices',
         loadComponent: () =>
           import(
-            './modules/invoices/components/stepper-invoices-generate-pdf/stepper-invoices-generate-pdf.component'
+            './features/invoices/components/stepper-invoices-generate-pdf/stepper-invoices-generate-pdf.component'
           ).then((m) => m.StepperInvoicesGeneratePdfComponent),
         title: 'Convertidor Imágenes a PDF',
       },
@@ -28,7 +36,7 @@ export const routes: Routes = [
         path: 'addressee',
         loadComponent: () =>
           import(
-            './modules/crud-addressee/components/crud-addressee.component'
+            './features/crud-addressee/components/crud-addressee.component'
           ).then((m) => m.CrudAddresseeComponent),
         title: 'Convertidor Imágenes a PDF',
       },

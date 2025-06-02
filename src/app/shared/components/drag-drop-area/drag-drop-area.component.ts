@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DragDropModule } from 'primeng/dragdrop';
 
 /**
@@ -18,7 +18,7 @@ export class DragDropAreaComponent {
    * @type {string}
    * @default 'Arrastre y suelte imágenes aquí.' (Drag and drop images here.)
    */
-  note = 'Arrastre y suelte imágenes aquí.';
+  @Input() note = 'Arrastre y suelte imágenes aquí.';
 
   /**
    * Output event that emits the list of files dropped into the area.

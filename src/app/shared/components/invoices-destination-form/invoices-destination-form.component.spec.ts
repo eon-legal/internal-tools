@@ -8,12 +8,12 @@ import { InvoicesDestinationFormComponent } from './invoices-destination-form.co
 import { FormGenericComponent } from '../form-generic/form-generic.component';
 import { InvoicesStore } from '../../../store/app.store';
 import { GenericFirestoreService } from '../../services/generic-firestore/generic-firestore.service';
-import { ADDRESSEE_TABLE } from '../../../modules/crud-addressee/constants/collection-table';
+import { ADDRESSEE_TABLE } from '../../../features/crud-addressee/constants/collection-table';
 import { of, throwError } from 'rxjs';
 import { SELECT_DATA_INITIAL } from '../form-generic/constants/select-data-initial';
 import { ToastrService } from 'ngx-toastr';
 import { LoadingService } from '../../services/loading/loading.service';
-import { SecondForm } from '../../../modules/invoices/interfaces/second-form';
+import { SecondForm } from '../../../features/invoices/interfaces/second-form';
 import { Firestore } from '@angular/fire/firestore';
 
 const mockSecondForm: SecondForm = {

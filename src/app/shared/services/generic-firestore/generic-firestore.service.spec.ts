@@ -9,7 +9,7 @@ import {
   doc,
 } from '@angular/fire/firestore';
 import { of } from 'rxjs';
-import { SecondForm } from '../../../modules/invoices/interfaces/second-form';
+import { SecondForm } from '../../../features/invoices/interfaces/second-form';
 import { GenericFirestoreService } from './generic-firestore.service';
 
 jest.mock('@angular/fire/firestore');
