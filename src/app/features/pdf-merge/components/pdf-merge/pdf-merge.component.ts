@@ -248,7 +248,6 @@ export class PdfMergeComponent implements AfterViewInit {
     const filesArray = Array.isArray(files) ? files : Array.from(files);
 
     filesArray.forEach((file) => {
-      console.log('dime del tipo', file.type);
       if (
         file.type.includes('application/pdf')
         //&& this.hasAllowedExtension(file.type.split('/')[1], fieldName)
