@@ -17,7 +17,6 @@ import {
 } from '../../../../shared/components/button-generic/interfaces/buttons';
 import { ConfirmationService } from '../../../../shared/services/confirmation/confirmation.service';
 import { HeaderTable } from '../../../../shared/components/table-generic/interfaces/header-table';
-import { DownloadImagePdfService } from '../../../images-to-pdf/services/download-image-pdf.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { PdfMergeService } from '../../services/pdf-merge.service';
 import { ToastrService } from 'ngx-toastr';
@@ -331,24 +330,10 @@ export class PdfMergeComponent implements AfterViewInit {
   }
 
   async merge(files: File[]): Promise<void> {
-    if (files.length < 2) {
-      //this.error.set('Se requieren al menos 2 archivos PDF');
-      return;
-    }
-
-    /*this.isMerging.set(true);
-    this.error.set(null);*/
-
     try {
-      const mergedPdf = await this.pdfMergeService.mergePdfs(files);
-      this.pdfMergeService.downloadPdf(mergedPdf);
+      await this.pdfMergeService.mergeAndOpenPdfs(files);
     } catch (err) {
-      /*this.error.set(
-        'Error al combinar PDFs: ' +
-          (err instanceof Error ? err.message : 'Error desconocido')
-      );*/
-    } finally {
-      //this.isMerging.set(false);
+      this.toastr.error('Error al combinar PDFs:', 'Error');
     }
   }
 
