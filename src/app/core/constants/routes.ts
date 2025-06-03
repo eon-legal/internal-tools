@@ -9,8 +9,8 @@ export const MENU_ITEMS: MenuItem[] = [
     styleClass: '', // Clase CSS inicial
   },
   {
-    label: 'PDF Merge',
-    icon: 'pi pi-id-card',
+    label: 'Mezclar PDFs',
+    icon: 'pi pi-file-pdf',
     routerLink: ['/pdf-merge'],
   },
   {

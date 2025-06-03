@@ -20,6 +20,7 @@ import { HeaderTable } from '../../../../shared/components/table-generic/interfa
 import { DownloadImagePdfService } from '../../../images-to-pdf/services/download-image-pdf.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { PdfMergeService } from '../../services/pdf-merge.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-pdf-merge',
@@ -35,7 +36,9 @@ import { PdfMergeService } from '../../services/pdf-merge.service';
   styleUrl: './pdf-merge.component.scss',
 })
 export class PdfMergeComponent implements AfterViewInit {
+  /** note drag and drop component */
   note = 'Arrastre y suelte archivos pdf aquí.';
+
   /** Initial number of items to display per page in the table */
   itemInitialPagination = 10;
 
@@ -124,6 +127,9 @@ export class PdfMergeComponent implements AfterViewInit {
 
   /** Injected ConfirmationService for displaying confirmation dialogs */
   confirmationService: ConfirmationService = inject(ConfirmationService);
+
+  /** Injected ToastrService for displaying message toast */
+  private readonly toastr = inject(ToastrService);
 
   /** List of pagination options for the table */
   listPagination = [5, 10, 20, 50, 100];
@@ -308,13 +314,20 @@ export class PdfMergeComponent implements AfterViewInit {
    * Handles the file upload process.
    */
   onUpload() {
-    const { onClose } = this.confirmationService.openConfirmation();
-    onClose((data: boolean | null | undefined) => {
-      if (data) {
-        this.merge(this.tableGenericComponent?.dataTable);
-        this.setFormDataFile([]);
-      }
-    });
+    if (this.tableGenericComponent?.dataTable.length === 1)
+      this.toastr.warning(
+        'Para combinar el PDF al menos deben existir dos archivos pdf',
+        'Advertencia'
+      );
+    else {
+      const { onClose } = this.confirmationService.openConfirmation();
+      onClose((data: boolean | null | undefined) => {
+        if (data) {
+          this.merge(this.tableGenericComponent?.dataTable);
+          this.setFormDataFile([]);
+        }
+      });
+    }
   }
 
   async merge(files: File[]): Promise<void> {
