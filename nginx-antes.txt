@@ -1,0 +1,15 @@
+server {
+    listen 80;
+    server_name localhost;
+
+    # Configuración para archivos estáticos
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        try_files $uri $uri/ /index.html; # Necesario para el enrutamiento de Angular
+    }
+
+    # Configuración adicional para compresión
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+}
