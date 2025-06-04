@@ -1,9 +1,13 @@
 import {
+  ChangeDetectorRef,
   Component,
   EventEmitter,
+  inject,
   Input,
+  OnChanges,
   Output,
   signal,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import {
@@ -23,7 +27,7 @@ import {
   templateUrl: './file-upload.component.html', // Template for the component
   styleUrl: './file-upload.component.scss', // Styles for the component
 })
-export class FileUploadComponent {
+export class FileUploadComponent implements OnChanges {
   // Input properties
   @Input() accept: string[] = []; // Allowed file types (e.g., ['.pdf', '.jpg'])
   @Input() uploadIcon!: string; // Icon for the upload button
@@ -48,12 +52,27 @@ export class FileUploadComponent {
   // Signal to manage the selected files
   selectedFiles = signal<File[]>([]);
 
+  cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+
   /**
    * Handles the file upload event.
    * Emits the `upload` event to notify the parent component.
    */
   onUpload() {
     this.upload.emit();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('files' in changes && !changes['files']?.firstChange) {
+      if (
+        (Array.isArray(changes['files']?.currentValue) &&
+          !changes['files']?.currentValue?.length) ||
+        !changes['files']?.currentValue
+      ) {
+        this.selectedFiles.set([]);
+        this.cdr.detectChanges();
+      }
+    }
   }
 
   /**
