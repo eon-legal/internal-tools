@@ -328,12 +328,20 @@ export class PdfMergeComponent implements AfterViewInit {
     }
   }
 
-  async merge(files: File[]): Promise<void> {
-    try {
-      await this.pdfMergeService.mergeAndOpenPdfs(files);
-    } catch (err) {
-      this.toastr.error('Error al combinar PDFs:', 'Error');
-    }
+  merge(files: File[]) {
+    this.pdfMergeService
+      .mergeAndOpenPdfs(files)
+      .catch((error) => {
+        // Manejo de errores (aunque el servicio ya muestra toastr)
+        // Lógica adicional de error si necesitas
+        // Ejemplo: this.logErrorToService(error);
+      })
+      .finally(() => {
+        // Siempre se ejecuta (éxito o error)
+        //this.isLoading = false;
+        // Opcional: Resetear selección si es necesario
+        // this.selectedFiles = [];
+      });
   }
 
   /**

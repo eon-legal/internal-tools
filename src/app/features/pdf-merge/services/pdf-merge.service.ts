@@ -8,79 +8,77 @@ import { ToastrService } from 'ngx-toastr';
 export class PdfMergeService {
   constructor(private toastr: ToastrService) {}
 
-  /**
-   * Merges multiple PDF files into a single PDF document
-   * @param pdfFiles - Array of PDF files to merge
-   * @returns Promise that resolves with the merged PDF as Uint8Array
-   */
-  async mergePdfs(pdfFiles: File[]): Promise<Uint8Array> {
+  async mergeAndOpenPdfs(pdfFiles: File[]): Promise<void> {
     if (!pdfFiles || pdfFiles.length === 0) {
-      this.toastr.warning('No se han seleccionado archivos PDF para fusionar', 'Advertencia');
-      throw new Error('No PDF files provided');
+      this.toastr.warning(
+        'No se han seleccionado archivos PDF para fusionar',
+        'Advertencia'
+      );
+      return;
     }
 
-    const mergedPdf = await PDFDocument.create();
-
-    await Promise.all(
-      pdfFiles.map(async (file) => {
-        if (file.type !== 'application/pdf') {
-          this.toastr.warning(`El archivo ${file.name} no es un PDF válido`, 'Advertencia');
-          return;
-        }
-
-        try {
-          const pdfBytes = await file.arrayBuffer();
-          const pdfDoc = await PDFDocument.load(new Uint8Array(pdfBytes));
-          const pages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
-          pages.forEach((page) => mergedPdf.addPage(page));
-        } catch (error) {
-          this.toastr.error(`Error al procesar el archivo ${file.name}`, 'Error');
-          throw error;
-        }
-      })
+    const invalidFiles = pdfFiles.filter(
+      (file) => file.type !== 'application/pdf'
     );
 
-    return mergedPdf.save();
-  }
+    if (invalidFiles.length > 0) {
+      this.toastr.warning(
+        `Se encontraron ${invalidFiles.length} archivos que no son PDF`,
+        'Advertencia'
+      );
+      pdfFiles = pdfFiles.filter((file) => file.type === 'application/pdf');
 
-  /**
-   * Opens the merged PDF in a new browser tab with proper error handling
-   * @param mergedPdf - The merged PDF as Uint8Array
-   */
-  async openPdfInNewTab(mergedPdf: Uint8Array): Promise<void> {
+      if (pdfFiles.length === 0) {
+        this.toastr.error(
+          'No hay archivos PDF válidos para fusionar',
+          'Error'
+        );
+        return;
+      }
+    }
+
     try {
-      const blob = new Blob([mergedPdf], { type: 'application/pdf' });
-      const pdfUrl = URL.createObjectURL(blob);
+      const mergedPdf = await PDFDocument.create();
 
-      // Try to open in new tab
-      const newWindow = window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+      await Promise.all(
+        pdfFiles.map(async (file) => {
+          try {
+            const pdfBytes = await file.arrayBuffer();
+            const pdfDoc = await PDFDocument.load(new Uint8Array(pdfBytes));
+            const pages = await mergedPdf.copyPages(
+              pdfDoc,
+              pdfDoc.getPageIndices()
+            );
+            pages.forEach((page) => mergedPdf.addPage(page));
+          } catch (error) {
+            throw new Error(`Error al procesar el archivo: ${file.name}`);
+          }
+        })
+      );
+
+      const mergedPdfBytes = await mergedPdf.save();
+      const pdfBlob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const newWindow = window.open(pdfUrl, '_blank');
 
       if (!newWindow || newWindow.closed) {
-        throw new Error('Popup blocked by browser');
+        this.toastr.warning(
+          'El navegador bloqueó la ventana emergente. Por favor, habilite popups para esta página.',
+          'Advertencia'
+        );
+        return;
       }
 
-      // Cleanup when the new window loads
-      newWindow.addEventListener('load', () => {
-        setTimeout(() => URL.revokeObjectURL(pdfUrl), 3000);
-      }, { once: true });
+      setTimeout(() => {
+        URL.revokeObjectURL(pdfUrl);
+      }, 1000);
 
     } catch (error) {
-      this.toastr.error('No se pudo abrir el PDF. Por favor, intente nuevamente.', 'Error');
-      throw error;
-    }
-  }
-
-  /**
-   * Alternative method that combines merging and opening in one step
-   * @param pdfFiles - Array of PDF files to merge
-   */
-  async mergeAndOpenPdfs(pdfFiles: File[]): Promise<void> {
-    try {
-      const mergedPdf = await this.mergePdfs(pdfFiles);
-      await this.openPdfInNewTab(mergedPdf);
-    } catch (error) {
-      this.toastr.error('Error al procesar los archivos PDF', 'Error');
-      throw error;
+      this.toastr.error(
+        'Error al fusionar los PDFs. Por favor, intente nuevamente.',
+        'Error'
+      );
+      
     }
   }
 }

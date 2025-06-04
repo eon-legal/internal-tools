@@ -1,198 +1,194 @@
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { PdfMergeService } from './pdf-merge.service';
 import { ToastrService } from 'ngx-toastr';
 import { PDFDocument } from 'pdf-lib';
 
-class MockFile extends File {
-  constructor(parts: (string | Blob | ArrayBuffer)[], name: string, options?: FilePropertyBag) {
-    super(parts, name, options);
-  }
-  
-  override arrayBuffer(): Promise<ArrayBuffer> {
-    return Promise.resolve(new TextEncoder().encode('%PDF-1.4').buffer);
-  }
-}
-
-jest.mock('pdf-lib', () => ({
-  PDFDocument: {
-    create: jest.fn().mockResolvedValue({
-      copyPages: jest.fn().mockReturnValue([{}]),
-      addPage: jest.fn(),
-      save: jest.fn().mockResolvedValue(new Uint8Array()),
-      getPageIndices: jest.fn().mockReturnValue([0]),
-      getPages: jest.fn().mockReturnValue([{}]),
-      getPageCount: jest.fn().mockReturnValue(1)
-    }),
-    load: jest.fn().mockResolvedValue({
-      getPageIndices: jest.fn().mockReturnValue([0]),
-      getPages: jest.fn().mockReturnValue([{}]),
-      getPageCount: jest.fn().mockReturnValue(1)
-    })
-  }
-}));
-
 describe('PdfMergeService', () => {
   let service: PdfMergeService;
-  let toastrService: ToastrService;
-  let windowOpenSpy: jest.SpyInstance;
-  let originalCreateObjectURL: (obj: Blob) => string;
-  let originalRevokeObjectURL: (url: string) => void;
+  let toastrSpy: jest.Mocked<ToastrService>;
+  let mockWindowOpen: jest.SpyInstance;
 
   beforeEach(() => {
-    originalCreateObjectURL = window.URL.createObjectURL;
-    originalRevokeObjectURL = window.URL.revokeObjectURL;
-    
-    window.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
-    window.URL.revokeObjectURL = jest.fn();
+    // Create mock ToastrService
+    toastrSpy = {
+      warning: jest.fn(),
+      error: jest.fn(),
+      success: jest.fn(),
+      info: jest.fn(),
+    } as any;
 
-    TestBed.configureTestingModule({
-      providers: [
-        PdfMergeService,
-        {
-          provide: ToastrService,
-          useValue: {
-            warning: jest.fn(),
-            error: jest.fn(),
-            success: jest.fn(),
-          },
-        },
-      ],
-    });
+    // Mock window.open
+    mockWindowOpen = jest.spyOn(window, 'open').mockImplementation(() => ({
+      closed: false,
+      focus: jest.fn(),
+    } as any));
 
-    service = TestBed.inject(PdfMergeService);
-    toastrService = TestBed.inject(ToastrService);
+    // Mock URL methods
+    global.URL.createObjectURL = jest.fn(() => 'mock-url');
+    global.URL.revokeObjectURL = jest.fn();
+
+    // Create service instance with mock Toastr
+    service = new PdfMergeService(toastrSpy);
   });
 
   afterEach(() => {
-    window.URL.createObjectURL = originalCreateObjectURL;
-    window.URL.revokeObjectURL = originalRevokeObjectURL;
     jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-
-  describe('mergePdfs', () => {
-    it('should throw error when no files provided', async () => {
-      await expect(service.mergePdfs([])).rejects.toThrow('No PDF files provided');
-      expect(toastrService.warning).toHaveBeenCalledWith(
-        'No se han seleccionado archivos PDF para fusionar', 
-        'Advertencia'
-      );
-    });
-
-    it('should skip non-PDF files', async () => {
-      const files = [
-        new MockFile([''], 'test.txt', { type: 'text/plain' }),
-        new MockFile(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' })
-      ];
-
-      await service.mergePdfs(files);
-      expect(toastrService.warning).toHaveBeenCalledWith(
-        'El archivo test.txt no es un PDF válido',
-        'Advertencia'
-      );
-      expect(PDFDocument.load).toHaveBeenCalledTimes(1);
-    });
-
-    it('should merge valid PDF files', async () => {
-      const files = [
-        new MockFile(['%PDF-1.4'], 'test1.pdf', { type: 'application/pdf' }),
-        new MockFile(['%PDF-1.4'], 'test2.pdf', { type: 'application/pdf' })
-      ];
-
-      const result = await service.mergePdfs(files);
-      expect(PDFDocument.create).toHaveBeenCalled();
-      expect(PDFDocument.load).toHaveBeenCalledTimes(2);
-      expect(result).toBeInstanceOf(Uint8Array);
-    });
-
-    it('should handle PDF processing errors', async () => {
-      const error = new Error('PDF processing failed');
-      (PDFDocument.load as jest.Mock).mockRejectedValueOnce(error);
-      
-      const file = new MockFile(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' });
-
-      await expect(service.mergePdfs([file])).rejects.toThrow(error);
-      expect(toastrService.error).toHaveBeenCalledWith(
-        'Error al procesar el archivo test.pdf',
-        'Error'
-      );
-    });
-  });
-describe('openPdfInNewTab', () => {
-  it('should open PDF in new tab and revoke URL', fakeAsync(() => {
-    const pdfData = new Uint8Array([1, 2, 3]);
-    let loadListener: any = null;
-
-    const mockWindow = {
-      closed: false,
-      addEventListener: jest.fn((type, listener) => {
-        if (type === 'load') {
-          loadListener = listener;
-        }
-      }),
-      removeEventListener: jest.fn(),
-      document: { readyState: 'complete' }
-    };
-
-    const windowOpenSpy = jest.spyOn(window, 'open').mockReturnValue(mockWindow as any);
-    const revokeSpy = jest.spyOn(window.URL, 'revokeObjectURL');
-
-    service.openPdfInNewTab(pdfData);
-    
-    // Simular el evento load inmediatamente
-    if (loadListener && typeof loadListener === 'function') {
-      loadListener(new Event('load'));
-    }
-    
-    // Avanzar el tiempo para procesar el setTimeout
-    tick(3000); // Avanzamos 3 segundos para cubrir el setTimeout de 3000ms
-
-    expect(window.URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
-    expect(windowOpenSpy).toHaveBeenCalledWith('blob:mock-url', '_blank', 'noopener,noreferrer');
-    expect(revokeSpy).toHaveBeenCalledWith('blob:mock-url');
-  }));
-
-  it('should handle popup blockers', async () => {
-    jest.spyOn(window, 'open').mockReturnValue(null);
-    const pdfData = new Uint8Array([1, 2, 3]);
-
-    await expect(service.openPdfInNewTab(pdfData)).rejects.toThrow('Popup blocked by browser');
-    expect(toastrService.error).toHaveBeenCalledWith(
-      'No se pudo abrir el PDF. Por favor, intente nuevamente.',
-      'Error'
-    );
-  });
-});
   describe('mergeAndOpenPdfs', () => {
-    it('should merge and open PDFs', async () => {
-      const files = [
-        new MockFile(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' })
-      ];
-
-      jest.spyOn(service, 'mergePdfs').mockResolvedValue(new Uint8Array());
-      const openSpy = jest.spyOn(service, 'openPdfInNewTab').mockResolvedValue();
-
-      await service.mergeAndOpenPdfs(files);
-      expect(service.mergePdfs).toHaveBeenCalledWith(files);
-      expect(openSpy).toHaveBeenCalled();
+    it('should show warning when no files are provided', async () => {
+      await service.mergeAndOpenPdfs([]);
+      
+      expect(toastrSpy.warning).toHaveBeenCalledWith(
+        'No se han seleccionado archivos PDF para fusionar',
+        'Advertencia'
+      );
     });
 
-    it('should handle merge errors', async () => {
-      const error = new Error('Merge failed');
-      jest.spyOn(service, 'mergePdfs').mockRejectedValue(error);
-      
-      const files = [
-        new MockFile(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' })
-      ];
+    it('should show warning when non-PDF files are provided', async () => {
+      const mockFiles = [
+        new File([''], 'test.png', { type: 'image/png' }),
+        new File([''], 'test.pdf', { type: 'application/pdf' }),
+      ] as any;
 
-      await expect(service.mergeAndOpenPdfs(files)).rejects.toThrow('Merge failed');
-      expect(toastrService.error).toHaveBeenCalledWith(
-        'Error al procesar los archivos PDF',
+      await service.mergeAndOpenPdfs(mockFiles);
+      
+      expect(toastrSpy.warning).toHaveBeenCalledWith(
+        'Se encontraron 1 archivos que no son PDF',
+        'Advertencia'
+      );
+    });
+
+    it('should show error when no valid PDFs remain after filtering', async () => {
+      const mockFiles = [
+        new File([''], 'test.png', { type: 'image/png' }),
+      ] as any;
+
+      await service.mergeAndOpenPdfs(mockFiles);
+      
+      expect(toastrSpy.error).toHaveBeenCalledWith(
+        'No hay archivos PDF válidos para fusionar',
         'Error'
       );
+    });
+
+    it('should process valid PDF files successfully', async () => {
+      // Mock PDFDocument methods
+      const mockMergedPdf = {
+        copyPages: jest.fn().mockResolvedValue(['page1', 'page2']),
+        addPage: jest.fn(),
+        save: jest.fn().mockResolvedValue(new Uint8Array()),
+        getPageIndices: jest.fn().mockReturnValue([0]),
+      };
+
+      jest.spyOn(PDFDocument, 'create').mockResolvedValue(mockMergedPdf as any);
+      jest.spyOn(PDFDocument, 'load').mockResolvedValue({
+        getPageIndices: jest.fn().mockReturnValue([0]),
+      } as any);
+
+      // Mock File.arrayBuffer
+      global.File.prototype.arrayBuffer = jest.fn().mockResolvedValue(new ArrayBuffer(8));
+
+      const mockFiles = [
+        new File(['%PDF-1.4...'], 'test1.pdf', { type: 'application/pdf' }),
+        new File(['%PDF-1.4...'], 'test2.pdf', { type: 'application/pdf' }),
+      ] as any;
+
+      await service.mergeAndOpenPdfs(mockFiles);
+
+      expect(PDFDocument.create).toHaveBeenCalled();
+      expect(mockWindowOpen).toHaveBeenCalledWith('mock-url', '_blank');
+      expect(global.URL.createObjectURL).toHaveBeenCalled();
+    });
+
+    it('should show warning when popup is blocked', async () => {
+      mockWindowOpen.mockReturnValueOnce(null); // Simulate blocked popup
+
+      // Mock PDFDocument methods
+      const mockMergedPdf = {
+        copyPages: jest.fn().mockResolvedValue(['page1']),
+        addPage: jest.fn(),
+        save: jest.fn().mockResolvedValue(new Uint8Array()),
+        getPageIndices: jest.fn().mockReturnValue([0]),
+      };
+
+      jest.spyOn(PDFDocument, 'create').mockResolvedValue(mockMergedPdf as any);
+      jest.spyOn(PDFDocument, 'load').mockResolvedValue({
+        getPageIndices: jest.fn().mockReturnValue([0]),
+      } as any);
+
+      // Mock File.arrayBuffer
+      global.File.prototype.arrayBuffer = jest.fn().mockResolvedValue(new ArrayBuffer(8));
+
+      const mockFiles = [
+        new File(['%PDF-1.4...'], 'test.pdf', { type: 'application/pdf' }),
+      ] as any;
+
+      await service.mergeAndOpenPdfs(mockFiles);
+
+      expect(toastrSpy.warning).toHaveBeenCalledWith(
+        'El navegador bloqueó la ventana emergente. Por favor, habilite popups para esta página.',
+        'Advertencia'
+      );
+    });
+
+    it('should handle errors during PDF processing', async () => {
+      // Mock PDFDocument to throw error
+      jest.spyOn(PDFDocument, 'create').mockResolvedValue({
+        copyPages: jest.fn(),
+        addPage: jest.fn(),
+        save: jest.fn(),
+        getPageIndices: jest.fn(),
+      } as any);
+      
+      jest.spyOn(PDFDocument, 'load').mockRejectedValue(new Error('Load error'));
+
+      // Mock File.arrayBuffer
+      global.File.prototype.arrayBuffer = jest.fn().mockResolvedValue(new ArrayBuffer(8));
+
+      const mockFiles = [
+        new File([''], 'test.pdf', { type: 'application/pdf' }),
+      ] as any;
+
+      await service.mergeAndOpenPdfs(mockFiles);
+
+      expect(toastrSpy.error).toHaveBeenCalledWith(
+        'Error al fusionar los PDFs. Por favor, intente nuevamente.',
+        'Error'
+      );
+    });
+
+    it('should revoke object URL after timeout', async () => {
+      jest.useFakeTimers();
+
+      // Mock PDFDocument methods
+      const mockMergedPdf = {
+        copyPages: jest.fn().mockResolvedValue(['page1']),
+        addPage: jest.fn(),
+        save: jest.fn().mockResolvedValue(new Uint8Array()),
+        getPageIndices: jest.fn().mockReturnValue([0]),
+      };
+
+      jest.spyOn(PDFDocument, 'create').mockResolvedValue(mockMergedPdf as any);
+      jest.spyOn(PDFDocument, 'load').mockResolvedValue({
+        getPageIndices: jest.fn().mockReturnValue([0]),
+      } as any);
+
+      // Mock File.arrayBuffer
+      global.File.prototype.arrayBuffer = jest.fn().mockResolvedValue(new ArrayBuffer(8));
+
+      const mockFiles = [
+        new File(['%PDF-1.4...'], 'test.pdf', { type: 'application/pdf' }),
+      ] as any;
+
+      await service.mergeAndOpenPdfs(mockFiles);
+
+      // Advance timers to trigger the revokeObjectURL
+      jest.advanceTimersByTime(1000);
+
+      expect(global.URL.revokeObjectURL).toHaveBeenCalledWith('mock-url');
+
+      jest.useRealTimers();
     });
   });
 });
