@@ -24,8 +24,8 @@ export function dateRangeValidator(
   // Destructure the array into start date (fecha1) and end date (fecha2)
   const [fecha1, fecha2] = fechas;
 
-  // If either date is null, skip validation
-  if (fecha1 === null || fecha2 === null) return null;
+  // If either date is null or undefined, skip validation
+  if (fecha1 === null || fecha2 === null || fecha1 === undefined || fecha2 === undefined) return null;
 
   // Check if the start date is greater than or equal to the end date
   if (fecha1 >= fecha2) {

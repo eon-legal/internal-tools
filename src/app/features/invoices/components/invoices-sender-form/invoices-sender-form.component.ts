@@ -173,14 +173,17 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
         );
 
         if (positionDate !== -1 && positionRange !== -1) {
-          if (value) {
+          const dateField = this.formConfig[positionDate];
+          const rangeField = this.formConfig[positionRange];
+
+          if (value && dateField && rangeField) {
             // Show range date field and hide single date field
-            this.formConfig[positionDate].showComponent = false;
-            this.formConfig[positionRange].showComponent = true;
+            dateField.showComponent = false;
+            rangeField.showComponent = true;
 
             // Update validators
-            this.formConfig[positionDate].validators = undefined;
-            this.formConfig[positionRange].validators = this.arrayRangeDate;
+            dateField.validators = undefined;
+            rangeField.validators = this.arrayRangeDate;
 
             // Disable single date field and enable range date field
             fieldDate?.disable();
@@ -190,21 +193,24 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
             fieldRangeDate?.setValidators(
               this.arrayRangeDate.map((v) => v.validator)
             );
-          } else {
+          } else if (dateField && rangeField) {
             // Show single date field and hide range date field
-            this.formConfig[positionDate].showComponent = true;
-            this.formConfig[positionRange].showComponent = false;
+            dateField.showComponent = true;
+            rangeField.showComponent = false;
 
             // Update validators
-            this.formConfig[positionDate].validators = this.usualValidate;
-            this.formConfig[positionRange].validators = undefined;
+            dateField.validators = this.usualValidate;
+            rangeField.validators = undefined;
 
             // Disable range date field and enable single date field
             fieldRangeDate?.disable();
             fieldRangeDate?.setValue('');
             fieldRangeDate?.clearValidators();
             fieldDate?.enable();
-            fieldDate?.setValidators(this.usualValidate[0].validator);
+            const firstValidator = this.usualValidate[0];
+            if (firstValidator) {
+              fieldDate?.setValidators(firstValidator.validator);
+            }
           }
 
           // Update field validity and trigger change detection
@@ -234,10 +240,14 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
           (v) => v.name === 'passport'
         );
         if (positionAddress !== -1 && positionPassport !== -1) {
-          if (value) {
+          const addressField = this.formConfig[positionAddress];
+          const passportField = this.formConfig[positionPassport];
+          const firstValidator = this.usualValidate[0];
+
+          if (value && addressField && passportField) {
             // Show address field and hide passport field
-            this.formConfig[positionAddress].showComponent = true;
-            this.formConfig[positionPassport].showComponent = false;
+            addressField.showComponent = true;
+            passportField.showComponent = false;
 
             // Disable passport field and enable address field
             /*fieldAddress?.disable();
@@ -252,11 +262,13 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
             fieldPassport?.clearValidators();
 
             fieldAddress?.enable();
-            fieldAddress?.setValidators(this.usualValidate[0].validator);
-          } else {
+            if (firstValidator) {
+              fieldAddress?.setValidators(firstValidator.validator);
+            }
+          } else if (addressField && passportField) {
             // Show passport field and hide address field
-            this.formConfig[positionAddress].showComponent = false;
-            this.formConfig[positionPassport].showComponent = true;
+            addressField.showComponent = false;
+            passportField.showComponent = true;
 
             // Disable address field and enable passport field
             fieldAddress?.disable();
@@ -264,7 +276,9 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
             fieldAddress?.clearValidators();
 
             fieldPassport?.enable();
-            fieldPassport?.setValidators(this.usualValidate[0].validator);
+            if (firstValidator) {
+              fieldPassport?.setValidators(firstValidator.validator);
+            }
           }
           // Update field validity
           fieldAddress?.updateValueAndValidity();

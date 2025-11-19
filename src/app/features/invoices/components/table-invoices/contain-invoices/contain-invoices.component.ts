@@ -306,13 +306,23 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
     );
     if (positionTotal !== -1 && positionIVA !== -1) {
       const getDataPosTotal = this.rowTable[positionTotal];
-      this.rowTable[positionTotal] = { ...getDataPosTotal, total };
-
       const getDataPosIva = this.rowTable[positionIVA];
-      this.rowTable[positionIVA] = {
-        ...getDataPosIva,
-        total: this.redondearDecimal(total - sTotal, 2),
-      };
+
+      if (getDataPosTotal) {
+        this.rowTable[positionTotal] = {
+          ...getDataPosTotal,
+          sTotal: getDataPosTotal.sTotal ?? 0,
+          total
+        };
+      }
+
+      if (getDataPosIva) {
+        this.rowTable[positionIVA] = {
+          ...getDataPosIva,
+          sTotal: getDataPosIva.sTotal ?? 0,
+          total: this.redondearDecimal(total - sTotal, 2),
+        };
+      }
     }
   }
 
