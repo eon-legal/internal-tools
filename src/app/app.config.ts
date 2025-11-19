@@ -32,6 +32,8 @@ import {
 } from '@angular/fire/remote-config';
 
 import { getStorage, provideStorage } from '@angular/fire/storage';
+import { environment } from '../environments/environment';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
 
 export const provideTranslation = () => ({
   //defaultLanguage: "en",
@@ -46,23 +48,13 @@ export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyACfLV8asrf62FJcpiPSVbN7jMZT42IusM',
-  authDomain: 'eontech-solutions-web.firebaseapp.com',
-  projectId: 'eontech-solutions-web',
-  storageBucket: 'eontech-solutions-web.firebasestorage.app',
-  messagingSenderId: '790481331254',
-  appId: '1:790481331254:web:9c9d41b78ba00ef09ba497',
-  measurementId: 'G-2RRB8ZYXJ5',
-};
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimationsAsync(),
     provideToastr({ timeOut: 2000, preventDuplicates: true }),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([errorInterceptor])),
     DialogService,
     providePrimeNG({
       theme: {
@@ -70,17 +62,14 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     importProvidersFrom([TranslateModule.forRoot(provideTranslation())]),
-    // aqui viene firebase
-    provideFirebaseApp(() => initializeApp(firebaseConfig)),
-    provideAuth(() => getAuth()), // Provides Firebase Authentication service
-    // Provide Firebase Authentication service
-    provideFirestore(() => getFirestore()), // Provides Firebase Firestore service
-    provideStorage(() => getStorage()), // Fournit le service Firebase Storage
-    provideRemoteConfig(() => getRemoteConfig()),
-    //provideHttpClient(withInterceptors([loggingInterceptor])),
+    // Firebase providers
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideAuth(() => getAuth()),
+    provideFirestore(() => getFirestore()),
+    provideStorage(() => getStorage()),
     provideRemoteConfig(() => {
       const remoteConfig = getRemoteConfig();
-      remoteConfig.settings.minimumFetchIntervalMillis = 1000;
+      remoteConfig.settings.minimumFetchIntervalMillis = environment.remoteConfig.minimumFetchIntervalMillis;
       return remoteConfig;
     }),
   ],
