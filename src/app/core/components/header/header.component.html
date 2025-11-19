@@ -1,7 +1,10 @@
 <header class="header">
-  <button pButton 
+  <button pButton
           icon="pi pi-bars"
           class="mobile-menu-btn"
           (click)="toggleMenu.emit()"></button>
   <h1 class="logo">DocPro</h1>
+  <div class="header-actions">
+    <app-language-switcher></app-language-switcher>
+  </div>
 </header>
