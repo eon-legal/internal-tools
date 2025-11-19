@@ -20,18 +20,20 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { TranslateService } from '@ngx-translate/core';
 import { catchError, throwError } from 'rxjs';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const toastr = inject(ToastrService);
+  const translate = inject(TranslateService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      let errorMessage = 'Ha ocurrido un error inesperado';
+      let errorMessage = translate.instant('common.messages.unexpected_error');
 
       if (error.error instanceof ErrorEvent) {
         // Client-side or network error
-        errorMessage = `Error de red: ${error.error.message}`;
+        errorMessage = `${translate.instant('common.messages.connection_error')}`;
         console.error('Client-side error:', error.error);
       } else {
         // Backend error
@@ -43,33 +45,33 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         // Customize error messages based on status code
         switch (error.status) {
           case 0:
-            errorMessage = 'No se pudo conectar al servidor. Verifique su conexión a internet.';
+            errorMessage = translate.instant('common.messages.connection_error');
             break;
           case 400:
-            errorMessage = error.error?.message || 'Solicitud inválida';
+            errorMessage = error.error?.message || translate.instant('common.messages.invalid_request');
             break;
           case 401:
-            errorMessage = 'No autorizado. Por favor, inicie sesión nuevamente.';
+            errorMessage = translate.instant('common.messages.unauthorized');
             break;
           case 403:
-            errorMessage = 'No tiene permisos para realizar esta acción';
+            errorMessage = translate.instant('common.messages.forbidden');
             break;
           case 404:
-            errorMessage = 'Recurso no encontrado';
+            errorMessage = translate.instant('common.messages.not_found');
             break;
           case 500:
-            errorMessage = 'Error interno del servidor';
+            errorMessage = translate.instant('common.messages.server_error');
             break;
           case 503:
-            errorMessage = 'Servicio no disponible. Intente nuevamente más tarde.';
+            errorMessage = translate.instant('common.messages.service_unavailable');
             break;
           default:
-            errorMessage = error.error?.message || `Error del servidor: ${error.status}`;
+            errorMessage = error.error?.message || `${translate.instant('common.messages.server_error')}: ${error.status}`;
         }
       }
 
       // Display error notification to user
-      toastr.error(errorMessage, 'Error', {
+      toastr.error(errorMessage, translate.instant('common.labels.error'), {
         timeOut: 5000,
         closeButton: true,
         progressBar: true,

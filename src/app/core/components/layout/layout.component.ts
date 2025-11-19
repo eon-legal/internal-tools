@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { ButtonModule } from 'primeng/button';
@@ -7,7 +7,9 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 import { ContainComponent } from '../contain/contain.component';
 import { MenuItem } from 'primeng/api';
 import { NavigationEnd, Router } from '@angular/router';
-import { MENU_ITEMS } from '../../constants/routes';
+import { getMenuItems } from '../../constants/routes';
+import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 /**
  * LayoutComponent is the main layout structure of the application.
@@ -28,21 +30,30 @@ import { MENU_ITEMS } from '../../constants/routes';
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',
 })
-export class LayoutComponent implements OnInit{
-   /** Controls the visibility of the mobile menu */
+export class LayoutComponent implements OnInit, OnDestroy {
+  /** Controls the visibility of the mobile menu */
   isMenuOpen = false;
 
-   /** Array of menu items imported from the MENU_ITEMS constant */
-  menuItems: MenuItem[] = MENU_ITEMS;
+  /** Array of menu items with translated labels */
+  menuItems: MenuItem[] = [];
 
-   /** Injects the Angular Router service to monitor URL changes */
-   router = inject(Router);
+  /** Injects the Angular Router service to monitor URL changes */
+  private readonly router = inject(Router);
+
+  /** Injects the TranslateService for i18n support */
+  private readonly translate = inject(TranslateService);
+
+  /** Subscription to language change events */
+  private langChangeSubscription?: Subscription;
 
   /**
    * Angular lifecycle hook that runs when the component is initialized.
-   * Updates the menu state with the current URL and listens for URL changes.
+   * Initializes menu items with translations and subscribes to language and router events.
    */
   ngOnInit(): void {
+    // Initialize menu items with current language
+    this.menuItems = getMenuItems(this.translate);
+
     // Updates the menu state with the current URL on initialization
     this.updateMenuState(this.router.url);
 
@@ -52,6 +63,21 @@ export class LayoutComponent implements OnInit{
         this.updateMenuState(event.url);
       }
     });
+
+    // Subscribe to language changes to update menu labels
+    this.langChangeSubscription = this.translate.onLangChange.subscribe(() => {
+      const currentUrl = this.router.url;
+      this.menuItems = getMenuItems(this.translate);
+      this.updateMenuState(currentUrl);
+    });
+  }
+
+  /**
+   * Lifecycle hook that runs when the component is destroyed.
+   * Cleans up subscriptions to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    this.langChangeSubscription?.unsubscribe();
   }
 
   /**
