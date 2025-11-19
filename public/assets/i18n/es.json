@@ -1,9 +1,154 @@
 {
-    "images_to_pdf": {
+    "common": {
         "buttons": {
-            "choose": "Selecccionar",
+            "save": "Guardar",
+            "cancel": "Cancelar",
+            "accept": "Aceptar",
+            "clean": "Limpiar",
+            "next": "Siguiente",
+            "back": "Atr\u00e1s",
+            "choose": "Seleccionar",
             "download": "Descargar",
-            "clean": "Limpiar"
+            "upload": "Subir",
+            "reset_order": "Restablecer Orden Inicial Archivos",
+            "clean_all": "Limpiar Todo",
+            "generate_invoice": "Generar Factura",
+            "add_data": "Agregar Dato Facturas",
+            "add_addressee": "Adicionar Destinario"
+        },
+        "labels": {
+            "select": "Seleccione",
+            "image": "Imagen",
+            "name": "Nombre",
+            "size": "Tama\u00f1o",
+            "type": "Tipo",
+            "description": "Descripci\u00f3n",
+            "total": "Total",
+            "error": "Error",
+            "warning": "Advertencia"
+        },
+        "messages": {
+            "required_field": "Campo requerido.",
+            "service_error": "Ha ocurrido un error al consumir el servicio",
+            "unexpected_error": "Ha ocurrido un error inesperado",
+            "invalid_request": "Solicitud inv\u00e1lida",
+            "unauthorized": "No autorizado. Por favor, inicie sesi\u00f3n nuevamente.",
+            "forbidden": "No tiene permisos para realizar esta acci\u00f3n",
+            "not_found": "Recurso no encontrado",
+            "server_error": "Error interno del servidor",
+            "service_unavailable": "Servicio no disponible. Intente nuevamente m\u00e1s tarde.",
+            "connection_error": "No se pudo conectar al servidor. Verifique su conexi\u00f3n a internet.",
+            "confirm_action": "\u00bfEst\u00e1s seguro de que deseas realizar esta acci\u00f3n?"
+        },
+        "sizes": {
+            "bytes": "Bytes",
+            "kb": "KB",
+            "mb": "MB",
+            "gb": "GB"
         }
+    },
+    "menu": {
+        "images_to_pdf": "Imagen - PDF",
+        "pdf_merge": "Mezclar PDFs",
+        "invoices": "Facturas",
+        "addressee": "Destinarios"
+    },
+    "routes": {
+        "images_to_pdf_title": "Convertidor Im\u00e1genes a PDF"
+    },
+    "images_to_pdf": {
+        "note": "Arrastre y suelte im\u00e1genes aqu\u00ed.",
+        "messages": {
+            "only_images": "Solo se aceptan im\u00e1genes.",
+            "no_images_selected": "No se han seleccionado im\u00e1genes para generar el PDF",
+            "no_valid_images": "No hay im\u00e1genes v\u00e1lidas para generar el PDF",
+            "generation_error": "Error al generar el PDF. Por favor, intente nuevamente."
+        }
+    },
+    "pdf_merge": {
+        "note": "Arrastre y suelte archivos pdf aqu\u00ed.",
+        "messages": {
+            "only_pdf": "Solo se aceptan pdf.",
+            "no_pdf_selected": "No se han seleccionado archivos PDF para fusionar",
+            "no_valid_pdf": "No hay archivos PDF v\u00e1lidos para fusionar",
+            "min_two_files": "Para combinar el PDF al menos deben existir dos archivos pdf",
+            "merge_error": "Error al fusionar los PDFs. Por favor, intente nuevamente.",
+            "popup_blocked": "El navegador bloque\u00f3 la ventana emergente. Por favor, habilite popups para esta p\u00e1gina."
+        }
+    },
+    "invoices": {
+        "steps": {
+            "sender": "Remitente Factura",
+            "table": "Tabla Factura",
+            "destination": "Destinatario - Generar Factura"
+        },
+        "sender_form": {
+            "invoice_number": "N\u00famero Factura *",
+            "period": "Per\u00edodo",
+            "date": "Fecha *",
+            "date_range": "Rango Fecha *",
+            "sender_name": "Nombre Remitente *",
+            "national": "Nacional",
+            "sender_address": "Direcci\u00f3n Remitente *",
+            "sender_passport": "Pasaporte Remitente *",
+            "messages": {
+                "date_range_error": "La primera fecha debe ser menor que la segunda.",
+                "date_range_required": "Debes elegir un rango de fechas.",
+                "step1_invalid": "Deben ser v\u00e1lidos los formularios del paso 1.",
+                "step3_invalid": "Deben ser v\u00e1lidos los formularios del paso 3."
+            }
+        },
+        "destination_form": {
+            "select_destination": "Seleccione Destino",
+            "destination_name": "Nombre Destino *",
+            "destination_account": "Cuenta Destino *",
+            "destination_address": "Direcci\u00f3n Destino *",
+            "bank_name": "Nombre Banco *",
+            "bank_address": "Direcci\u00f3n Banco *",
+            "nif": "NIF *"
+        },
+        "table": {
+            "headers": {
+                "id": "ID",
+                "description": "Descripci\u00f3n",
+                "qtt": "QTT",
+                "price": "Price",
+                "subtotal": "S.Total",
+                "total": "Total",
+                "iva": "IVA"
+            },
+            "form": {
+                "description": "Descripci\u00f3n *",
+                "iva_percent": "% IVA *",
+                "iva_options": {
+                    "0": "0%",
+                    "21": "21%"
+                },
+                "total": "Total *",
+                "qtt": "QTT",
+                "price": "Precio",
+                "messages": {
+                    "greater_than_zero": "Deben ser valores mayores que cero",
+                    "positive_values": "Deben ser valores positivos"
+                }
+            },
+            "modal_title": "Inserte Datos Factura"
+        },
+        "pdf": {
+            "to": "To:",
+            "from": "From:",
+            "passport": "Pasaporte"
+        }
+    },
+    "addressee": {
+        "headers": {
+            "destination_name": "Nombre del Destino",
+            "destination_account": "Cuenta de Destino",
+            "destination_address": "Direcci\u00f3n del Destino",
+            "bank_name": "Nombre del Banco",
+            "bank_address": "Direcci\u00f3n del Banco",
+            "nif": "NIF"
+        },
+        "modal_title": "Adicionar Destinario"
     }
 }

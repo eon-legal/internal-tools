@@ -1,9 +1,154 @@
 {
-    "images_to_pdf": {
+    "common": {
         "buttons": {
+            "save": "Save",
+            "cancel": "Cancel",
+            "accept": "Accept",
+            "clean": "Clean",
+            "next": "Next",
+            "back": "Back",
             "choose": "Choose",
             "download": "Download",
-            "clean": "Clean"
+            "upload": "Upload",
+            "reset_order": "Reset Initial File Order",
+            "clean_all": "Clean All",
+            "generate_invoice": "Generate Invoice",
+            "add_data": "Add Invoice Data",
+            "add_addressee": "Add Addressee"
+        },
+        "labels": {
+            "select": "Select",
+            "image": "Image",
+            "name": "Name",
+            "size": "Size",
+            "type": "Type",
+            "description": "Description",
+            "total": "Total",
+            "error": "Error",
+            "warning": "Warning"
+        },
+        "messages": {
+            "required_field": "Required field.",
+            "service_error": "An error occurred while consuming the service",
+            "unexpected_error": "An unexpected error has occurred",
+            "invalid_request": "Invalid request",
+            "unauthorized": "Unauthorized. Please log in again.",
+            "forbidden": "You do not have permission to perform this action",
+            "not_found": "Resource not found",
+            "server_error": "Internal server error",
+            "service_unavailable": "Service unavailable. Please try again later.",
+            "connection_error": "Could not connect to the server. Check your internet connection.",
+            "confirm_action": "Are you sure you want to perform this action?"
+        },
+        "sizes": {
+            "bytes": "Bytes",
+            "kb": "KB",
+            "mb": "MB",
+            "gb": "GB"
         }
+    },
+    "menu": {
+        "images_to_pdf": "Image - PDF",
+        "pdf_merge": "Merge PDFs",
+        "invoices": "Invoices",
+        "addressee": "Addressees"
+    },
+    "routes": {
+        "images_to_pdf_title": "Image to PDF Converter"
+    },
+    "images_to_pdf": {
+        "note": "Drag and drop images here.",
+        "messages": {
+            "only_images": "Only images are accepted.",
+            "no_images_selected": "No images have been selected to generate the PDF",
+            "no_valid_images": "There are no valid images to generate the PDF",
+            "generation_error": "Error generating PDF. Please try again."
+        }
+    },
+    "pdf_merge": {
+        "note": "Drag and drop PDF files here.",
+        "messages": {
+            "only_pdf": "Only PDFs are accepted.",
+            "no_pdf_selected": "No PDF files have been selected to merge",
+            "no_valid_pdf": "There are no valid PDF files to merge",
+            "min_two_files": "At least two PDF files must exist to combine the PDF",
+            "merge_error": "Error merging PDFs. Please try again.",
+            "popup_blocked": "The browser blocked the popup window. Please enable popups for this page."
+        }
+    },
+    "invoices": {
+        "steps": {
+            "sender": "Invoice Sender",
+            "table": "Invoice Table",
+            "destination": "Recipient - Generate Invoice"
+        },
+        "sender_form": {
+            "invoice_number": "Invoice Number *",
+            "period": "Period",
+            "date": "Date *",
+            "date_range": "Date Range *",
+            "sender_name": "Sender Name *",
+            "national": "National",
+            "sender_address": "Sender Address *",
+            "sender_passport": "Sender Passport *",
+            "messages": {
+                "date_range_error": "The first date must be less than the second.",
+                "date_range_required": "You must choose a date range.",
+                "step1_invalid": "Step 1 forms must be valid.",
+                "step3_invalid": "Step 3 forms must be valid."
+            }
+        },
+        "destination_form": {
+            "select_destination": "Select Destination",
+            "destination_name": "Destination Name *",
+            "destination_account": "Destination Account *",
+            "destination_address": "Destination Address *",
+            "bank_name": "Bank Name *",
+            "bank_address": "Bank Address *",
+            "nif": "NIF *"
+        },
+        "table": {
+            "headers": {
+                "id": "ID",
+                "description": "Description",
+                "qtt": "QTY",
+                "price": "Price",
+                "subtotal": "Subtotal",
+                "total": "Total",
+                "iva": "VAT"
+            },
+            "form": {
+                "description": "Description *",
+                "iva_percent": "% VAT *",
+                "iva_options": {
+                    "0": "0%",
+                    "21": "21%"
+                },
+                "total": "Total *",
+                "qtt": "QTY",
+                "price": "Price",
+                "messages": {
+                    "greater_than_zero": "Must be values greater than zero",
+                    "positive_values": "Must be positive values"
+                }
+            },
+            "modal_title": "Insert Invoice Data"
+        },
+        "pdf": {
+            "to": "To:",
+            "from": "From:",
+            "passport": "Passport"
+        }
+    },
+    "addressee": {
+        "headers": {
+            "destination_name": "Destination Name",
+            "destination_account": "Destination Account",
+            "destination_address": "Destination Address",
+            "bank_name": "Bank Name",
+            "bank_address": "Bank Address",
+            "nif": "NIF"
+        },
+        "modal_title": "Add Addressee"
     }
 }
