@@ -19,6 +19,7 @@ import { MessagesComponent } from '../../../../shared/components/messages/messag
 import { DragDropAreaComponent } from '../../../../shared/components/drag-drop-area/drag-drop-area.component';
 import { FormGenericComponent } from '../../../../shared/components/form-generic/form-generic.component';
 import { FormField } from '../../../../shared/components/form-generic/interfaces/form-field';
+import { TranslateService } from '@ngx-translate/core';
 
 /**
  * Component for converting images to PDF.
@@ -38,6 +39,18 @@ import { FormField } from '../../../../shared/components/form-generic/interfaces
   styleUrl: './images-to-pdf.component.scss',
 })
 export class ImagesToPdfComponent implements AfterViewInit {
+  /** Injected TranslateService for i18n support */
+  private readonly translate = inject(TranslateService);
+
+  /** Injected ConfirmationService for displaying confirmation dialogs */
+  private readonly confirmationService = inject(ConfirmationService);
+
+  /** Injected DomSanitizer for safely rendering HTML */
+  private readonly sanitizer = inject(DomSanitizer);
+
+  /** Injected DownloadImagePdfService for handling PDF generation */
+  private readonly downloadImagePdfService = inject(DownloadImagePdfService);
+
   /** Initial number of items to display per page in the table */
   itemInitialPagination = 10;
 
@@ -63,9 +76,9 @@ export class ImagesToPdfComponent implements AfterViewInit {
           accept: ['png', 'jpeg', 'jpg', 'gif'], // Allowed file types
           uploadIcon: 'pi pi-arrow-down', // Icon for the upload button
           multiple: true, // Allow multiple file uploads
-          chooseLabel: 'Seleccionar', // Label for the file selection button
-          uploadLabel: 'Descargar Archivo', // Label for the upload button
-          cancelLabel: 'Limpiar', // Label for the clear button
+          chooseLabel: this.translate.instant('common.buttons.choose'),
+          uploadLabel: this.translate.instant('common.buttons.download'),
+          cancelLabel: this.translate.instant('common.buttons.clean'),
           noFooter: true, // Hide the footer in the file upload dialog
           uploadHandler: () => {
             this.onUpload(); // Handler for the upload action
@@ -106,7 +119,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
       {
         id: 1,
         icon: 'pi pi-check',
-        label: 'Restablecer Orden Inicial Archivos',
+        label: this.translate.instant('common.buttons.reset_order'),
         severity: 'primary',
         disabled: !this.getFormDataFile().length, // Disable the button if no files are selected
         action: () => this.restartTable(), // Action to reset the table to its initial state
@@ -124,9 +137,6 @@ export class ImagesToPdfComponent implements AfterViewInit {
   @ViewChild(TableGenericComponent)
   tableGenericComponent!: TableGenericComponent<File>;
 
-  /** Injected ConfirmationService for displaying confirmation dialogs */
-  confirmationService: ConfirmationService = inject(ConfirmationService);
-
   /** List of pagination options for the table */
   listPagination = [5, 10, 20, 50, 100];
 
@@ -134,12 +144,7 @@ export class ImagesToPdfComponent implements AfterViewInit {
   acceptedFiles: string[] = ['jpg', 'jpeg', 'png', 'gif'];
 
   /** Error message for invalid file types */
-  messagesFiles: string = 'Solo se aceptan imágenes.';
-
-  /** Labels for file upload actions */
-  chooseLabel = 'Seleccionar';
-  uploadLabel = 'Descargar';
-  cancelLabel = 'Limpiar';
+  messagesFiles: string = this.translate.instant('images_to_pdf.messages.only_images');
 
   /** Header configuration for the table */
   headerData: HeaderTable<File>[] = [];
@@ -160,9 +165,14 @@ export class ImagesToPdfComponent implements AfterViewInit {
   formatOptions: FormatOptions<File> = {
     size: {
       formatFunction: (v) => {
-        if (v.size === 0) return '0 Bytes';
+        if (v.size === 0) return `0 ${this.translate.instant('common.sizes.bytes')}`;
         const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const sizes = [
+          this.translate.instant('common.sizes.bytes'),
+          this.translate.instant('common.sizes.kb'),
+          this.translate.instant('common.sizes.mb'),
+          this.translate.instant('common.sizes.gb'),
+        ];
         const i = Math.floor(Math.log(v.size) / Math.log(k));
         return (
           parseFloat((v.size / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
@@ -182,14 +192,6 @@ export class ImagesToPdfComponent implements AfterViewInit {
 
   /** Error message to display for invalid files */
   errorMessage: string = '';
-
-  /** Injected DomSanitizer for safely rendering HTML */
-  sanitizer: DomSanitizer = inject(DomSanitizer);
-
-  /** Injected DownloadImagePdfService for handling PDF generation */
-  downloadImagePdfService: DownloadImagePdfService = inject(
-    DownloadImagePdfService
-  );
 
   /**
    * Handles file drop events.
@@ -211,20 +213,20 @@ export class ImagesToPdfComponent implements AfterViewInit {
       this.headerData = [
         {
           field: 'text',
-          header: 'Imagen',
+          header: this.translate.instant('common.labels.image'),
           customContent: this.customContentTemplate1, // Custom template for rendering images
         },
         {
           field: 'name',
-          header: 'Nombre',
+          header: this.translate.instant('common.labels.name'),
         },
         {
           field: 'size',
-          header: 'Tamaño',
+          header: this.translate.instant('common.labels.size'),
         },
         {
           field: 'type',
-          header: 'Tipo',
+          header: this.translate.instant('common.labels.type'),
         },
       ];
     });
