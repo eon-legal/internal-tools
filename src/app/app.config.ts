@@ -35,15 +35,10 @@ import { getStorage, provideStorage } from '@angular/fire/storage';
 import { environment } from '../environments/environment';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 
-export const provideTranslation = () => ({
-  //defaultLanguage: "en",
-  loader: {
-    provide: TranslateLoader,
-    useFactory: HttpLoaderFactory,
-    deps: [HttpClient],
-  },
-});
-
+/**
+ * Factory function to create the TranslateHttpLoader.
+ * This loader fetches translation files from the assets/i18n directory.
+ */
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
@@ -54,14 +49,23 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimationsAsync(),
     provideToastr({ timeOut: 2000, preventDuplicates: true }),
-    provideHttpClient(withInterceptors([errorInterceptor])),
+    provideHttpClient(withInterceptors([errorInterceptor]), withInterceptorsFromDi()),
     DialogService,
     providePrimeNG({
       theme: {
         preset: Aura,
       },
     }),
-    importProvidersFrom([TranslateModule.forRoot(provideTranslation())]),
+    // Configure i18n with TranslateModule
+    importProvidersFrom(
+      TranslateModule.forRoot({
+        loader: {
+          provide: TranslateLoader,
+          useFactory: HttpLoaderFactory,
+          deps: [HttpClient],
+        },
+      })
+    ),
     // Firebase providers
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
