@@ -1,0 +1,13 @@
+:host {
+  display: flex;
+  align-items: center;
+}
+
+::ng-deep .language-switcher {
+  .p-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+}
+

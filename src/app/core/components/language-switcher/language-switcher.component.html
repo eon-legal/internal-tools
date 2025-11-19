@@ -1,0 +1,10 @@
+<p-selectButton
+  [options]="languageOptions"
+  [(ngModel)]="selectedLanguage"
+  (onChange)="onLanguageChange()"
+  optionLabel="label"
+  optionValue="value"
+  [allowEmpty]="false"
+  styleClass="language-switcher"
+/>
+
