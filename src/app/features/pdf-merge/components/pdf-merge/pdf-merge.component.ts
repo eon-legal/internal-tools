@@ -175,7 +175,7 @@ export class PdfMergeComponent implements AfterViewInit {
     type: {
       formatFunction: (v) => {
         const [_, format] = v.type.split('/');
-        return format?.toUpperCase();
+        return format?.toUpperCase() ?? '';
       },
     },
   };
@@ -198,7 +198,8 @@ export class PdfMergeComponent implements AfterViewInit {
    */
   onDrop(event: FileList) {
     const files = Array.from(event);
-    this.validateAndAssignFiles(files, this.formConfig[0].name);
+    const fieldName = this.formConfig[0]?.name ?? 'file';
+    this.validateAndAssignFiles(files, fieldName);
   }
 
   /**
@@ -401,8 +402,10 @@ export class PdfMergeComponent implements AfterViewInit {
    * Updates the state of the buttons based on the form data.
    */
   changeStateButton() {
-    if (this.buttons?.buttons?.length)
-      this.buttons.buttons[0].disabled = !this.getFormDataFile().length;
+    const firstButton = this.buttons?.buttons?.[0];
+    if (firstButton) {
+      firstButton.disabled = !this.getFormDataFile().length;
+    }
     if (!this.getFormDataFile().length) {
       this.orderTable = false;
       this.arrayFileWhitOutChange = [];
