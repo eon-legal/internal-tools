@@ -32,11 +32,11 @@ export function getValidateInputPercentage(event: InputNumberInputEvent): Result
   const [integerPart, decimalPart] = absoluteValue.split('.');
 
   // Process integer part
-  let processedInteger = integerPart;
-  const integerNumber = parseInt(integerPart || '0', 10);
-  
+  let processedInteger = integerPart ?? '0';
+  const integerNumber = parseInt(integerPart ?? '0', 10);
+
   // Truncate to 2 digits if > 100
-  if (integerNumber > 100) {
+  if (integerNumber > 100 && integerPart) {
     processedInteger = integerPart.slice(0, 2);
   }
 
@@ -56,8 +56,8 @@ export function getValidateInputPercentage(event: InputNumberInputEvent): Result
     newValueStr += `.${processedDecimal}`;
   }
 
-  // Convert to number
-  const numericResult = parseFloat(newValueStr);
+  // Convert to number (with fallback for safety)
+  const numericResult = parseFloat(newValueStr ?? '0');
 
   // Handle invalid numbers
   if (isNaN(numericResult)) {
@@ -79,6 +79,6 @@ export function getValidateInputPercentage(event: InputNumberInputEvent): Result
 
   return {
     change: hasChanged,
-    value: numericResult > 100 ? parseFloat(processedInteger) : numericResult
+    value: numericResult > 100 ? parseFloat(processedInteger ?? '0') : numericResult
   };
 }

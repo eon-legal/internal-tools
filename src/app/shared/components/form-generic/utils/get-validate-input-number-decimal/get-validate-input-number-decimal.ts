@@ -33,10 +33,10 @@ export function getValidateInputNumberDecimal(event: InputNumberInputEvent): Res
 
   // Handle negative sign for the integer part
   const esNegativo = parteEntera?.startsWith('-') || false;
-  const parteEnteraSinSigno = esNegativo ? parteEntera.slice(1) : parteEntera;
+  const parteEnteraSinSigno = esNegativo ? (parteEntera?.slice(1) ?? '') : (parteEntera ?? '');
 
   // Limit the integer part to 13 digits
-  const parteEnteraLimitada = parteEnteraSinSigno?.slice(0, 13) || '';
+  const parteEnteraLimitada = parteEnteraSinSigno.slice(0, 13);
 
   // Handle the decimal part
   let parteDecimalLimitada = parteDecimal || '';

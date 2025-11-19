@@ -101,7 +101,10 @@ export class TableGenericComponent<T extends object> {
   private reorderArray(array: T[], from: number, to: number): T[] {
     const newArray = [...array];
     const item = newArray.splice(from, 1)[0];
-    newArray.splice(to, 0, item);
+    // Type guard to ensure item is defined before using it
+    if (item !== undefined) {
+      newArray.splice(to, 0, item);
+    }
     return newArray;
   }
 

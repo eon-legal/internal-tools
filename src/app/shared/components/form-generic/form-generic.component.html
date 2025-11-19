@@ -120,9 +120,9 @@
         />
         } @case('file') {
         <app-file-upload
-          [accept]="field.primeNgConfig?.fileOptions?.accept"
-          [uploadIcon]="field.primeNgConfig?.fileOptions?.uploadIcon"
-          [styleClass]="field.primeNgConfig?.fileOptions?.styleClass"
+          [accept]="field.primeNgConfig?.fileOptions?.accept ?? []"
+          [uploadIcon]="field.primeNgConfig?.fileOptions?.uploadIcon ?? 'pi pi-upload'"
+          [styleClass]="field.primeNgConfig?.fileOptions?.styleClass ?? ''"
           [name]="field.name"
           [auto]="field.primeNgConfig?.fileOptions?.auto || false"
           [multiple]="field.primeNgConfig?.fileOptions?.multiple || false"
@@ -136,7 +136,7 @@
             field.primeNgConfig?.fileOptions?.cancelLabel || 'Limpiar'
           "
           [files]="getFormControl(field.name)?.value || []"
-          [noFooter]="field.primeNgConfig?.fileOptions?.noFooter"
+          [noFooter]="field.primeNgConfig?.fileOptions?.noFooter ?? false"
           (select)="onFileSelect($event, field.name)"
           (upload)="onUpload(field.name)"
           (clean)="onClear(field.name)"

@@ -14,7 +14,7 @@
       <tr>
         @for(header of data; track header) {
         <th>{{ header.header }}</th>
-        } @if(operation?.buttons?.length && data.length) {
+        } @if(operation.buttons?.length && data.length) {
         <th>Acciones</th>
         }
       </tr>
@@ -25,7 +25,7 @@
       <tr pDroppable="row" (onDrop)="onDrop(row)">
         @for(objHeader of columns; track objHeader.field) {
         <td
-          [pDraggable]="enableDragDrop ? 'row' : null"
+          [pDraggable]="enableDragDrop ? 'row' : undefined"
           (onDragStart)="onDragStart(row)"
           [ngClass]="{ 'p-draggable-cell': enableDragDrop }"
         >
@@ -35,7 +35,7 @@
           {{ getFormattedValue(objHeader.field, row) }}
           }
         </td>
-        } @for(op of operation?.buttons; track op; let i = $index) {
+        } @for(op of operation.buttons; track op; let i = $index) {
         @if(showButtonOpeartion(op, row)) {
         <td data-label>
           <app-button-generic [buttons]="getButtons(op, row)" />
