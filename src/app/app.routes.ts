@@ -28,9 +28,17 @@ export const routes: Routes = [
         path: 'invoices',
         loadComponent: () =>
           import(
+            './features/invoices/components/invoice-history/invoice-history.component'
+          ).then((m) => m.InvoiceHistoryComponent),
+        title: 'Invoice History',
+      },
+      {
+        path: 'invoices/create',
+        loadComponent: () =>
+          import(
             './features/invoices/components/stepper-invoices-generate-pdf/stepper-invoices-generate-pdf.component'
           ).then((m) => m.StepperInvoicesGeneratePdfComponent),
-        title: 'Convertidor Imágenes a PDF',
+        title: 'Create Invoice',
       },
       {
         path: 'addressee',

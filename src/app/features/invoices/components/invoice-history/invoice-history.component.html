@@ -1,0 +1,255 @@
+<div class="invoice-history-container p-4">
+  <!-- Header -->
+  <div class="flex justify-content-between align-items-center mb-4">
+    <h1 class="text-3xl font-bold m-0">{{ getText('invoices.history.title') }}</h1>
+    <p-button
+      [label]="getText('invoices.history.buttons.create_new')"
+      icon="pi pi-plus"
+      (onClick)="createNewInvoice()"
+      styleClass="p-button-success"
+    ></p-button>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filter-section p-3 mb-4 surface-card border-round">
+    <div class="grid">
+      <!-- Search -->
+      <div class="col-12 md:col-4">
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="searchTerm"
+            [placeholder]="getText('invoices.history.filters.search_placeholder')"
+            class="w-full"
+            (input)="loadInvoices()"
+          />
+        </span>
+      </div>
+
+      <!-- Start Date -->
+      <div class="col-12 md:col-2">
+        <p-calendar
+          [(ngModel)]="startDate"
+          [placeholder]="getText('invoices.history.filters.start_date')"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          (onSelect)="loadInvoices()"
+          (onClear)="loadInvoices()"
+          [showClear]="true"
+          styleClass="w-full"
+        ></p-calendar>
+      </div>
+
+      <!-- End Date -->
+      <div class="col-12 md:col-2">
+        <p-calendar
+          [(ngModel)]="endDate"
+          [placeholder]="getText('invoices.history.filters.end_date')"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          (onSelect)="loadInvoices()"
+          (onClear)="loadInvoices()"
+          [showClear]="true"
+          styleClass="w-full"
+        ></p-calendar>
+      </div>
+
+      <!-- Paid Status -->
+      <div class="col-12 md:col-2">
+        <p-dropdown
+          [(ngModel)]="selectedPaidStatus"
+          [options]="paidStatusOptions"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="getText('invoices.history.filters.paid_status')"
+          (onChange)="loadInvoices()"
+          styleClass="w-full"
+        ></p-dropdown>
+      </div>
+
+      <!-- Clear Filters -->
+      <div class="col-12 md:col-2">
+        <p-button
+          [label]="getText('invoices.history.buttons.clear_filters')"
+          icon="pi pi-filter-slash"
+          (onClick)="clearFilters()"
+          styleClass="p-button-outlined w-full"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Batch Actions -->
+  <div class="batch-actions mb-3" *ngIf="store.hasSelection()">
+    <div class="flex gap-2">
+      <p-button
+        [label]="getText('invoices.history.buttons.download_selected')"
+        icon="pi pi-download"
+        (onClick)="downloadSelected()"
+        styleClass="p-button-info"
+      ></p-button>
+      <p-button
+        [label]="getText('invoices.history.buttons.mark_as_paid')"
+        icon="pi pi-check"
+        (onClick)="markSelectedAsPaid()"
+        styleClass="p-button-success"
+      ></p-button>
+      <p-button
+        [label]="getText('invoices.history.buttons.delete_selected')"
+        icon="pi pi-trash"
+        (onClick)="deleteSelected()"
+        styleClass="p-button-danger"
+      ></p-button>
+      <p-button
+        [label]="'(' + store.selectedCount() + ')'"
+        icon="pi pi-times"
+        (onClick)="clearSelection()"
+        styleClass="p-button-text"
+      ></p-button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="flex justify-content-center align-items-center p-5" *ngIf="store.loading()">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+
+  <!-- Error Message -->
+  <div class="p-3 mb-3 surface-card border-round" *ngIf="store.errorMessage()">
+    <div class="flex align-items-center gap-2 text-red-500">
+      <i class="pi pi-exclamation-triangle"></i>
+      <span>{{ store.errorMessage() }}</span>
+    </div>
+  </div>
+
+  <!-- Invoices Table -->
+  <p-table
+    *ngIf="!store.loading()"
+    [value]="filteredInvoices"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="{{ getText('common.labels.total') }}: {totalRecords}"
+    styleClass="p-datatable-sm"
+    [tableStyle]="{ 'min-width': '50rem' }"
+  >
+    <!-- Checkbox Column -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="store.selectedCount() === filteredInvoices.length && filteredInvoices.length > 0"
+            (onChange)="store.selectedCount() > 0 ? clearSelection() : selectAll()"
+          ></p-checkbox>
+        </th>
+        <th pSortableColumn="invoice_number">
+          {{ getText('invoices.history.table.invoice_number') }}
+          <p-sortIcon field="invoice_number"></p-sortIcon>
+        </th>
+        <th pSortableColumn="invoice_date">
+          {{ getText('invoices.history.table.invoice_date') }}
+          <p-sortIcon field="invoice_date"></p-sortIcon>
+        </th>
+        <th pSortableColumn="sender_name">
+          {{ getText('invoices.history.table.sender_name') }}
+          <p-sortIcon field="sender_name"></p-sortIcon>
+        </th>
+        <th pSortableColumn="destination_name">
+          {{ getText('invoices.history.table.destination_name') }}
+          <p-sortIcon field="destination_name"></p-sortIcon>
+        </th>
+        <th pSortableColumn="total_amount" class="text-right">
+          {{ getText('invoices.history.table.total_amount') }}
+          <p-sortIcon field="total_amount"></p-sortIcon>
+        </th>
+        <th pSortableColumn="paid" style="width: 8rem" class="text-center">
+          {{ getText('invoices.history.table.paid') }}
+          <p-sortIcon field="paid"></p-sortIcon>
+        </th>
+        <th style="width: 12rem" class="text-center">
+          {{ getText('invoices.history.table.actions') }}
+        </th>
+      </tr>
+    </ng-template>
+
+    <!-- Table Body -->
+    <ng-template pTemplate="body" let-invoice>
+      <tr>
+        <td>
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="isSelected(invoice.id)"
+            (onChange)="onInvoiceSelect(invoice)"
+          ></p-checkbox>
+        </td>
+        <td>
+          <span class="font-semibold">{{ invoice.invoice_number }}</span>
+        </td>
+        <td>{{ formatDate(invoice.invoice_date) }}</td>
+        <td>{{ invoice.sender_name }}</td>
+        <td>{{ invoice.destination_name }}</td>
+        <td class="text-right">{{ formatCurrency(invoice.total_amount) }}</td>
+        <td class="text-center">
+          <span
+            [class]="invoice.paid ? 'text-green-600' : 'text-orange-600'"
+            class="font-semibold"
+          >
+            <i [class]="invoice.paid ? 'pi pi-check-circle' : 'pi pi-clock'"></i>
+            {{
+              invoice.paid
+                ? getText('invoices.history.status.paid')
+                : getText('invoices.history.status.unpaid')
+            }}
+          </span>
+        </td>
+        <td class="text-center">
+          <div class="flex gap-1 justify-content-center">
+            <p-button
+              icon="pi pi-download"
+              [pTooltip]="getText('invoices.history.actions.download')"
+              tooltipPosition="top"
+              (onClick)="downloadInvoice(invoice)"
+              styleClass="p-button-rounded p-button-text p-button-info"
+            ></p-button>
+            <p-button
+              icon="pi pi-pencil"
+              [pTooltip]="getText('invoices.history.actions.edit')"
+              tooltipPosition="top"
+              (onClick)="editInvoice(invoice)"
+              styleClass="p-button-rounded p-button-text p-button-warning"
+            ></p-button>
+            <p-button
+              icon="pi pi-trash"
+              [pTooltip]="getText('invoices.history.actions.delete')"
+              tooltipPosition="top"
+              (onClick)="deleteInvoice(invoice)"
+              styleClass="p-button-rounded p-button-text p-button-danger"
+            ></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- Empty State -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8" class="text-center p-5">
+          <i class="pi pi-inbox text-4xl text-400 mb-3"></i>
+          <p class="text-xl text-500">{{ getText('invoices.history.table.no_data') }}</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog></p-confirmDialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>
+
+
