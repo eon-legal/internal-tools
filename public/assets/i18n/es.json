@@ -79,6 +79,64 @@
         }
     },
     "invoices": {
+        "history": {
+            "title": "Historial de Facturas",
+            "buttons": {
+                "create_new": "Crear Nueva Factura",
+                "download_selected": "Descargar Seleccionadas",
+                "mark_as_paid": "Marcar como Pagadas",
+                "delete_selected": "Eliminar Seleccionadas",
+                "refresh": "Actualizar",
+                "clear_filters": "Limpiar Filtros"
+            },
+            "filters": {
+                "search_placeholder": "Buscar por número de factura, remitente o destinatario...",
+                "start_date": "Fecha Inicio",
+                "end_date": "Fecha Fin",
+                "paid_status": "Estado de Pago",
+                "all": "Todas",
+                "paid": "Pagadas",
+                "unpaid": "No Pagadas",
+                "company": "Empresa"
+            },
+            "table": {
+                "invoice_number": "Número de Factura",
+                "invoice_date": "Fecha de Factura",
+                "sender_name": "Remitente",
+                "destination_name": "Destinatario",
+                "total_amount": "Monto Total",
+                "paid": "Pagada",
+                "created_at": "Creada",
+                "last_download": "Última Descarga",
+                "actions": "Acciones",
+                "no_data": "No se encontraron facturas",
+                "loading": "Cargando facturas..."
+            },
+            "actions": {
+                "view": "Ver",
+                "edit": "Editar",
+                "download": "Descargar PDF",
+                "delete": "Eliminar",
+                "mark_paid": "Marcar como Pagada",
+                "mark_unpaid": "Marcar como No Pagada"
+            },
+            "messages": {
+                "delete_confirm": "¿Está seguro de que desea eliminar esta factura?",
+                "delete_multiple_confirm": "¿Está seguro de que desea eliminar {count} factura(s)?",
+                "delete_success": "Factura eliminada exitosamente",
+                "delete_multiple_success": "{count} factura(s) eliminada(s) exitosamente",
+                "mark_paid_success": "{count} factura(s) marcada(s) como pagada(s)",
+                "download_success": "Factura descargada exitosamente",
+                "load_error": "Error al cargar las facturas",
+                "delete_error": "Error al eliminar factura(s)",
+                "mark_paid_error": "Error al marcar factura(s) como pagada(s)",
+                "no_selection": "Por favor seleccione al menos una factura"
+            },
+            "status": {
+                "paid": "Pagada",
+                "unpaid": "No Pagada"
+            }
+        },
         "stepper": {
             "steps": {
                 "sender_form": "Remitente Factura",
