@@ -81,7 +81,7 @@ export class InvoiceHistoryComponent implements OnInit {
   ngOnInit(): void {
     // Load initial data
     this.loadInvoices();
-    this.store.loadCompanies();
+    this.store.loadClients();
   }
 
   /**

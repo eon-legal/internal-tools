@@ -14,21 +14,28 @@ This directory contains database migrations and schema documentation for the Inv
 
 ### Tables
 
-#### `companies`
-Stores company/client information that can be reused across invoices.
+#### `clients`
+Stores client information (customers being invoiced) - supports both individuals and companies.
 
 **Fields:**
 - `id` (UUID): Primary key
-- `name` (VARCHAR): Company name
-- `address` (TEXT): Company address
-- `passport` (VARCHAR): Passport number (for non-national companies)
-- `national` (BOOLEAN): Whether the company is national
-- `nif` (VARCHAR): Tax identification number
-- `is_default` (BOOLEAN): Whether this is the default company
+- `client_type` (ENUM): Type of client - 'individual' or 'company'
+- `first_name` (VARCHAR): First name (for individuals only)
+- `last_name` (VARCHAR): Last name (for individuals only)
+- `company_name` (VARCHAR): Company name (for companies only)
+- `company_registration_number` (VARCHAR): Company registration number (for companies only)
+- `personal_id` (VARCHAR): Personal ID - DNI, NIE, etc. (for individuals only)
+- `address` (TEXT): Physical address
+- `passport` (VARCHAR): Passport number (for non-national clients)
+- `national` (BOOLEAN): Whether the client is national (Spanish)
+- `nif` (VARCHAR): Tax identification number (NIF/CIF) - applies to both types
+- `is_default` (BOOLEAN): Whether this is the default client
 - `created_at`, `updated_at` (TIMESTAMPTZ): Timestamps
 
 **Constraints:**
-- Only one company can be marked as default
+- Only one client can be marked as default
+- Company clients must have `company_name`
+- Individual clients must have `first_name` and `last_name`
 
 #### `invoices`
 Stores all invoice records with complete invoice data.
@@ -37,7 +44,7 @@ Stores all invoice records with complete invoice data.
 - `id` (UUID): Primary key (not visible to users)
 - `invoice_number` (VARCHAR): User-visible invoice reference (format: `EON-YY-LXXX`)
 - `invoice_date` (TIMESTAMPTZ): Invoice date (stored as UTC)
-- `company_id` (UUID): Foreign key to companies table
+- `client_id` (UUID): Foreign key to clients table
 - `sender_*`: Sender information fields
 - `destination_*`: Destination/recipient information fields
 - `invoice_items` (JSONB): Array of invoice line items

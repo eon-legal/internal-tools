@@ -25,7 +25,7 @@ import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-se
 import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
 import { TranslateService } from '@ngx-translate/core';
 import { InvoicesDataService } from '../../../../data-access/invoices/invoices-data.service';
-import { CompaniesDataService } from '../../../../data-access/companies/companies-data.service';
+import { ClientsDataService } from '../../../../data-access/clients/clients-data.service';
 import { generateNextInvoiceNumberFromArray } from '../../../../domain/invoices/invoice-number-generator';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -58,7 +58,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
   toastr: ToastrService = inject(ToastrService);
   createInvoicePdfService: CreateInvoicePdfService = inject(CreateInvoicePdfService);
   private readonly invoicesDataService = inject(InvoicesDataService);
-  private readonly companiesDataService = inject(CompaniesDataService);
+  private readonly clientsDataService = inject(ClientsDataService);
   private readonly router = inject(Router);
 
   /** Signal to track if invoice is being saved */

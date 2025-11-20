@@ -15,7 +15,7 @@ This document describes the complete CRUD system for invoices with Supabase data
 
 2. **Database Schema**
    - Complete PostgreSQL schema with three tables:
-     - `companies`: Client/company information
+     - `clients`: Customer information (supports both individuals and companies)
      - `invoices`: Invoice records with auto-generated invoice numbers
      - `invoice_data_presets`: Autocomplete presets for invoice data
    - Row Level Security (RLS) policies
@@ -31,7 +31,7 @@ This document describes the complete CRUD system for invoices with Supabase data
 
 4. **Data Access Layer**
    - `InvoicesDataService`: Full CRUD operations for invoices
-   - `CompaniesDataService`: CRUD operations for companies
+   - `ClientsDataService`: CRUD operations for clients (customers)
    - `InvoicePresetsDataService`: CRUD operations for invoice presets
    - All services use RxJS observables with error handling
 
@@ -74,8 +74,8 @@ src/app/
 │   │   └── supabase.service.ts          # Supabase client singleton
 │   ├── invoices/
 │   │   └── invoices-data.service.ts     # Invoice CRUD operations
-│   ├── companies/
-│   │   └── companies-data.service.ts    # Company CRUD operations
+│   ├── clients/
+│   │   └── clients-data.service.ts      # Client CRUD operations
 │   └── invoice-presets/
 │       └── invoice-presets-data.service.ts  # Preset CRUD operations
 ├── domain/
@@ -148,7 +148,7 @@ Stores invoice records with auto-generated invoice numbers.
 - `id` (UUID): Primary key
 - `invoice_number` (TEXT): Auto-generated, unique (e.g., EON-25-L001)
 - `invoice_date` (TIMESTAMPTZ): Invoice date
-- `company_id` (UUID): Foreign key to companies table
+- `client_id` (UUID): Foreign key to clients table
 - `sender_name`, `sender_address`, `sender_passport`: Sender info
 - `destination_name`, `destination_account`, `destination_address`: Recipient info
 - `bank_name`, `bank_address`: Bank info

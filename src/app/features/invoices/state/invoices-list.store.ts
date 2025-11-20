@@ -32,11 +32,11 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap, catchError, of } from 'rxjs';
 import { InvoicesDataService } from '../../../data-access/invoices/invoices-data.service';
-import { CompaniesDataService } from '../../../data-access/companies/companies-data.service';
+import { ClientsDataService } from '../../../data-access/clients/clients-data.service';
 import {
   Invoice,
   InvoiceFilters,
-  Company,
+  Client,
 } from '../interfaces/database-models';
 
 /**
@@ -44,7 +44,7 @@ import {
  */
 type InvoicesListState = {
   invoices: Invoice[];
-  companies: Company[];
+  clients: Client[];
   selectedInvoiceIds: string[];
   filters: InvoiceFilters;
   isLoading: boolean;
@@ -56,7 +56,7 @@ type InvoicesListState = {
  */
 const initialState: InvoicesListState = {
   invoices: [],
-  companies: [],
+  clients: [],
   selectedInvoiceIds: [],
   filters: {},
   isLoading: false,
@@ -70,7 +70,7 @@ const initialState: InvoicesListState = {
 export const InvoicesListStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
-  withComputed(({ invoices, selectedInvoiceIds, filters, isLoading, error, companies }) => ({
+  withComputed(({ invoices, selectedInvoiceIds, filters, isLoading, error, clients }) => ({
     // Computed: Get all invoices
     allInvoices: computed(() => invoices()),
     
@@ -92,8 +92,8 @@ export const InvoicesListStore = signalStore(
     // Computed: Get error state
     errorMessage: computed(() => error()),
     
-    // Computed: Get all companies
-    allCompanies: computed(() => companies()),
+    // Computed: Get all clients
+    allClients: computed(() => clients()),
     
     // Computed: Get invoice count
     invoiceCount: computed(() => invoices().length),
@@ -105,7 +105,7 @@ export const InvoicesListStore = signalStore(
     (
       store,
       invoicesDataService = inject(InvoicesDataService),
-      companiesDataService = inject(CompaniesDataService)
+      clientsDataService = inject(ClientsDataService)
     ) => ({
       /**
        * Load invoices from Supabase with optional filters
@@ -136,15 +136,15 @@ export const InvoicesListStore = signalStore(
       ),
 
       /**
-       * Load companies from Supabase
+       * Load clients from Supabase
        */
-      loadCompanies: rxMethod<void>(
+      loadClients: rxMethod<void>(
         pipe(
           switchMap(() =>
-            companiesDataService.getCompanies().pipe(
-              tap((companies) => patchState(store, { companies })),
+            clientsDataService.getClients().pipe(
+              tap((clients) => patchState(store, { clients })),
               catchError((error) => {
-                console.error('Failed to load companies:', error);
+                console.error('Failed to load clients:', error);
                 return of([]);
               })
             )

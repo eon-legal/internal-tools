@@ -64,8 +64,8 @@ export class InvoicesDataService {
       if (filters.paid !== undefined) {
         query = query.eq('paid', filters.paid);
       }
-      if (filters.company_id) {
-        query = query.eq('company_id', filters.company_id);
+      if (filters.client_id) {
+        query = query.eq('client_id', filters.client_id);
       }
       if (filters.search_term) {
         query = query.or(

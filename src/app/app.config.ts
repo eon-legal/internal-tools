@@ -23,16 +23,6 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { getAuth, provideAuth } from '@angular/fire/auth';
-
-import { getFirestore, provideFirestore } from '@angular/fire/firestore';
-import {
-  provideRemoteConfig,
-  getRemoteConfig,
-} from '@angular/fire/remote-config';
-
-import { getStorage, provideStorage } from '@angular/fire/storage';
 import { environment } from '../environments/environment';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 
@@ -98,15 +88,5 @@ export const appConfig: ApplicationConfig = {
       deps: [TranslateService],
       multi: true,
     },
-    // Firebase providers
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore()),
-    provideStorage(() => getStorage()),
-    provideRemoteConfig(() => {
-      const remoteConfig = getRemoteConfig();
-      remoteConfig.settings.minimumFetchIntervalMillis = environment.remoteConfig.minimumFetchIntervalMillis;
-      return remoteConfig;
-    }),
   ],
 };

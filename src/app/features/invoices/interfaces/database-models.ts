@@ -6,19 +6,89 @@
  */
 
 /**
- * Company/Client information
- * Corresponds to the 'companies' table in Supabase
+ * Client type discriminator
  */
-export interface Company {
+export type ClientType = 'individual' | 'company';
+
+/**
+ * Base client information (common fields)
+ * Corresponds to the 'clients' table in Supabase
+ */
+export interface BaseClient {
   id: string; // UUID
-  name: string;
+  client_type: ClientType;
   address?: string;
   passport?: string;
   national: boolean;
-  nif?: string;
+  nif?: string; // Tax ID (applies to both individuals and companies)
   is_default: boolean;
   created_at: string; // ISO 8601 timestamp
   updated_at: string; // ISO 8601 timestamp
+}
+
+/**
+ * Individual client (person)
+ */
+export interface IndividualClient extends BaseClient {
+  client_type: 'individual';
+  first_name: string;
+  last_name: string;
+  personal_id?: string; // DNI, NIE, etc.
+  // Company-specific fields are undefined for individuals
+  company_name?: never;
+  company_registration_number?: never;
+}
+
+/**
+ * Company client (business entity)
+ */
+export interface CompanyClient extends BaseClient {
+  client_type: 'company';
+  company_name: string;
+  company_registration_number?: string;
+  // Individual-specific fields are undefined for companies
+  first_name?: never;
+  last_name?: never;
+  personal_id?: never;
+}
+
+/**
+ * Union type for all client types
+ * These are customers being invoiced (not the invoice issuer)
+ */
+export type Client = IndividualClient | CompanyClient;
+
+/**
+ * DTO for creating a new client (discriminated union)
+ */
+export type CreateClientDto =
+  | Omit<IndividualClient, 'id' | 'created_at' | 'updated_at'>
+  | Omit<CompanyClient, 'id' | 'created_at' | 'updated_at'>;
+
+/**
+ * DTO for updating a client (partial updates allowed)
+ */
+export type UpdateClientDto = Partial<Omit<Client, 'id' | 'created_at' | 'updated_at'>>;
+
+/**
+ * Helper type guards
+ */
+export function isIndividualClient(client: Client): client is IndividualClient {
+  return client.client_type === 'individual';
+}
+
+export function isCompanyClient(client: Client): client is CompanyClient {
+  return client.client_type === 'company';
+}
+
+/**
+ * Helper function to get display name for any client
+ */
+export function getClientDisplayName(client: Client): string {
+  if (isIndividualClient(client)) {
+    return `${client.first_name} ${client.last_name}`;
+  }
+  return client.company_name;
 }
 
 /**
@@ -43,7 +113,7 @@ export interface Invoice {
   id: string; // UUID (not visible to users)
   invoice_number: string; // User-visible invoice reference (e.g., "EON-25-L001")
   invoice_date: string; // ISO 8601 timestamp (UTC)
-  company_id?: string; // UUID reference to companies table
+  client_id?: string; // UUID reference to clients table
   
   // Sender information (from first form)
   sender_name?: string;
@@ -95,7 +165,7 @@ export interface InvoiceDataPreset {
  */
 export interface CreateInvoiceDto {
   invoice_date: string; // ISO 8601 timestamp
-  company_id?: string;
+  client_id?: string;
   sender_name?: string;
   sender_address?: string;
   sender_passport?: string;
@@ -118,7 +188,7 @@ export interface CreateInvoiceDto {
  */
 export interface UpdateInvoiceDto {
   invoice_date?: string;
-  company_id?: string;
+  client_id?: string;
   sender_name?: string;
   sender_address?: string;
   sender_passport?: string;
@@ -144,7 +214,7 @@ export interface InvoiceFilters {
   start_date?: string; // ISO 8601 timestamp
   end_date?: string; // ISO 8601 timestamp
   paid?: boolean;
-  company_id?: string;
+  client_id?: string;
   search_term?: string; // Search in invoice_number, sender_name, destination_name
 }
 
