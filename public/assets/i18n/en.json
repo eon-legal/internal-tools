@@ -146,6 +146,15 @@
             },
             "modal_title": "Insert Invoice Data"
         },
+        "destination_form": {
+            "select_destination": "Select Destination",
+            "destination_name": "Destination Name *",
+            "destination_account": "Destination Account *",
+            "destination_address": "Destination Address *",
+            "bank_name": "Bank Name *",
+            "bank_address": "Bank Address *",
+            "nif": "NIF *"
+        },
         "pdf": {
             "to": "To:",
             "from": "From:",

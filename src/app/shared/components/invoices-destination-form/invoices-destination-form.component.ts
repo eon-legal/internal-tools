@@ -22,6 +22,7 @@ import { SELECT_DATA_INITIAL } from '../form-generic/constants/select-data-initi
 import { ToastrService } from 'ngx-toastr';
 import { MESSAGE_ERROR } from '../../constants/message-error';
 import { LoadingService } from '../../services/loading/loading.service';
+import { TranslateService } from '@ngx-translate/core';
 
 /**
  * Component for managing the destination form in the invoice generation process.
@@ -37,6 +38,13 @@ import { LoadingService } from '../../services/loading/loading.service';
 export class InvoicesDestinationFormComponent
   implements OnDestroy, AfterViewInit, OnInit
 {
+  /** Injected services */
+  private readonly translate = inject(TranslateService);
+  readonly store = inject(InvoicesStore);
+  private readonly genericFirestoreService = inject(GenericFirestoreService<SecondForm>);
+  private readonly toastr = inject(ToastrService);
+  private readonly loadingService = inject(LoadingService);
+
   /** subscription for clean component observable */
   subscription: Subscription[] = [];
   /** save data when consume service table adressee */
@@ -44,8 +52,6 @@ export class InvoicesDestinationFormComponent
   /** isModal know component mananage like modal */
   @Input() isModal: boolean = false;
   @Input() initialField!: SecondForm;
-  /** Injected store for managing invoice data */
-  readonly store = inject(InvoicesStore);
 
   /** Reference to the FormGenericComponent for managing the form */
   @ViewChild(FormGenericComponent)
@@ -53,16 +59,6 @@ export class InvoicesDestinationFormComponent
 
   /** Configuration for the form fields */
   formConfig!: FormField<SecondForm>[];
-
-  /** service for read data table addressee */
-  genericFirestoreService: GenericFirestoreService<SecondForm> = inject(
-    GenericFirestoreService
-  );
-
-  /** Toastr service for notifications */
-  toastr: ToastrService = inject(ToastrService);
-
-  loadingService: LoadingService = inject(LoadingService);
 
   ngOnInit(): void {
     if (this.isModal) this.createForm();
@@ -98,7 +94,10 @@ export class InvoicesDestinationFormComponent
           }),
           catchError((error) => {
             this.loadingService.hide();
-            this.toastr.error(MESSAGE_ERROR, 'Error');
+            this.toastr.error(
+              this.translate.instant('common.messages.service_error'),
+              this.translate.instant('common.labels.error')
+            );
             // Opción 2: Devolver un array vacío para que la aplicación continúe
             return of([]); // of() de 'rxjs'
           })
@@ -110,7 +109,7 @@ export class InvoicesDestinationFormComponent
   createForm() {
     const firstItem: FormField<SecondForm> = {
       name: 'chooseDestination',
-      label: 'Seleccione Destino',
+      label: this.translate.instant('invoices.destination_form.select_destination'),
       type: 'select',
       cols: 12,
       initialData: this.getSecondFormStore()?.chooseDestination,
@@ -121,84 +120,84 @@ export class InvoicesDestinationFormComponent
     const restArray: FormField<SecondForm>[] = [
       {
         name: 'nameDestination',
-        label: 'Nombre Destino *',
+        label: this.translate.instant('invoices.destination_form.destination_name'),
         type: 'input',
         cols: this.isModal ? 6 : 4,
         initialData: this.isModal
           ? this.initialField?.nameDestination
           : this.getSecondFormStore()?.nameDestination,
         validators: [
-          { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
+          { validator: Validators.required, message: this.translate.instant('common.validation.required') },
         ],
         disabled:
           !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'accountDestination',
-        label: 'Cuenta Destino *',
+        label: this.translate.instant('invoices.destination_form.destination_account'),
         type: 'input',
         cols: this.isModal ? 6 : 4,
         initialData: this.isModal
           ? this.initialField?.accountDestination
           : this.getSecondFormStore()?.accountDestination,
         validators: [
-          { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
+          { validator: Validators.required, message: this.translate.instant('common.validation.required') },
         ],
         disabled:
           !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'addressDestination',
-        label: 'Dirección Destino *',
+        label: this.translate.instant('invoices.destination_form.destination_address'),
         type: 'input',
         cols: this.isModal ? 6 : 4,
         initialData: this.isModal
           ? this.initialField?.addressDestination
           : this.getSecondFormStore()?.addressDestination,
         validators: [
-          { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
+          { validator: Validators.required, message: this.translate.instant('common.validation.required') },
         ],
         disabled:
           !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'nameBank',
-        label: 'Nombre Banco *',
+        label: this.translate.instant('invoices.destination_form.bank_name'),
         type: 'input',
         initialData: this.isModal
           ? this.initialField?.nameBank
           : this.getSecondFormStore()?.nameBank,
         cols: this.isModal ? 6 : 4,
         validators: [
-          { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
+          { validator: Validators.required, message: this.translate.instant('common.validation.required') },
         ],
         disabled:
           !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'addressBank',
-        label: 'Dirección Banco *',
+        label: this.translate.instant('invoices.destination_form.bank_address'),
         type: 'input',
         initialData: this.isModal
           ? this.initialField?.addressBank
           : this.getSecondFormStore()?.addressBank,
         cols: this.isModal ? 6 : 4,
         validators: [
-          { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
+          { validator: Validators.required, message: this.translate.instant('common.validation.required') },
         ],
         disabled:
           !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'nif',
-        label: 'NIF *',
+        label: this.translate.instant('invoices.destination_form.nif'),
         type: 'input',
         initialData: this.isModal
           ? this.initialField?.nif
           : this.getSecondFormStore()?.nif,
         cols: this.isModal ? 6 : 4,
         validators: [
-          { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
+          { validator: Validators.required, message: this.translate.instant('common.validation.required') },
         ],
         disabled:
           !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,

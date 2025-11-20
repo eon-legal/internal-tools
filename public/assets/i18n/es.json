@@ -146,6 +146,15 @@
             },
             "modal_title": "Inserte Datos Factura"
         },
+        "destination_form": {
+            "select_destination": "Seleccione Destino",
+            "destination_name": "Nombre Destino *",
+            "destination_account": "Cuenta Destino *",
+            "destination_address": "Dirección Destino *",
+            "bank_name": "Nombre Banco *",
+            "bank_address": "Dirección Banco *",
+            "nif": "NIF *"
+        },
         "pdf": {
             "to": "To:",
             "from": "From:",
