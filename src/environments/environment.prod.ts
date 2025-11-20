@@ -1,8 +1,8 @@
 /**
  * Production environment configuration
  * This file contains configuration values for the production environment.
- * 
- * IMPORTANT: Replace these values with production Firebase credentials.
+ *
+ * IMPORTANT: Replace these values with production Firebase and Supabase credentials.
  * Consider using environment variables or secret management for production.
  */
 export const environment = {
@@ -18,6 +18,10 @@ export const environment = {
   },
   remoteConfig: {
     minimumFetchIntervalMillis: 3600000, // 1 hour for production
+  },
+  supabase: {
+    url: 'YOUR_SUPABASE_URL',
+    anonKey: 'YOUR_SUPABASE_ANON_KEY',
   },
 };
 
