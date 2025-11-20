@@ -24,6 +24,11 @@ import {
 import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-sender-form.component';
 import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
 import { TranslateService } from '@ngx-translate/core';
+import { InvoicesDataService } from '../../../../data-access/invoices/invoices-data.service';
+import { CompaniesDataService } from '../../../../data-access/companies/companies-data.service';
+import { generateNextInvoiceNumberFromArray } from '../../../../domain/invoices/invoice-number-generator';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 /** Dictionary of components for each step */
 const stepComponents: { [key: number]: any } = {
@@ -52,6 +57,12 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
   readonly store = inject(InvoicesStore);
   toastr: ToastrService = inject(ToastrService);
   createInvoicePdfService: CreateInvoicePdfService = inject(CreateInvoicePdfService);
+  private readonly invoicesDataService = inject(InvoicesDataService);
+  private readonly companiesDataService = inject(CompaniesDataService);
+  private readonly router = inject(Router);
+
+  /** Signal to track if invoice is being saved */
+  isSaving = signal(false);
 
   /** Array of all buttons for the stepper */
   private allButtons: ButtonConfig[] = [
@@ -203,9 +214,9 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
   }
 
   /**
-   * Validates the form and generates the PDF if valid.
+   * Validates the form, saves to Supabase, and generates the PDF if valid.
    */
-  notAllowedShowPdf() {
+  async notAllowedShowPdf() {
     this.askHaveDataTableCreate(); // Ensure the table has data
 
     // Check if step 3 is active and the component is defined
@@ -216,26 +227,88 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
     const step3 = this.componentRefs[3] as InvoicesDestinationFormComponent;
     const isValidFirstForm = this.store.getIsValidFirstForm(); // Check if step 1 form is valid
     const isValidSecondForm = this.store.getIsValidSecondForm(); // Check if step 2 form is valid
-    const messages = 'Deben ser válidos los formularios del paso 1.'; // Error message
+    const messages = this.translate.instant('invoices.validation.step1_invalid');
     step3.formDestinationGenericComponent?.getForm?.markAllAsTouched();
+
     // Show error if forms are invalid
     if (!isValidFirstForm || (!isValidSecondForm && !step3.isValidForm())) {
       this.store.updateAllMarkFieldForm(true); // Mark all fields as touched
       this.toastr.error(
         !isValidFirstForm
           ? messages
-          : 'Deben ser válidos los formularios del paso 3.',
-        'Error'
+          : this.translate.instant('invoices.validation.step3_invalid'),
+        this.translate.instant('common.labels.error')
       );
-    } else {
-      // Get data from the forms and table
-      const first = this.store.getFirstForm();
-      let second = this.store.getSecondForm();
-      const table = this.store.getTableContain();
+      return;
+    }
 
-      // Use destination form data if valid
-      if (step3.isValidForm())
-        second = step3.formDestinationGenericComponent.getDataFormComplete();
+    // Get data from the forms and table
+    const first = this.store.getFirstForm();
+    let second = this.store.getSecondForm();
+    const table = this.store.getTableContain();
+
+    // Use destination form data if valid
+    if (step3.isValidForm()) {
+      second = step3.formDestinationGenericComponent.getDataFormComplete();
+    }
+
+    try {
+      this.isSaving.set(true);
+
+      // Generate invoice number
+      const invoiceNumber = await this.generateInvoiceNumber();
+
+      // Calculate totals from table
+      const { subtotal, ivaAmount, totalAmount } = this.calculateTotals(table);
+
+      // Prepare invoice items (exclude IVA and TOTAL rows)
+      const invoiceItems = table
+        .filter(item =>
+          item.perCentIva !== DataInvoicesConstant.IVA &&
+          item.perCentIva !== DataInvoicesConstant.TOTAL
+        )
+        .map(item => ({
+          id: item.id,
+          description: item.description,
+          qtt: typeof item.qtt === 'number' ? item.qtt : (typeof item.qtt === 'string' ? parseFloat(item.qtt) : undefined),
+          price: typeof item.price === 'number' ? item.price : (typeof item.price === 'string' ? parseFloat(item.price) : undefined),
+          total: typeof item.total === 'number' ? item.total : parseFloat(String(item.total)),
+          sTotal: typeof item.sTotal === 'number' ? item.sTotal : parseFloat(String(item.sTotal)),
+          perCentIva: typeof item.perCentIva === 'number' ? item.perCentIva :
+                      (typeof item.perCentIva === 'object' && 'value' in item.perCentIva ? item.perCentIva.value :
+                       parseFloat(String(item.perCentIva)))
+        }));
+
+      // Create invoice object
+      const invoiceData = {
+        invoice_number: invoiceNumber,
+        invoice_date: this.getInvoiceDate(first),
+        sender_name: first.name,
+        sender_address: first.address,
+        sender_passport: first.passport,
+        sender_national: first.national,
+        destination_name: second.nameDestination,
+        destination_account: second.accountDestination,
+        destination_address: second.addressDestination,
+        destination_bank_name: second.nameBank,
+        destination_bank_address: second.addressBank,
+        destination_nif: second.nif,
+        invoice_items: invoiceItems,
+        subtotal,
+        iva_amount: ivaAmount,
+        total_amount: totalAmount,
+        paid: false
+      };
+
+      // Save to Supabase
+      const savedInvoice = await firstValueFrom(
+        this.invoicesDataService.createInvoice(invoiceData)
+      );
+
+      this.toastr.success(
+        this.translate.instant('invoices.messages.invoice_created', { number: invoiceNumber }),
+        this.translate.instant('common.labels.success')
+      );
 
       // Generate the PDF
       this.createInvoicePdfService.newGeneratePDFInvoices(
@@ -244,7 +317,80 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
         first,
         table
       );
+
+      // Reset form and navigate to invoice list
+      this.store.resetInvoices();
+      this.store.resetTableInvoices();
+
+      // Navigate to invoice history after a short delay
+      setTimeout(() => {
+        this.router.navigate(['/invoices']);
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error saving invoice:', error);
+      this.toastr.error(
+        this.translate.instant('invoices.messages.save_error'),
+        this.translate.instant('common.labels.error')
+      );
+    } finally {
+      this.isSaving.set(false);
     }
+  }
+
+  /**
+   * Generates the next invoice number based on existing invoices
+   */
+  private async generateInvoiceNumber(): Promise<string> {
+    try {
+      const allInvoices = await firstValueFrom(
+        this.invoicesDataService.getInvoices()
+      );
+      return generateNextInvoiceNumberFromArray(allInvoices);
+    } catch (error) {
+      console.error('Error generating invoice number:', error);
+      // Fallback to default if error
+      return generateNextInvoiceNumberFromArray([]);
+    }
+  }
+
+  /**
+   * Gets the invoice date from the first form
+   */
+  private getInvoiceDate(first: any): string {
+    if (first.dateOrDateRange && first.rangeDates && first.rangeDates.length > 0) {
+      // Use the start date from range
+      return new Date(first.rangeDates[0]).toISOString();
+    } else if (first.date) {
+      return new Date(first.date).toISOString();
+    }
+    // Default to current date
+    return new Date().toISOString();
+  }
+
+  /**
+   * Calculates subtotal, IVA, and total from table data
+   */
+  private calculateTotals(table: DataInvoicesTable[]): {
+    subtotal: number;
+    ivaAmount: number;
+    totalAmount: number;
+  } {
+    const ivaRow = table.find(item => item.perCentIva === DataInvoicesConstant.IVA);
+    const totalRow = table.find(item => item.perCentIva === DataInvoicesConstant.TOTAL);
+
+    // Calculate subtotal from regular items
+    const subtotal = table
+      .filter(item =>
+        item.perCentIva !== DataInvoicesConstant.IVA &&
+        item.perCentIva !== DataInvoicesConstant.TOTAL
+      )
+      .reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+
+    const ivaAmount = ivaRow ? Number(ivaRow.total) || 0 : 0;
+    const totalAmount = totalRow ? Number(totalRow.total) || 0 : subtotal + ivaAmount;
+
+    return { subtotal, ivaAmount, totalAmount };
   }
 
   /**

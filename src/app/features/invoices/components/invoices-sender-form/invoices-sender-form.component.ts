@@ -58,14 +58,15 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
 
   /** Configuration for the form fields */
   formConfig: FormField<FisrtForm>[] = [
-    {
-      name: 'numberInvoice',
-      label: this.translate.instant('invoices.sender_form.invoice_number'),
-      type: 'input',
-      cols: 4,
-      initialData: this.getFirstFormStore()?.numberInvoice,
-      validators: this.usualValidate,
-    },
+    // Invoice number is now auto-generated, so we remove the manual input field
+    // {
+    //   name: 'numberInvoice',
+    //   label: this.translate.instant('invoices.sender_form.invoice_number'),
+    //   type: 'input',
+    //   cols: 4,
+    //   initialData: this.getFirstFormStore()?.numberInvoice,
+    //   validators: this.usualValidate,
+    // },
     {
       name: 'dateOrDateRange',
       label: this.translate.instant('invoices.sender_form.period'),

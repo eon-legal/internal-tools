@@ -148,6 +148,14 @@
                 "generate_invoice": "Generate Invoice"
             }
         },
+        "validation": {
+            "step1_invalid": "Step 1 form must be valid",
+            "step3_invalid": "Step 3 form must be valid"
+        },
+        "messages": {
+            "invoice_created": "Invoice {{number}} created successfully",
+            "save_error": "Failed to save invoice. Please try again."
+        },
         "sender_form": {
             "invoice_number": "Invoice Number *",
             "period": "Period",

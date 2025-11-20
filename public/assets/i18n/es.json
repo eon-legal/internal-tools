@@ -148,6 +148,14 @@
                 "generate_invoice": "Generar Factura"
             }
         },
+        "validation": {
+            "step1_invalid": "El formulario del paso 1 debe ser válido",
+            "step3_invalid": "El formulario del paso 3 debe ser válido"
+        },
+        "messages": {
+            "invoice_created": "Factura {{number}} creada exitosamente",
+            "save_error": "Error al guardar la factura. Por favor, inténtelo de nuevo."
+        },
         "sender_form": {
             "invoice_number": "N\u00famero Factura *",
             "period": "Per\u00edodo",

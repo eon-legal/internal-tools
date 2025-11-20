@@ -134,7 +134,7 @@ export function parseInvoiceNumber(invoiceNumber: string): ParsedInvoiceNumber {
 
 /**
  * Validates an invoice number format
- * 
+ *
  * @param invoiceNumber - The invoice number to validate
  * @returns True if valid, false otherwise
  */
@@ -145,5 +145,54 @@ export function isValidInvoiceNumber(invoiceNumber: string): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Generates the next invoice number from an array of existing invoices
+ *
+ * @param invoices - Array of existing invoices with invoice_number property
+ * @param currentYear - The current year (optional, defaults to current year)
+ * @returns The next invoice number
+ *
+ * @example
+ * const invoices = [
+ *   { invoice_number: "EON-25-L001" },
+ *   { invoice_number: "EON-25-L002" }
+ * ];
+ * generateNextInvoiceNumberFromArray(invoices) // Returns "EON-25-L003"
+ */
+export function generateNextInvoiceNumberFromArray(
+  invoices: Array<{ invoice_number: string }>,
+  currentYear?: number
+): string {
+  if (!invoices || invoices.length === 0) {
+    return generateNextInvoiceNumber(null, currentYear);
+  }
+
+  // Get the current year
+  const year = currentYear ?? new Date().getFullYear();
+  const twoDigitYear = year.toString().slice(-2);
+
+  // Filter invoices for the current year and find the highest sequence number
+  const currentYearInvoices = invoices
+    .filter(inv => {
+      try {
+        const parsed = parseInvoiceNumber(inv.invoice_number);
+        return parsed.year === twoDigitYear;
+      } catch {
+        return false;
+      }
+    })
+    .map(inv => parseInvoiceNumber(inv.invoice_number))
+    .sort((a, b) => b.sequence - a.sequence);
+
+  // If no invoices for current year, start with 001
+  if (currentYearInvoices.length === 0) {
+    return formatInvoiceNumber(twoDigitYear, 1);
+  }
+
+  // Get the highest sequence and increment
+  const highestSequence = currentYearInvoices[0]!.sequence;
+  return formatInvoiceNumber(twoDigitYear, highestSequence + 1);
 }
 
