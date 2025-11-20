@@ -1,4 +1,5 @@
 import {
+  APP_INITIALIZER,
   ApplicationConfig,
   importProvidersFrom,
   provideZoneChangeDetection,
@@ -12,7 +13,7 @@ import Aura from '@primeng/themes/aura';
 import { provideToastr } from 'ngx-toastr';
 import { DialogService } from 'primeng/dynamicdialog';
 
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import {
@@ -43,6 +44,30 @@ export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
+/**
+ * Factory function to initialize translations before app starts.
+ * This ensures all translation files are loaded before components render.
+ *
+ * @param translate - TranslateService instance
+ * @returns Promise that resolves when translations are loaded
+ */
+export function initializeTranslations(translate: TranslateService) {
+  return (): Promise<void> => {
+    // Set default language
+    translate.setDefaultLang('es');
+
+    // Determine which language to use
+    const savedLang = localStorage.getItem('selectedLanguage');
+    const browserLang = translate.getBrowserLang();
+    const langToUse = savedLang || (browserLang?.match(/en|es/) ? browserLang : 'es');
+
+    // Load the translation file and wait for it to complete
+    return translate.use(langToUse).toPromise().then(() => {
+      console.log(`Translations loaded for language: ${langToUse}`);
+    });
+  };
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
@@ -66,6 +91,13 @@ export const appConfig: ApplicationConfig = {
         },
       })
     ),
+    // Initialize translations before app starts
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeTranslations,
+      deps: [TranslateService],
+      multi: true,
+    },
     // Firebase providers
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),

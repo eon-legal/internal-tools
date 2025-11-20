@@ -5,27 +5,26 @@ import { Observable } from 'rxjs';
 /**
  * LanguageService wraps Angular's TranslateService to provide
  * a simplified API for internationalization across the application.
- * 
+ *
  * This service provides methods to:
  * - Get translated text synchronously and asynchronously
  * - Switch between languages
  * - Get the current language
  * - Get available languages
+ *
+ * Note: Translation initialization is handled by APP_INITIALIZER in app.config.ts
+ * to ensure translations are loaded before components render.
  */
 @Injectable({
   providedIn: 'root',
 })
 export class LanguageService {
   private readonly translate = inject(TranslateService);
+  private readonly STORAGE_KEY = 'selectedLanguage';
 
   constructor() {
-    // Set default language to Spanish
-    this.translate.setDefaultLang('es');
-    
-    // Try to use browser language if available, otherwise use Spanish
-    const browserLang = this.translate.getBrowserLang();
-    const langToUse = browserLang?.match(/en|es/) ? browserLang : 'es';
-    this.translate.use(langToUse);
+    // Language initialization is handled by APP_INITIALIZER
+    // This constructor is intentionally empty
   }
 
   /**
@@ -80,14 +79,16 @@ export class LanguageService {
 
   /**
    * Change the current language.
-   * 
+   * Saves the preference to localStorage for persistence across sessions.
+   *
    * @param lang - Language code ('en' or 'es')
-   * 
+   *
    * @example
    * this.languageService.setLanguage('en');
    */
   setLanguage(lang: string): void {
     this.translate.use(lang);
+    localStorage.setItem(this.STORAGE_KEY, lang);
   }
 
   /**
