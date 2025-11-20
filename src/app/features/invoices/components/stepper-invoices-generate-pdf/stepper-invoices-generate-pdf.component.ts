@@ -23,6 +23,7 @@ import {
 } from '../../../../shared/components/button-generic/interfaces/buttons';
 import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-sender-form.component';
 import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
+import { TranslateService } from '@ngx-translate/core';
 
 /** Dictionary of components for each step */
 const stepComponents: { [key: number]: any } = {
@@ -46,11 +47,17 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
   /** Signal to track the active step */
   data = signal(1);
 
+  /** Injected services */
+  private readonly translate = inject(TranslateService);
+  readonly store = inject(InvoicesStore);
+  toastr: ToastrService = inject(ToastrService);
+  createInvoicePdfService: CreateInvoicePdfService = inject(CreateInvoicePdfService);
+
   /** Array of all buttons for the stepper */
   private allButtons: ButtonConfig[] = [
     {
       id: 1,
-      label: 'Limpiar Todo',
+      label: this.translate.instant('invoices.stepper.buttons.clear_all'),
       icon: 'pi pi-times',
       severity: 'warn',
       iconPos: 'right',
@@ -59,7 +66,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
     },
     {
       id: 2,
-      label: 'Siguiente',
+      label: this.translate.instant('common.buttons.next'),
       icon: 'pi pi-arrow-right',
       iconPos: 'right',
       action: () => {
@@ -72,7 +79,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
     },
     {
       id: 3,
-      label: 'Atrás',
+      label: this.translate.instant('common.buttons.back'),
       severity: 'secondary',
       icon: 'pi pi-arrow-left',
       action: () => {
@@ -82,7 +89,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
     },
     {
       id: 4,
-      label: 'Siguiente',
+      label: this.translate.instant('common.buttons.next'),
       icon: 'pi pi-arrow-right',
       iconPos: 'right',
       action: () => {
@@ -92,7 +99,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
     },
     {
       id: 5,
-      label: 'Atrás',
+      label: this.translate.instant('common.buttons.back'),
       severity: 'secondary',
       icon: 'pi pi-arrow-left',
       action: () => {
@@ -102,7 +109,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
     },
     {
       id: 6,
-      label: 'Generar Factura',
+      label: this.translate.instant('invoices.stepper.buttons.generate_invoice'),
       icon: 'pi pi-file-pdf',
       iconPos: 'right',
       action: () => this.notAllowedShowPdf(), // Action to generate the PDF
@@ -120,20 +127,9 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
   };
 
   /** Names of the steps */
-  nameStepOne = 'Remitente Factura'; // Step 1: Sender form
-  nameStepTwo = 'Tabla Factura'; // Step 2: Invoice table
-  nameStepThree = 'Destinatario - Generar Factura'; // Step 3: Destination form
-
-  /** Store for managing invoice data */
-  readonly store = inject(InvoicesStore);
-
-  /** Toastr service for notifications */
-  toastr: ToastrService = inject(ToastrService);
-
-  /** Service for generating PDFs */
-  createInvoicePdfService: CreateInvoicePdfService = inject(
-    CreateInvoicePdfService
-  );
+  nameStepOne = this.translate.instant('invoices.stepper.steps.sender_form');
+  nameStepTwo = this.translate.instant('invoices.stepper.steps.invoice_table');
+  nameStepThree = this.translate.instant('invoices.stepper.steps.destination_generate');
 
   /** References to dynamically created components */
   componentRefs: { [key: number]: any } = {};

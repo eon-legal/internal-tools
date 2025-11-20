@@ -45,6 +45,9 @@
             "kb": "KB",
             "mb": "MB",
             "gb": "GB"
+        },
+        "validation": {
+            "required": "Required field."
         }
     },
     "menu": {
@@ -77,10 +80,16 @@
         }
     },
     "invoices": {
-        "steps": {
-            "sender": "Invoice Sender",
-            "table": "Invoice Table",
-            "destination": "Recipient - Generate Invoice"
+        "stepper": {
+            "steps": {
+                "sender_form": "Invoice Sender",
+                "invoice_table": "Invoice Table",
+                "destination_generate": "Recipient - Generate Invoice"
+            },
+            "buttons": {
+                "clear_all": "Clear All",
+                "generate_invoice": "Generate Invoice"
+            }
         },
         "sender_form": {
             "invoice_number": "Invoice Number *",
@@ -108,6 +117,9 @@
             "nif": "NIF *"
         },
         "table": {
+            "buttons": {
+                "add_invoice_data": "Add Invoice Data"
+            },
             "headers": {
                 "id": "ID",
                 "description": "Description",
@@ -115,7 +127,7 @@
                 "price": "Price",
                 "subtotal": "Subtotal",
                 "total": "Total",
-                "iva": "VAT"
+                "iva": "% VAT"
             },
             "form": {
                 "description": "Description *",

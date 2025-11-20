@@ -16,6 +16,7 @@ import { mapAtrribute } from '../../../utils/mapeo/mapeo';
 import { getNextID } from '../../../utils/next-id/next-id';
 import { CustomModalService } from '../../../../../shared/services/custom-modal/custom-modal.service';
 import { IVA } from '../constants/iva-constants';
+import { TranslateService } from '@ngx-translate/core';
 
 /**
  * Component for managing and displaying invoice data in a table.
@@ -30,8 +31,10 @@ import { IVA } from '../constants/iva-constants';
   styleUrl: './contain-invoices.component.scss',
 })
 export class ContainInvoicesComponent implements OnDestroy, OnInit {
-  /** Injected store for managing invoice data */
+  /** Injected services */
+  private readonly translate = inject(TranslateService);
   readonly store = inject(InvoicesStore);
+  private readonly customModalService = inject(CustomModalService);
 
   /** List of pagination options for the table */
   listPagination = [5, 10, 20];
@@ -43,7 +46,7 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
       {
         id: 1,
         icon: 'pi pi-check',
-        label: 'Agregar Dato Facturas',
+        label: this.translate.instant('invoices.table.buttons.add_invoice_data'),
         severity: 'primary',
         action: () => this.show(), // Action to open the dialog for adding invoice data
       },
@@ -67,31 +70,31 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
   headerData: HeaderTable<DataInvoicesTable>[] = [
     {
       field: 'id',
-      header: 'ID',
+      header: this.translate.instant('invoices.table.headers.id'),
     },
     {
       field: 'description',
-      header: 'Descripción',
+      header: this.translate.instant('invoices.table.headers.description'),
     },
     {
       field: 'qtt',
-      header: 'QTT',
+      header: this.translate.instant('invoices.table.headers.qtt'),
     },
     {
       field: 'price',
-      header: 'Price',
+      header: this.translate.instant('invoices.table.headers.price'),
     },
     {
       field: 'sTotal',
-      header: 'S.Total',
+      header: this.translate.instant('invoices.table.headers.subtotal'),
     },
     {
       field: 'perCentIva',
-      header: '% IVA',
+      header: this.translate.instant('invoices.table.headers.iva'),
     },
     {
       field: 'total',
-      header: 'Total',
+      header: this.translate.instant('invoices.table.headers.total'),
     },
   ];
 
@@ -129,9 +132,6 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
 
   /** Array to store the rows of the table */
   rowTable: DataInvoicesTable[] = [];
-
-  /** Injected service for managing custom dialogs */
-  customModalService: CustomModalService = inject(CustomModalService);
 
   /**
    * Lifecycle hook that runs when the component is initialized.
@@ -211,7 +211,7 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
     const { modalServiceRef } = this.customModalService.open(
       FormInvoicesDataComponent,
       {
-        title: 'Inserte Datos Factura',
+        title: this.translate.instant('invoices.table.modal_title'),
         width: '60vw',
         data: {},
         buttons: {
@@ -219,7 +219,7 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
           buttons: [
             {
               id: 1,
-              label: 'Guardar',
+              label: this.translate.instant('common.buttons.save'),
               icon: 'pi pi-save',
               severity: 'success',
               action: () => {
@@ -235,7 +235,7 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
             },
             {
               id: 2,
-              label: 'Cancelar',
+              label: this.translate.instant('common.buttons.cancel'),
               icon: 'pi pi-times',
               severity: 'danger',
               action: () => modalServiceRef.close(),

@@ -45,6 +45,9 @@
             "kb": "KB",
             "mb": "MB",
             "gb": "GB"
+        },
+        "validation": {
+            "required": "Campo requerido."
         }
     },
     "menu": {
@@ -77,10 +80,16 @@
         }
     },
     "invoices": {
-        "steps": {
-            "sender": "Remitente Factura",
-            "table": "Tabla Factura",
-            "destination": "Destinatario - Generar Factura"
+        "stepper": {
+            "steps": {
+                "sender_form": "Remitente Factura",
+                "invoice_table": "Tabla Factura",
+                "destination_generate": "Destinatario - Generar Factura"
+            },
+            "buttons": {
+                "clear_all": "Limpiar Todo",
+                "generate_invoice": "Generar Factura"
+            }
         },
         "sender_form": {
             "invoice_number": "N\u00famero Factura *",
@@ -108,6 +117,9 @@
             "nif": "NIF *"
         },
         "table": {
+            "buttons": {
+                "add_invoice_data": "Agregar Dato Facturas"
+            },
             "headers": {
                 "id": "ID",
                 "description": "Descripci\u00f3n",
@@ -115,7 +127,7 @@
                 "price": "Price",
                 "subtotal": "S.Total",
                 "total": "Total",
-                "iva": "IVA"
+                "iva": "% IVA"
             },
             "form": {
                 "description": "Descripci\u00f3n *",

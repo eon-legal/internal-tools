@@ -15,6 +15,7 @@ import {
   noOneDateValidator,
 } from '../../utils/date-range-validator/date-range-validator';
 import { FormField } from '../../../../shared/components/form-generic/interfaces/form-field';
+import { TranslateService } from '@ngx-translate/core';
 
 /**
  * Component for managing the sender form in the invoice generation process.
@@ -28,8 +29,10 @@ import { FormField } from '../../../../shared/components/form-generic/interfaces
   styleUrl: './invoices-sender-form.component.scss',
 })
 export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
-  /** Injected store for managing invoice data */
+  /** Injected services */
+  private readonly translate = inject(TranslateService);
   readonly store = inject(InvoicesStore);
+  cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   /** Reference to the FormGenericComponent for managing the form */
   @ViewChild('formSenderGenericComponent')
@@ -37,19 +40,19 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
 
   /**  Common validators for required fields */
   usualValidate = [
-    { validator: Validators.required, message: 'Campo requerido.' },
+    { validator: Validators.required, message: this.translate.instant('common.validation.required') },
   ];
 
   /** Validators for date range fields */
   arrayRangeDate = [
-    { validator: Validators.required, message: 'Campo requerido.' },
+    { validator: Validators.required, message: this.translate.instant('common.validation.required') },
     {
       validator: dateRangeValidator,
-      message: 'La primera fecha debe ser menor que la segunda.',
+      message: this.translate.instant('invoices.sender_form.messages.date_range_error'),
     },
     {
       validator: noOneDateValidator,
-      message: 'Debes elegir un rango de fechas.',
+      message: this.translate.instant('invoices.sender_form.messages.date_range_required'),
     },
   ];
 
@@ -57,7 +60,7 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
   formConfig: FormField<FisrtForm>[] = [
     {
       name: 'numberInvoice',
-      label: 'Número Factura *',
+      label: this.translate.instant('invoices.sender_form.invoice_number'),
       type: 'input',
       cols: 4,
       initialData: this.getFirstFormStore()?.numberInvoice,
@@ -65,14 +68,14 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
     },
     {
       name: 'dateOrDateRange',
-      label: 'Período',
+      label: this.translate.instant('invoices.sender_form.period'),
       type: 'toggle',
       initialData: this.getFirstFormStore()?.dateOrDateRange,
       cols: 4,
     },
     {
       name: 'date',
-      label: 'Fecha *',
+      label: this.translate.instant('invoices.sender_form.date'),
       type: 'calendar',
       cols: 4,
       initialData: this.getFirstFormStore()?.date,
@@ -84,7 +87,7 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
     },
     {
       name: 'rangeDates',
-      label: 'Rango Fecha *',
+      label: this.translate.instant('invoices.sender_form.date_range'),
       type: 'calendar',
       initialData: this.getFirstFormStore()?.rangeDates,
       cols: 4,
@@ -97,7 +100,7 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
     },
     {
       name: 'name',
-      label: 'Nombre Remitente *',
+      label: this.translate.instant('invoices.sender_form.sender_name'),
       type: 'input',
       cols: 4,
       initialData: this.getFirstFormStore()?.name,
@@ -105,14 +108,14 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
     },
     {
       name: 'national',
-      label: 'Nacional',
+      label: this.translate.instant('invoices.sender_form.national'),
       type: 'toggle',
       initialData: this.getFirstFormStore()?.national,
       cols: 4,
     },
     {
       name: 'address',
-      label: 'Dirección Remitente *',
+      label: this.translate.instant('invoices.sender_form.sender_address'),
       type: 'input',
       cols: 4,
       initialData: this.getFirstFormStore()?.address,
@@ -124,7 +127,7 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
     },
     {
       name: 'passport',
-      label: 'Pasaporte Remitente *',
+      label: this.translate.instant('invoices.sender_form.sender_passport'),
       type: 'input',
       cols: 4,
       initialData: this.getFirstFormStore()?.passport,
@@ -135,9 +138,6 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
       disabled: this.getFirstFormStore()?.national ? true : false,
     },
   ];
-
-  /** Injected ChangeDetectorRef for manually triggering change detection */
-  cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   /**
    * Lifecycle hook that runs after the view is initialized.
