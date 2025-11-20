@@ -152,23 +152,26 @@ ALTER TABLE invoice_data_presets ENABLE ROW LEVEL SECURITY;
 -- TODO: Refine these policies based on actual authentication requirements
 
 -- Companies policies
-CREATE POLICY "Allow all operations on companies for authenticated users"
+-- Note: Allows both anonymous and authenticated access for internal tool usage
+CREATE POLICY "Allow all operations on companies"
   ON companies FOR ALL
-  TO authenticated
+  TO anon, authenticated
   USING (true)
   WITH CHECK (true);
 
 -- Invoices policies
-CREATE POLICY "Allow all operations on invoices for authenticated users"
+-- Note: Allows both anonymous and authenticated access for internal tool usage
+CREATE POLICY "Allow all operations on invoices"
   ON invoices FOR ALL
-  TO authenticated
+  TO anon, authenticated
   USING (true)
   WITH CHECK (true);
 
 -- Invoice data presets policies
-CREATE POLICY "Allow all operations on invoice_data_presets for authenticated users"
+-- Note: Allows both anonymous and authenticated access for internal tool usage
+CREATE POLICY "Allow all operations on invoice_data_presets"
   ON invoice_data_presets FOR ALL
-  TO authenticated
+  TO anon, authenticated
   USING (true)
   WITH CHECK (true);
 
