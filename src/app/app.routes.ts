@@ -41,6 +41,14 @@ export const routes: Routes = [
         title: 'Create Invoice',
       },
       {
+        path: 'invoices/edit/:id',
+        loadComponent: () =>
+          import(
+            './features/invoices/components/invoice-edit/invoice-edit.component'
+          ).then((m) => m.InvoiceEditComponent),
+        title: 'Edit Invoice',
+      },
+      {
         path: 'addressee',
         loadComponent: () =>
           import(

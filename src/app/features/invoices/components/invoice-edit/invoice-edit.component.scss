@@ -1,0 +1,26 @@
+.invoice-edit-container {
+  max-width: 1000px;
+  margin: 0 auto;
+
+  .surface-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .field {
+    label {
+      color: var(--text-color);
+    }
+
+    small {
+      display: block;
+      margin-top: 0.25rem;
+    }
+  }
+
+  h3 {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+  }
+}
+
