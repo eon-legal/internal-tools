@@ -110,13 +110,13 @@
         </div>
 
         <div class="col-12 md:col-6 field">
-          <label for="nif" class="block font-semibold mb-2">
+          <label for="destination_nif" class="block font-semibold mb-2">
             {{ getText('invoices.destination_form.nif') }}
           </label>
           <input
             pInputText
-            id="nif"
-            formControlName="nif"
+            id="destination_nif"
+            formControlName="destination_nif"
             class="w-full"
           />
         </div>
@@ -147,25 +147,25 @@
         </div>
 
         <div class="col-12 md:col-6 field">
-          <label for="bank_name" class="block font-semibold mb-2">
+          <label for="destination_bank_name" class="block font-semibold mb-2">
             {{ getText('invoices.destination_form.bank_name') }}
           </label>
           <input
             pInputText
-            id="bank_name"
-            formControlName="bank_name"
+            id="destination_bank_name"
+            formControlName="destination_bank_name"
             class="w-full"
           />
         </div>
 
         <div class="col-12 field">
-          <label for="bank_address" class="block font-semibold mb-2">
+          <label for="destination_bank_address" class="block font-semibold mb-2">
             {{ getText('invoices.destination_form.bank_address') }}
           </label>
           <textarea
             pInputTextarea
-            id="bank_address"
-            formControlName="bank_address"
+            id="destination_bank_address"
+            formControlName="destination_bank_address"
             rows="3"
             class="w-full"
           ></textarea>

@@ -33,7 +33,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 
 // Services and Store
 import { InvoicesListStore } from '../../state/invoices-list.store';
-import { LanguageService } from '../../../../shared/services/language.service';
+import { LanguageService } from '../../../../shared/services/language/language.service';
 import { Invoice } from '../../interfaces/database-models';
 
 @Component({
@@ -329,8 +329,8 @@ export class InvoiceHistoryComponent implements OnInit {
     return invoices.filter(
       (inv) =>
         inv.invoice_number.toLowerCase().includes(search) ||
-        inv.sender_name.toLowerCase().includes(search) ||
-        inv.destination_name.toLowerCase().includes(search)
+        inv.sender_name?.toLowerCase().includes(search) ||
+        inv.destination_name?.toLowerCase().includes(search)
     );
   }
 }

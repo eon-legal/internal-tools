@@ -24,7 +24,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { InputTextarea } from 'primeng/inputtextarea';
 import { CalendarModule } from 'primeng/calendar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -33,7 +33,7 @@ import { ToastModule } from 'primeng/toast';
 
 // Services
 import { InvoicesDataService } from '../../../../data-access/invoices/invoices-data.service';
-import { LanguageService } from '../../../../shared/services/language.service';
+import { LanguageService } from '../../../../shared/services/language/language.service';
 import { Invoice, UpdateInvoiceDto } from '../../interfaces/database-models';
 
 @Component({
@@ -44,7 +44,7 @@ import { Invoice, UpdateInvoiceDto } from '../../interfaces/database-models';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    InputTextareaModule,
+    InputTextarea,
     CalendarModule,
     CheckboxModule,
     ProgressSpinnerModule,
@@ -86,9 +86,9 @@ export class InvoiceEditComponent implements OnInit {
       destination_name: ['', Validators.required],
       destination_account: ['', Validators.required],
       destination_address: ['', Validators.required],
-      bank_name: ['', Validators.required],
-      bank_address: ['', Validators.required],
-      nif: ['', Validators.required],
+      destination_bank_name: ['', Validators.required],
+      destination_bank_address: ['', Validators.required],
+      destination_nif: ['', Validators.required],
       paid: [false],
     });
   }
@@ -133,9 +133,9 @@ export class InvoiceEditComponent implements OnInit {
       destination_name: invoice.destination_name,
       destination_account: invoice.destination_account,
       destination_address: invoice.destination_address,
-      bank_name: invoice.bank_name,
-      bank_address: invoice.bank_address,
-      nif: invoice.nif,
+      destination_bank_name: invoice.destination_bank_name,
+      destination_bank_address: invoice.destination_bank_address,
+      destination_nif: invoice.destination_nif,
       paid: invoice.paid,
     });
   }
@@ -160,9 +160,9 @@ export class InvoiceEditComponent implements OnInit {
       destination_name: formValue.destination_name,
       destination_account: formValue.destination_account,
       destination_address: formValue.destination_address,
-      bank_name: formValue.bank_name,
-      bank_address: formValue.bank_address,
-      nif: formValue.nif,
+      destination_bank_name: formValue.destination_bank_name,
+      destination_bank_address: formValue.destination_bank_address,
+      destination_nif: formValue.destination_nif,
       paid: formValue.paid,
     };
 
