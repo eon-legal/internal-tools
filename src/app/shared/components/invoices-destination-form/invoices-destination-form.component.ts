@@ -15,9 +15,8 @@ import {
   SecondForm,
 } from '../../../features/invoices/interfaces/second-form';
 import { FormField } from '../form-generic/interfaces/form-field';
-import { GenericFirestoreService } from '../../services/generic-firestore/generic-firestore.service';
-import { ADDRESSEE_TABLE } from '../../../features/crud-addressee/constants/collection-table';
-import { catchError, of, Subscription, tap } from 'rxjs';
+import { AddresseesDataService } from '../../../data-access/addressees/addressees-data.service';
+import { catchError, of, Subscription, tap, map } from 'rxjs';
 import { SELECT_DATA_INITIAL } from '../form-generic/constants/select-data-initial';
 import { ToastrService } from 'ngx-toastr';
 import { MESSAGE_ERROR } from '../../constants/message-error';
@@ -27,6 +26,9 @@ import { TranslateService } from '@ngx-translate/core';
 /**
  * Component for managing the destination form in the invoice generation process.
  * This form collects details about the destination, such as name, address, and bank information.
+ *
+ * Dependencies: AddresseesDataService (Supabase), InvoicesStore, LoadingService, ToastrService
+ * Side Effects: Loads addressees from Supabase, updates form state
  */
 @Component({
   selector: 'app-invoices-destination-form',
@@ -41,7 +43,7 @@ export class InvoicesDestinationFormComponent
   /** Injected services */
   private readonly translate = inject(TranslateService);
   readonly store = inject(InvoicesStore);
-  private readonly genericFirestoreService = inject(GenericFirestoreService<SecondForm>);
+  private readonly addresseesDataService = inject(AddresseesDataService);
   private readonly toastr = inject(ToastrService);
   private readonly loadingService = inject(LoadingService);
 
@@ -69,15 +71,16 @@ export class InvoicesDestinationFormComponent
     this.loadingService.show();
     this.createForm();
     this.subscription.push(
-      this.genericFirestoreService
-        .getAll(ADDRESSEE_TABLE)
+      this.addresseesDataService
+        .getAddressees()
         .pipe(
-          tap((v) => {
-            const result = v as DestinationBDReal[];
-            const arrayTrasnsformDropDown = result.map((e) => ({
-              label: e.nameDestination,
-              value: e.id,
+          map((addressees) => {
+            // Transform Supabase addressees to dropdown options
+            const arrayTrasnsformDropDown = addressees.map((addressee) => ({
+              label: addressee.name_destination,
+              value: addressee.id,
             }));
+
             if (
               this.formConfig.length &&
               Array.isArray(arrayTrasnsformDropDown)
@@ -91,6 +94,7 @@ export class InvoicesDestinationFormComponent
             }
 
             this.loadingService.hide();
+            return addressees;
           }),
           catchError((error) => {
             this.loadingService.hide();
@@ -98,8 +102,7 @@ export class InvoicesDestinationFormComponent
               this.translate.instant('common.messages.service_error'),
               this.translate.instant('common.labels.error')
             );
-            // Opción 2: Devolver un array vacío para que la aplicación continúe
-            return of([]); // of() de 'rxjs'
+            return of([]);
           })
         )
         .subscribe()
@@ -249,20 +252,28 @@ export class InvoicesDestinationFormComponent
               }
             });
             this.subscription.push(
-              this.genericFirestoreService
-                .getById(ADDRESSEE_TABLE, value.value)
+              this.addresseesDataService
+                .getAddresseeById(value.value)
                 .pipe(
-                  tap((v) => {
-                    this.formDestinationGenericComponent?.getForm?.patchValue(
-                      v
-                    );
+                  map((addressee) => {
+                    // Transform Supabase addressee to form format
+                    const formData: Partial<SecondForm> = {
+                      nameDestination: addressee.name_destination,
+                      accountDestination: addressee.account_destination || '',
+                      addressDestination: addressee.address_destination || '',
+                      nameBank: addressee.name_bank || '',
+                      addressBank: addressee.address_bank || '',
+                      nif: addressee.nif || '',
+                    };
+
+                    this.formDestinationGenericComponent?.getForm?.patchValue(formData);
                     this.loadingService.hide();
+                    return addressee;
                   }),
                   catchError((error) => {
                     this.loadingService.hide();
                     this.toastr.error(MESSAGE_ERROR, 'Error');
-                    // Opción 2: Devolver un array vacío para que la aplicación continúe
-                    return of([]); // of() de 'rxjs'
+                    return of(null);
                   })
                 )
                 .subscribe()

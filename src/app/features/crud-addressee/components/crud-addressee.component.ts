@@ -8,9 +8,9 @@ import {
   SecondForm,
 } from '../../invoices/interfaces/second-form';
 import { InvoicesDestinationFormComponent } from '../../../shared/components/invoices-destination-form/invoices-destination-form.component';
-import { catchError, of, Subscription, tap } from 'rxjs';
-import { GenericFirestoreService } from '../../../shared/services/generic-firestore/generic-firestore.service';
-import { ADDRESSEE_TABLE } from '../constants/collection-table';
+import { catchError, of, Subscription, tap, map } from 'rxjs';
+import { AddresseesDataService } from '../../../data-access/addressees/addressees-data.service';
+import { Addressee } from '../interfaces/addressee';
 import { ToastrService } from 'ngx-toastr';
 import { MESSAGE_ERROR } from '../../../shared/constants/message-error';
 import { CustomModalService } from '../../../shared/services/custom-modal/custom-modal.service';
@@ -34,8 +34,8 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
   /** Injected service for managing custom dialogs */
   private readonly customModalService = inject(CustomModalService);
 
-  /** Injected service for managing CRUD Firestore */
-  private readonly genericFirestoreService = inject(GenericFirestoreService<SecondForm>);
+  /** Injected service for managing addressees in Supabase */
+  private readonly addresseesDataService = inject(AddresseesDataService);
 
   /** Injected loading service */
   private readonly loadingService = inject(LoadingService);
@@ -121,12 +121,14 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
   loadAddressee() {
     this.loadingService.show();
     this.subscription.push(
-      this.genericFirestoreService
-        .getAll(ADDRESSEE_TABLE)
+      this.addresseesDataService
+        .getAddressees()
         .pipe(
-          tap((v) => {
-            this.dataTable = v;
+          map((addressees) => {
+            // Transform Supabase addressees to SecondForm format for table display
+            this.dataTable = addressees.map(this.addresseeToSecondForm);
             this.loadingService.hide();
+            return addressees;
           }),
           catchError((error) => {
             this.dataTable = [];
@@ -135,13 +137,40 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
               this.translate.instant('common.messages.service_error'),
               this.translate.instant('common.labels.error')
             );
-
-            // Opción 2: Devolver un array vacío para que la aplicación continúe
-            return of([]); // of() de 'rxjs'
+            return of([]);
           })
         )
         .subscribe()
     );
+  }
+
+  /**
+   * Helper method to transform Supabase Addressee to SecondForm format
+   */
+  private addresseeToSecondForm(addressee: Addressee): SecondForm {
+    return {
+      id: addressee.id,
+      nameDestination: addressee.name_destination,
+      accountDestination: addressee.account_destination || '',
+      addressDestination: addressee.address_destination || '',
+      nameBank: addressee.name_bank || '',
+      addressBank: addressee.address_bank || '',
+      nif: addressee.nif || '',
+    };
+  }
+
+  /**
+   * Helper method to transform SecondForm to Supabase Addressee format
+   */
+  private secondFormToAddressee(form: SecondForm) {
+    return {
+      name_destination: form.nameDestination,
+      account_destination: form.accountDestination,
+      address_destination: form.addressDestination,
+      name_bank: form.nameBank,
+      address_bank: form.addressBank,
+      nif: form.nif,
+    };
   }
   opneAddEditAddressee(row: SecondForm | undefined = undefined) {
     const { modalServiceRef } = this.customModalService.open(
@@ -200,13 +229,19 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
 
   addAddressee(newAddressee: Omit<SecondForm, 'id'>) {
     this.loadingService.show();
+    const addresseeDto = this.secondFormToAddressee(newAddressee as SecondForm);
+
     this.subscription.push(
-      this.genericFirestoreService
-        .add(ADDRESSEE_TABLE, newAddressee)
+      this.addresseesDataService
+        .createAddressee(addresseeDto)
         .pipe(
           tap(() => {
-            //this.dataTable = v;
             this.loadingService.hide();
+            this.toastr.success(
+              this.translate.instant('common.messages.save_success'),
+              this.translate.instant('common.labels.success')
+            );
+            this.loadAddressee(); // Reload the list
           }),
           catchError((error) => {
             this.loadingService.hide();
@@ -214,9 +249,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
               this.translate.instant('common.messages.service_error'),
               this.translate.instant('common.labels.error')
             );
-
-            // Opción 2: Devolver un array vacío para que la aplicación continúe
-            return of([]); // of() de 'rxjs'
+            return of(null);
           })
         )
         .subscribe()
@@ -226,24 +259,27 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
   updateAddressee(addressee: SecondForm) {
     if (!addressee.id) return;
     this.loadingService.show();
+    const addresseeDto = this.secondFormToAddressee(addressee);
+
     this.subscription.push(
-      this.genericFirestoreService
-        .update(ADDRESSEE_TABLE, addressee)
+      this.addresseesDataService
+        .updateAddressee(addressee.id, addresseeDto)
         .pipe(
           tap(() => {
-            //this.dataTable = v;
             this.loadingService.hide();
+            this.toastr.success(
+              this.translate.instant('common.messages.update_success'),
+              this.translate.instant('common.labels.success')
+            );
+            this.loadAddressee(); // Reload the list
           }),
           catchError((error) => {
-            //this.dataTable = [];
             this.loadingService.hide();
             this.toastr.error(
               this.translate.instant('common.messages.service_error'),
               this.translate.instant('common.labels.error')
             );
-
-            // Opción 2: Devolver un array vacío para que la aplicación continúe
-            return of([]); // of() de 'rxjs'
+            return of(null);
           })
         )
         .subscribe()
@@ -253,23 +289,24 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
   deleteAddressee(id: string) {
     this.loadingService.show();
     this.subscription.push(
-      this.genericFirestoreService
-        .delete(ADDRESSEE_TABLE, id)
+      this.addresseesDataService
+        .deleteAddressee(id)
         .pipe(
           tap(() => {
-            //this.dataTable = v;
             this.loadingService.hide();
+            this.toastr.success(
+              this.translate.instant('common.messages.delete_success'),
+              this.translate.instant('common.labels.success')
+            );
+            this.loadAddressee(); // Reload the list
           }),
           catchError((error) => {
-            //this.dataTable = [];
             this.loadingService.hide();
             this.toastr.error(
               this.translate.instant('common.messages.service_error'),
               this.translate.instant('common.labels.error')
             );
-
-            // Opción 2: Devolver un array vacío para que la aplicación continúe
-            return of([]); // of() de 'rxjs'
+            return of(null);
           })
         )
         .subscribe()
