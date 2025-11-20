@@ -13,8 +13,7 @@
             "reset_order": "Reset Initial File Order",
             "clean_all": "Clean All",
             "generate_invoice": "Generate Invoice",
-            "add_data": "Add Invoice Data",
-            "add_addressee": "Add Addressee"
+            "add_data": "Add Invoice Data"
         },
         "labels": {
             "select": "Select",
@@ -162,14 +161,16 @@
         }
     },
     "addressee": {
-        "headers": {
+        "buttons": {
+            "add_addressee": "Add Addressee"
+        },
+        "table": {
             "destination_name": "Destination Name",
             "destination_account": "Destination Account",
             "destination_address": "Destination Address",
             "bank_name": "Bank Name",
             "bank_address": "Bank Address",
             "nif": "NIF"
-        },
-        "modal_title": "Add Addressee"
+        }
     }
 }

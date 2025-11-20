@@ -13,8 +13,7 @@
             "reset_order": "Restablecer Orden Inicial Archivos",
             "clean_all": "Limpiar Todo",
             "generate_invoice": "Generar Factura",
-            "add_data": "Agregar Dato Facturas",
-            "add_addressee": "Adicionar Destinario"
+            "add_data": "Agregar Dato Facturas"
         },
         "labels": {
             "select": "Seleccione",
@@ -162,14 +161,16 @@
         }
     },
     "addressee": {
-        "headers": {
+        "buttons": {
+            "add_addressee": "Adicionar Destinatario"
+        },
+        "table": {
             "destination_name": "Nombre del Destino",
             "destination_account": "Cuenta de Destino",
             "destination_address": "Direcci\u00f3n del Destino",
             "bank_name": "Nombre del Banco",
             "bank_address": "Direcci\u00f3n del Banco",
             "nif": "NIF"
-        },
-        "modal_title": "Adicionar Destinario"
+        }
     }
 }
