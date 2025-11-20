@@ -15,6 +15,7 @@ import { ToastrService } from 'ngx-toastr';
 import { MESSAGE_ERROR } from '../../../shared/constants/message-error';
 import { CustomModalService } from '../../../shared/services/custom-modal/custom-modal.service';
 import { LoadingService } from '../../../shared/services/loading/loading.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-crud-addressee',
@@ -24,14 +25,30 @@ import { LoadingService } from '../../../shared/services/loading/loading.service
   styleUrl: './crud-addressee.component.scss',
 })
 export class CrudAddresseeComponent implements OnInit, OnDestroy {
+  /** Injected TranslateService for i18n support */
+  private readonly translate = inject(TranslateService);
+
   /** Toastr service for notifications */
-  toastr: ToastrService = inject(ToastrService);
+  private readonly toastr = inject(ToastrService);
+
+  /** Injected service for managing custom dialogs */
+  private readonly customModalService = inject(CustomModalService);
+
+  /** Injected service for managing CRUD Firestore */
+  private readonly genericFirestoreService = inject(GenericFirestoreService<SecondForm>);
+
+  /** Injected loading service */
+  private readonly loadingService = inject(LoadingService);
+
   /**subcription for clean component observables consume */
   subscription: Subscription[] = [];
+
   /** Initial number of items to display per page in the table */
   itemInitialPagination = 10;
+
   /** List of pagination options for the table */
   listPagination = [5, 10, 20, 50, 100];
+
   /** Configuration for buttons in the component */
   buttons: ButtonGenericInterface = {
     css: 'flex flex-column md:flex-row md:justify-content-end gap-2',
@@ -39,7 +56,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
       {
         id: 1,
         icon: 'pi pi-check',
-        label: 'Adicionar Destinario',
+        label: this.translate.instant('addressee.buttons.add_addressee'),
         severity: 'primary',
         action: () => this.opneAddEditAddressee(), // Action to reset the table to its initial state
       },
@@ -50,27 +67,27 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
   headerData: HeaderTable<SecondForm>[] = [
     {
       field: 'nameDestination',
-      header: 'Nombre del Destino',
+      header: this.translate.instant('addressee.table.destination_name'),
     },
     {
       field: 'accountDestination',
-      header: 'Cuenta de Destino',
+      header: this.translate.instant('addressee.table.destination_account'),
     },
     {
       field: 'addressDestination',
-      header: 'Dirección del Destino',
+      header: this.translate.instant('addressee.table.destination_address'),
     },
     {
       field: 'nameBank',
-      header: 'Nombre del Banco',
+      header: this.translate.instant('addressee.table.bank_name'),
     },
     {
       field: 'addressBank',
-      header: 'Dirección del Banco',
+      header: this.translate.instant('addressee.table.bank_address'),
     },
     {
       field: 'nif',
-      header: 'NIF',
+      header: this.translate.instant('addressee.table.nif'),
     },
   ];
 
@@ -96,13 +113,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
     ],
   };
   dataTable: SecondForm[] = [];
-  /** Injected service for managing custom dialogs */
-  customModalService: CustomModalService = inject(CustomModalService);
-  /** Injected service for managing CRUD Firestore */
-  genericFirestoreService: GenericFirestoreService<SecondForm> = inject(
-    GenericFirestoreService
-  );
-  loadingService: LoadingService = inject(LoadingService);
+
   ngOnInit(): void {
     this.loadAddressee();
   }
@@ -120,7 +131,10 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
           catchError((error) => {
             this.dataTable = [];
             this.loadingService.hide();
-            this.toastr.error(MESSAGE_ERROR, 'Error');
+            this.toastr.error(
+              this.translate.instant('common.messages.service_error'),
+              this.translate.instant('common.labels.error')
+            );
 
             // Opción 2: Devolver un array vacío para que la aplicación continúe
             return of([]); // of() de 'rxjs'
@@ -133,7 +147,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
     const { modalServiceRef } = this.customModalService.open(
       InvoicesDestinationFormComponent,
       {
-        title: 'Adicionar Destinario',
+        title: this.translate.instant('addressee.buttons.add_addressee'),
         width: '60vw',
         data: { isModal: true, initialField: row },
         buttons: {
@@ -142,7 +156,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
           buttons: [
             {
               id: 1,
-              label: 'Guardar',
+              label: this.translate.instant('common.buttons.save'),
               icon: 'pi pi-save',
               severity: 'success',
               action: () => {
@@ -160,7 +174,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
             },
             {
               id: 2,
-              label: 'Cancelar',
+              label: this.translate.instant('common.buttons.cancel'),
               icon: 'pi pi-times',
               severity: 'danger',
               action: () => modalServiceRef.close(),
@@ -196,7 +210,10 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
           }),
           catchError((error) => {
             this.loadingService.hide();
-            this.toastr.error(MESSAGE_ERROR, 'Error');
+            this.toastr.error(
+              this.translate.instant('common.messages.service_error'),
+              this.translate.instant('common.labels.error')
+            );
 
             // Opción 2: Devolver un array vacío para que la aplicación continúe
             return of([]); // of() de 'rxjs'
@@ -220,7 +237,10 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
           catchError((error) => {
             //this.dataTable = [];
             this.loadingService.hide();
-            this.toastr.error(MESSAGE_ERROR, 'Error');
+            this.toastr.error(
+              this.translate.instant('common.messages.service_error'),
+              this.translate.instant('common.labels.error')
+            );
 
             // Opción 2: Devolver un array vacío para que la aplicación continúe
             return of([]); // of() de 'rxjs'
@@ -243,7 +263,10 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
           catchError((error) => {
             //this.dataTable = [];
             this.loadingService.hide();
-            this.toastr.error(MESSAGE_ERROR, 'Error');
+            this.toastr.error(
+              this.translate.instant('common.messages.service_error'),
+              this.translate.instant('common.labels.error')
+            );
 
             // Opción 2: Devolver un array vacío para que la aplicación continúe
             return of([]); // of() de 'rxjs'
