@@ -20,8 +20,8 @@ export const environment = {
     minimumFetchIntervalMillis: 3600000, // 1 hour for production
   },
   supabase: {
-    url: 'YOUR_SUPABASE_URL',
-    anonKey: 'YOUR_SUPABASE_ANON_KEY',
+    url: 'https://wzmppksgwtdffnxhkljh.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6bXBwa3Nnd3RkZmZueGhrbGpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0NDYzMzAsImV4cCI6MjA3NjAyMjMzMH0.1Kl_fh6AlNo0vKc_-a2Vxh07WYQs3EDJVthuLhwjZ8A',
   },
 };
 
