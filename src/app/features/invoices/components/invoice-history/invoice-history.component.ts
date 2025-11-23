@@ -13,10 +13,11 @@
  * - PrimeNG components for UI
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 // PrimeNG imports
 import { TableModule } from 'primeng/table';
@@ -62,7 +63,7 @@ import { CreateInvoicePdfService } from '../../services/create-invoice-pdf.servi
   templateUrl: './invoice-history.component.html',
   styleUrls: ['./invoice-history.component.scss'],
 })
-export class InvoiceHistoryComponent implements OnInit {
+export class InvoiceHistoryComponent implements OnInit, OnDestroy {
   // Inject dependencies
   private readonly router = inject(Router);
   readonly store = inject(InvoicesListStore);
@@ -70,6 +71,9 @@ export class InvoiceHistoryComponent implements OnInit {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly createInvoicePdfService = inject(CreateInvoicePdfService);
+
+  // Subscriptions
+  private subscription: Subscription[] = [];
 
   // Filter state
   searchTerm = '';
@@ -410,6 +414,10 @@ export class InvoiceHistoryComponent implements OnInit {
         inv.sender_name?.toLowerCase().includes(search) ||
         inv.destination_name?.toLowerCase().includes(search)
     );
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.forEach((sub) => sub.unsubscribe());
   }
 }
 
