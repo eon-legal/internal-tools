@@ -28,6 +28,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
@@ -35,6 +37,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { InvoicesListStore } from '../../state/invoices-list.store';
 import { LanguageService } from '../../../../shared/services/language/language.service';
 import { Invoice } from '../../interfaces/database-models';
+import { CreateInvoicePdfService } from '../../services/create-invoice-pdf.service';
 
 @Component({
   selector: 'app-invoice-history',
@@ -52,6 +55,8 @@ import { Invoice } from '../../interfaces/database-models';
     ToastModule,
     ProgressSpinnerModule,
     TooltipModule,
+    IconFieldModule,
+    InputIconModule,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './invoice-history.component.html',
@@ -64,6 +69,7 @@ export class InvoiceHistoryComponent implements OnInit {
   readonly languageService = inject(LanguageService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly createInvoicePdfService = inject(CreateInvoicePdfService);
 
   // Filter state
   searchTerm = '';
@@ -72,16 +78,33 @@ export class InvoiceHistoryComponent implements OnInit {
   selectedPaidStatus: 'all' | 'paid' | 'unpaid' = 'all';
 
   // Paid status options for dropdown
-  paidStatusOptions = [
-    { label: this.getText('invoices.history.filters.all'), value: 'all' },
-    { label: this.getText('invoices.history.filters.paid'), value: 'paid' },
-    { label: this.getText('invoices.history.filters.unpaid'), value: 'unpaid' },
-  ];
+  paidStatusOptions: Array<{ label: string; value: string }> = [];
 
   ngOnInit(): void {
+    // Initialize translations
+    this.updateTranslations();
+
+    // Subscribe to language changes
+    this.subscription.push(
+      this.languageService.onLanguageChange().subscribe(() => {
+        this.updateTranslations();
+      })
+    );
+
     // Load initial data
     this.loadInvoices();
     this.store.loadClients();
+  }
+
+  /**
+   * Update all translations when language changes
+   */
+  private updateTranslations(): void {
+    this.paidStatusOptions = [
+      { label: this.getText('invoices.history.filters.all'), value: 'all' },
+      { label: this.getText('invoices.history.filters.paid'), value: 'paid' },
+      { label: this.getText('invoices.history.filters.unpaid'), value: 'unpaid' },
+    ];
   }
 
   /**
@@ -257,16 +280,71 @@ export class InvoiceHistoryComponent implements OnInit {
   /**
    * Download single invoice PDF
    */
-  downloadInvoice(invoice: Invoice): void {
-    // Update download timestamp
-    this.store.updateDownloadTimestamp(invoice.id);
+  async downloadInvoice(invoice: Invoice): Promise<void> {
+    try {
+      // Update download timestamp
+      this.store.updateDownloadTimestamp(invoice.id);
 
-    // TODO: Implement PDF download
-    this.messageService.add({
-      severity: 'success',
-      summary: this.getText('common.labels.total'),
-      detail: this.getText('invoices.history.messages.download_success'),
-    });
+      // Convert Invoice to the format expected by PDF service
+      const nameAddressOrPassport: [string, string] = [
+        invoice.sender_name || '',
+        invoice.sender_national ? (invoice.sender_address || '') : (invoice.sender_passport || '')
+      ];
+
+      const secondForm = {
+        nameDestination: invoice.destination_name || '',
+        accountDestination: invoice.destination_account || '',
+        addressDestination: invoice.destination_address || '',
+        nameBank: invoice.destination_bank_name || '',
+        addressBank: invoice.destination_bank_address || '',
+        nif: invoice.destination_nif || '',
+      };
+
+      const firstForm = {
+        numberInvoice: invoice.invoice_number,
+        dateOrDateRange: false,
+        rangeDates: null,
+        date: new Date(invoice.invoice_date),
+        name: invoice.sender_name || '',
+        national: invoice.sender_national,
+        address: invoice.sender_address || '',
+        passport: invoice.sender_passport || '',
+      };
+
+      // Convert invoice items to table data format
+      const tableData = invoice.invoice_items.map(item => ({
+        id: item.id,
+        description: item.description,
+        qtt: item.qtt,
+        price: item.price,
+        total: item.total,
+        sTotal: item.sTotal,
+        perCentIva: item.perCentIva,
+      }));
+
+      // Generate and download the PDF
+      const filename = `Invoice-${invoice.invoice_number}.pdf`;
+      await this.createInvoicePdfService.downloadPDFInvoice(
+        nameAddressOrPassport,
+        secondForm,
+        firstForm,
+        tableData,
+        filename
+      );
+
+      this.messageService.add({
+        severity: 'success',
+        summary: this.getText('common.labels.success'),
+        detail: this.getText('invoices.history.messages.download_success'),
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: this.getText('common.labels.error'),
+        detail: this.getText('invoices.history.messages.download_error') || 'Error generating PDF',
+      });
+    }
   }
 
   /**
