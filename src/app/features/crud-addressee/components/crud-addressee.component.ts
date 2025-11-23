@@ -15,7 +15,7 @@ import { ToastrService } from 'ngx-toastr';
 import { MESSAGE_ERROR } from '../../../shared/constants/message-error';
 import { CustomModalService } from '../../../shared/services/custom-modal/custom-modal.service';
 import { LoadingService } from '../../../shared/services/loading/loading.service';
-import { TranslateService } from '@ngx-translate/core';
+import { LanguageService } from '../../../shared/services/language/language.service';
 
 @Component({
   selector: 'app-crud-addressee',
@@ -25,8 +25,8 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrl: './crud-addressee.component.scss',
 })
 export class CrudAddresseeComponent implements OnInit, OnDestroy {
-  /** Injected TranslateService for i18n support */
-  private readonly translate = inject(TranslateService);
+  /** Injected LanguageService for i18n support */
+  private readonly languageService = inject(LanguageService);
 
   /** Toastr service for notifications */
   private readonly toastr = inject(ToastrService);
@@ -52,44 +52,11 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
   /** Configuration for buttons in the component */
   buttons: ButtonGenericInterface = {
     css: 'flex flex-column md:flex-row md:justify-content-end gap-2',
-    buttons: [
-      {
-        id: 1,
-        icon: 'pi pi-check',
-        label: this.translate.instant('addressee.buttons.add_addressee'),
-        severity: 'primary',
-        action: () => this.opneAddEditAddressee(), // Action to reset the table to its initial state
-      },
-    ],
+    buttons: [],
   };
 
   /** Header configuration for the table */
-  headerData: HeaderTable<SecondForm>[] = [
-    {
-      field: 'nameDestination',
-      header: this.translate.instant('addressee.table.destination_name'),
-    },
-    {
-      field: 'accountDestination',
-      header: this.translate.instant('addressee.table.destination_account'),
-    },
-    {
-      field: 'addressDestination',
-      header: this.translate.instant('addressee.table.destination_address'),
-    },
-    {
-      field: 'nameBank',
-      header: this.translate.instant('addressee.table.bank_name'),
-    },
-    {
-      field: 'addressBank',
-      header: this.translate.instant('addressee.table.bank_address'),
-    },
-    {
-      field: 'nif',
-      header: this.translate.instant('addressee.table.nif'),
-    },
-  ];
+  headerData: HeaderTable<SecondForm>[] = [];
 
   /** Configuration for table operations (e.g., delete) */
   operation: ButtonGenericInterface = {
@@ -115,7 +82,64 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
   dataTable: SecondForm[] = [];
 
   ngOnInit(): void {
+    // Initialize translations
+    this.updateTranslations();
+
+    // Subscribe to language changes
+    this.subscription.push(
+      this.languageService.onLanguageChange().subscribe(() => {
+        this.updateTranslations();
+      })
+    );
+
     this.loadAddressee();
+  }
+
+  /**
+   * Update all translations when language changes
+   */
+  private updateTranslations(): void {
+    // Update button labels
+    this.buttons = {
+      css: 'flex flex-column md:flex-row md:justify-content-end gap-2',
+      buttons: [
+        {
+          id: 1,
+          icon: 'pi pi-check',
+          label: this.languageService.getText('addressee.buttons.add_addressee'),
+          severity: 'primary',
+          action: () => this.opneAddEditAddressee(),
+        },
+      ],
+    };
+
+    // Update table headers
+    this.headerData = [
+      {
+        field: 'nameDestination',
+        header: this.languageService.getText('addressee.table.destination_name'),
+      },
+      {
+        field: 'accountDestination',
+        header: this.languageService.getText('addressee.table.destination_account'),
+      },
+      {
+        field: 'addressDestination',
+        header: this.languageService.getText('addressee.table.destination_address'),
+      },
+      {
+        field: 'nameBank',
+        header: this.languageService.getText('addressee.table.bank_name'),
+      },
+      {
+        field: 'addressBank',
+        header: this.languageService.getText('addressee.table.bank_address'),
+      },
+      {
+        field: 'nif',
+        header: this.languageService.getText('addressee.table.nif'),
+      },
+    ];
   }
 
   loadAddressee() {
@@ -134,8 +158,8 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
             this.dataTable = [];
             this.loadingService.hide();
             this.toastr.error(
-              this.translate.instant('common.messages.service_error'),
-              this.translate.instant('common.labels.error')
+              this.languageService.getText('common.messages.service_error'),
+              this.languageService.getText('common.labels.error')
             );
             return of([]);
           })
@@ -176,7 +200,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
     const { modalServiceRef } = this.customModalService.open(
       InvoicesDestinationFormComponent,
       {
-        title: this.translate.instant('addressee.buttons.add_addressee'),
+        title: this.languageService.getText('addressee.buttons.add_addressee'),
         width: '60vw',
         data: { isModal: true, initialField: row },
         buttons: {
@@ -185,7 +209,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
           buttons: [
             {
               id: 1,
-              label: this.translate.instant('common.buttons.save'),
+              label: this.languageService.getText('common.buttons.save'),
               icon: 'pi pi-save',
               severity: 'success',
               action: () => {
@@ -203,7 +227,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
             },
             {
               id: 2,
-              label: this.translate.instant('common.buttons.cancel'),
+              label: this.languageService.getText('common.buttons.cancel'),
               icon: 'pi pi-times',
               severity: 'danger',
               action: () => modalServiceRef.close(),
@@ -238,16 +262,16 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
           tap(() => {
             this.loadingService.hide();
             this.toastr.success(
-              this.translate.instant('common.messages.save_success'),
-              this.translate.instant('common.labels.success')
+              this.languageService.getText('common.messages.save_success'),
+              this.languageService.getText('common.labels.success')
             );
             this.loadAddressee(); // Reload the list
           }),
           catchError((error) => {
             this.loadingService.hide();
             this.toastr.error(
-              this.translate.instant('common.messages.service_error'),
-              this.translate.instant('common.labels.error')
+              this.languageService.getText('common.messages.service_error'),
+              this.languageService.getText('common.labels.error')
             );
             return of(null);
           })
@@ -268,16 +292,16 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
           tap(() => {
             this.loadingService.hide();
             this.toastr.success(
-              this.translate.instant('common.messages.update_success'),
-              this.translate.instant('common.labels.success')
+              this.languageService.getText('common.messages.update_success'),
+              this.languageService.getText('common.labels.success')
             );
             this.loadAddressee(); // Reload the list
           }),
           catchError((error) => {
             this.loadingService.hide();
             this.toastr.error(
-              this.translate.instant('common.messages.service_error'),
-              this.translate.instant('common.labels.error')
+              this.languageService.getText('common.messages.service_error'),
+              this.languageService.getText('common.labels.error')
             );
             return of(null);
           })
@@ -295,16 +319,16 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
           tap(() => {
             this.loadingService.hide();
             this.toastr.success(
-              this.translate.instant('common.messages.delete_success'),
-              this.translate.instant('common.labels.success')
+              this.languageService.getText('common.messages.delete_success'),
+              this.languageService.getText('common.labels.success')
             );
             this.loadAddressee(); // Reload the list
           }),
           catchError((error) => {
             this.loadingService.hide();
             this.toastr.error(
-              this.translate.instant('common.messages.service_error'),
-              this.translate.instant('common.labels.error')
+              this.languageService.getText('common.messages.service_error'),
+              this.languageService.getText('common.labels.error')
             );
             return of(null);
           })
