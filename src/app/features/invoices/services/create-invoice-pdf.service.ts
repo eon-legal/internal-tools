@@ -5,7 +5,6 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { SecondForm } from '../interfaces/second-form';
 import { FisrtForm } from '../interfaces/first-form';
 import { DataInvoicesTable } from '../interfaces/data-invoices-table';
-import { formatDateByParams } from '../utils/format-date/format-date';
 import { DataInvoicesConstant } from '../constants/data-invoices';
 import { UM } from '../constants/um';
 
@@ -80,11 +79,12 @@ export class CreateInvoicePdfService {
     });
 
     // Logo centrado (subido hacia arriba)
+    // Logo height: 1.38 cm = ~39 pt (1 cm ≈ 28.35 pt)
     pdf.add(
       await new Img('assets/logo.png')
-        .fit([200, 100])
+        .fit([200, 39])
         .alignment('center')
-        .margin([0, 0, 0, 10]) // Reduce el margen inferior del logo
+        .margin([0, 0, 0, 10])
         .build()
     );
 
@@ -99,7 +99,7 @@ export class CreateInvoicePdfService {
               stack: [
                 new Txt('ORDENANTE:').bold().fontSize(14).margin([0, 0, 0, 10]).end,
                 new Txt(
-                  `${nameAddressOrPassport[0]}\nNIE: ${nameAddressOrPassport[1]}`
+                  `${nameAddressOrPassport[0]}\n${rightInvoice.identificationType || 'DNI'}: ${nameAddressOrPassport[1]}`
                 ).margin([0, 0, 0, 5]).end,
               ],
             },
@@ -126,101 +126,8 @@ export class CreateInvoicePdfService {
       },
     });
 
-    // Tabla
-    pdf.add({
-      table: {
-        headerRows: 1,
-        widths: ['auto', '*', 'auto', 'auto', 'auto', 'auto'],
-        body: [
-          [
-            { text: 'ID', style: 'tableHeader' },
-            { text: 'DESCRIPCIÓN', style: 'tableHeader' },
-            { text: 'CANT', style: 'tableHeader' },
-            { text: 'S.TOTAL', style: 'tableHeader' },
-            { text: '% IVA', style: 'tableHeader' },
-            { text: 'TOTAL', style: 'tableHeader' },
-          ].map((header) => ({
-            ...header,
-            fillColor: '#000000',
-            color: '#FFFFFF',
-          })),
-          ...tableData.map((item, index) => [
-            {
-              text: item.id,
-              style: 'tableCell',
-              border:
-                index >= tableData.length - 2
-                  ? [false, false, false, false]
-                  : undefined,
-            },
-            {
-              text: item.description,
-              wordWrap: true,
-              style: 'tableCell',
-              border:
-                index >= tableData.length - 2
-                  ? [false, false, false, false]
-                  : undefined,
-            },
-            {
-              text: item?.qtt || '1',
-              style: 'tableCell',
-              border:
-                index >= tableData.length - 2
-                  ? [false, false, false, false]
-                  : undefined,
-            },
-            {
-              text: ` ${
-                item.perCentIva === DataInvoicesConstant.IVA ||
-                item.perCentIva === DataInvoicesConstant.TOTAL
-                  ? ''
-                  : item.sTotal
-              }  ${
-                item.perCentIva === DataInvoicesConstant.IVA ||
-                item.perCentIva === DataInvoicesConstant.TOTAL
-                  ? ''
-                  : UM.EU
-              }`,
-              style: 'tableCell',
-              border:
-                index >= tableData.length - 2
-                  ? [false, false, false, false]
-                  : undefined,
-            },
-            {
-              text: `${item.perCentIva} ${
-                item.perCentIva === DataInvoicesConstant.IVA ||
-                item.perCentIva === DataInvoicesConstant.TOTAL
-                  ? ''
-                  : UM.PER_CENT
-              }`,
-              style: 'tableCell',
-              border:
-                index >= tableData.length - 2
-                  ? [true, true, true, true]
-                  : undefined,
-            },
-            {
-              text: `${item.total} ${UM.EU}`,
-              fillColor: index === tableData.length - 1 ? '#000000' : undefined,
-              color: index === tableData.length - 1 ? '#FFFFFF' : undefined,
-              border:
-                index >= tableData.length - 2
-                  ? [true, true, true, true]
-                  : undefined,
-            },
-          ]),
-        ],
-      },
-      layout: {
-        hLineWidth: () => 1, // Bordes horizontales globales
-        vLineWidth: () => 0.8, // Bordes verticales globales
-        hLineColor: '#0066CC', // Color de los bordes horizontales
-        vLineColor: '#0066CC', // Color de los bordes verticales
-      },
-      margin: [0, 10, 0, 20],
-    });
+    // Tabla - Build using the new specification
+    pdf.add(this.buildInvoiceTable(tableData));
 
     const fromElements = [
       {
@@ -229,39 +136,34 @@ export class CreateInvoicePdfService {
         margin: [0, 20, 0, 10],
       },
       {
-        text: `Name: ${endPage.nameDestination}`,
+        text: [{ text: 'Name: ' }, { text: endPage.nameDestination, bold: true }],
         style: 'fromItem',
         margin: [0, 0, 0, 5],
       },
       {
-        text: `Account (IBAN): ${endPage.accountDestination}`,
+        text: [{ text: 'Account (IBAN): ' }, { text: endPage.accountDestination, bold: true }],
         style: 'fromItem',
         margin: [0, 0, 0, 5],
-        wordWrap: true,
       },
       {
-        text: `Address: ${endPage.addressDestination}`,
+        text: [{ text: 'Address: ' }, { text: endPage.addressDestination, bold: true }],
         style: 'fromItem',
         margin: [0, 0, 0, 5],
-        wordWrap: true,
       },
       {
-        text: `Bank Name: ${endPage.nameBank}`,
+        text: [{ text: 'Bank Name: ' }, { text: endPage.nameBank, bold: true }],
         style: 'fromItem',
         margin: [0, 0, 0, 5],
-        wordWrap: true,
       },
       {
-        text: `Bank Address: ${endPage.addressBank}`,
+        text: [{ text: 'Bank Address: ' }, { text: endPage.addressBank, bold: true }],
         style: 'fromItem',
         margin: [0, 0, 0, 5],
-        wordWrap: true,
       },
       {
-        text: `NIF: ${endPage.nif}`,
+        text: [{ text: 'NIF: ' }, { text: endPage.nif, bold: true }],
         style: 'fromItem',
         margin: [0, 0, 0, 10],
-        wordWrap: true,
       },
     ];
 
@@ -280,7 +182,7 @@ export class CreateInvoicePdfService {
       },
       fromItem: {
         fontSize: 10,
-        lineHeight: 1.1,
+        lineHeight: 0.5,
       },
     });
 
@@ -312,5 +214,186 @@ export class CreateInvoicePdfService {
     }
 
     return `Fecha: ${formatSingleDate(date)}`;
+  }
+
+  /**
+   * Formats a number as currency with comma as decimal separator and euro sign.
+   * E.g., 206.61 -> "206,61 €"
+   */
+  private formatCurrency(value: number | string): string {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue)) return '';
+    // Format with 2 decimal places, replace dot with comma, add euro sign
+    return `${numValue.toFixed(2).replace('.', ',')} ${UM.EU}`;
+  }
+
+  /**
+   * Builds the invoice items table with the specified styling.
+   * Grid layout: 6 columns (ID, DESCRIPCIÓN, CANT, S.TOTAL, % IVA, TOTAL)
+   * - Black header row with white text
+   * - Item rows with proper alignment
+   * - Empty spacer row
+   * - IVA summary row (label in col 5, amount in col 6)
+   * - Total row with light gray label cell and black value cell
+   * - Medium blue borders (#3559A6) for all cells
+   */
+  private buildInvoiceTable(tableData: DataInvoicesTable[]): object {
+    // Border color: medium blue
+    const borderColor = '#3559A6';
+    // Light gray for Total label cell
+    const lightGray = '#E5E5E5';
+
+    // Column widths (approximate percentages): 8%, 46%, 9%, 15%, 11%, 15%
+    // Using percentage strings for pdfmake
+    const columnWidths = ['8%', '*', '9%', '15%', '11%', '15%'];
+
+    // Filter out IVA and TOTAL rows from tableData to get actual line items
+    const lineItems = tableData.filter(
+      (item) =>
+        item.perCentIva !== DataInvoicesConstant.IVA &&
+        item.perCentIva !== DataInvoicesConstant.TOTAL
+    );
+
+    // Find IVA and TOTAL rows
+    const ivaRow = tableData.find((item) => item.perCentIva === DataInvoicesConstant.IVA);
+    const totalRow = tableData.find((item) => item.perCentIva === DataInvoicesConstant.TOTAL);
+
+    // Build table body
+    const tableBody: object[][] = [];
+
+    // Row 1: Header row - black background, white text, bold, uppercase
+    tableBody.push([
+      {
+        text: 'ID',
+        fillColor: '#000000',
+        color: '#FFFFFF',
+        bold: true,
+        fontSize: 11,
+        alignment: 'center',
+      },
+      {
+        text: 'DESCRIPCIÓN',
+        fillColor: '#000000',
+        color: '#FFFFFF',
+        bold: true,
+        fontSize: 11,
+        alignment: 'center',
+      },
+      {
+        text: 'CANT',
+        fillColor: '#000000',
+        color: '#FFFFFF',
+        bold: true,
+        fontSize: 11,
+        alignment: 'center',
+      },
+      {
+        text: 'S.TOTAL',
+        fillColor: '#000000',
+        color: '#FFFFFF',
+        bold: true,
+        fontSize: 11,
+        alignment: 'center',
+      },
+      {
+        text: '% IVA',
+        fillColor: '#000000',
+        color: '#FFFFFF',
+        bold: true,
+        fontSize: 11,
+        alignment: 'center',
+      },
+      {
+        text: 'TOTAL',
+        fillColor: '#000000',
+        color: '#FFFFFF',
+        bold: true,
+        fontSize: 11,
+        alignment: 'center',
+      },
+    ]);
+
+    // Row 2+: Item rows
+    lineItems.forEach((item, index) => {
+      const itemId = typeof item.id === 'number' ? item.id.toString().padStart(2, '0') : item.id;
+      const quantity = item.qtt || '1';
+      const subtotal = this.formatCurrency(item.sTotal);
+      const ivaPercent =
+        typeof item.perCentIva === 'object' && 'value' in item.perCentIva
+          ? `${item.perCentIva.value}${UM.PER_CENT}`
+          : `${item.perCentIva}${UM.PER_CENT}`;
+      const total = this.formatCurrency(item.total);
+
+      tableBody.push([
+        { text: itemId, alignment: 'center', fontSize: 10 },
+        { text: item.description, alignment: 'left', fontSize: 10 },
+        { text: quantity.toString(), alignment: 'center', fontSize: 10 },
+        { text: subtotal, alignment: 'right', fontSize: 10 },
+        { text: ivaPercent, alignment: 'center', fontSize: 10 },
+        { text: total, alignment: 'right', fontSize: 10 },
+      ]);
+    });
+
+    // Empty spacer row - use non-breaking space to maintain same height as other rows
+    tableBody.push([
+      { text: '\u00A0', fillColor: '#FFFFFF', fontSize: 10 },
+      { text: '\u00A0', fillColor: '#FFFFFF', fontSize: 10 },
+      { text: '\u00A0', fillColor: '#FFFFFF', fontSize: 10 },
+      { text: '\u00A0', fillColor: '#FFFFFF', fontSize: 10 },
+      { text: '\u00A0', fillColor: '#FFFFFF', fontSize: 10 },
+      { text: '\u00A0', fillColor: '#FFFFFF', fontSize: 10 },
+    ]);
+
+    // Empty cell style with no borders for IVA and Total rows
+    const noBorderEmptyCell = { text: '', fillColor: '#FFFFFF', border: [false, false, false, false] };
+
+    // IVA row: columns 1-4 empty (no borders), col 5 = "IVA" (bold), col 6 = amount
+    const ivaAmount = ivaRow ? this.formatCurrency(ivaRow.total) : '';
+    tableBody.push([
+      noBorderEmptyCell,
+      noBorderEmptyCell,
+      noBorderEmptyCell,
+      noBorderEmptyCell,
+      { text: 'IVA', bold: true, alignment: 'center', fontSize: 10, fillColor: '#FFFFFF' },
+      { text: ivaAmount, alignment: 'right', fontSize: 10, fillColor: '#FFFFFF' },
+    ]);
+
+    // Total row: columns 1-4 empty (no borders), col 5 = "Total" (bold, light gray bg),
+    // col 6 = amount (bold, white text, black bg)
+    const totalAmount = totalRow ? this.formatCurrency(totalRow.total) : '';
+    tableBody.push([
+      noBorderEmptyCell,
+      noBorderEmptyCell,
+      noBorderEmptyCell,
+      noBorderEmptyCell,
+      { text: 'Total', bold: true, alignment: 'center', fontSize: 10, fillColor: lightGray },
+      {
+        text: totalAmount,
+        bold: true,
+        alignment: 'right',
+        fontSize: 10,
+        fillColor: '#000000',
+        color: '#FFFFFF',
+      },
+    ]);
+
+    return {
+      table: {
+        headerRows: 1,
+        widths: columnWidths,
+        body: tableBody,
+      },
+      layout: {
+        hLineWidth: () => 1,
+        vLineWidth: () => 1,
+        hLineColor: () => borderColor,
+        vLineColor: () => borderColor,
+        paddingLeft: () => 4,
+        paddingRight: () => 4,
+        paddingTop: () => 4,
+        paddingBottom: () => 4,
+      },
+      margin: [0, 10, 0, 20],
+    };
   }
 }

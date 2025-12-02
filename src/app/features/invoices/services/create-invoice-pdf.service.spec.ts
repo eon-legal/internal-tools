@@ -81,7 +81,8 @@ describe('CreateInvoicePdfService', () => {
       numberInvoice: 'INV-001',
       date: new Date(),
       name: 'Test Name',
-      passport: 'PASSPORT123'
+      identificationType: 'DNI',
+      identification: 'PASSPORT123'
     };
 
     const mockTableData: DataInvoicesTable[] = [{
@@ -118,7 +119,7 @@ describe('CreateInvoicePdfService', () => {
       expect(mockInstance.create().open).toHaveBeenCalled();
     });
 
-    it('should always include passport in PDF', async () => {
+    it('should include identification type in PDF', async () => {
       await service.newGeneratePDFInvoices(
         mockNameAddress,
         mockEndPage,
@@ -129,9 +130,9 @@ describe('CreateInvoicePdfService', () => {
       const pdfMakeWrapper = require('pdfmake-wrapper');
       expect(pdfMakeWrapper.PdfMakeWrapper).toHaveBeenCalled();
 
-      // Verify the Txt content includes "Pasaporte" since we always use passport now
+      // Verify the Txt content includes the identification type (DNI in this case)
       expect(pdfMakeWrapper.Txt).toHaveBeenCalledWith(
-        expect.stringContaining('Pasaporte')
+        expect.stringContaining('DNI:')
       );
     });
 
@@ -162,33 +163,158 @@ describe('CreateInvoicePdfService', () => {
 
       const pdfMakeWrapper = require('pdfmake-wrapper');
       const mockInstance = pdfMakeWrapper.PdfMakeWrapper.mock.results[0].value;
-      
+
       // Find the invoice table call (third add call)
       const tableCall = mockInstance.add.mock.calls[2];
       expect(tableCall).toBeDefined();
-      
+
       const tableDef = tableCall[0].table;
       expect(tableDef).toBeDefined();
-      
-      // Verify header row
+
+      // Verify header row has black background and white text
       const headerRow = tableDef.body[0];
       expect(headerRow).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ text: 'ID', style: 'tableHeader' }),
-          expect.objectContaining({ text: 'DESCRIPCIÓN', style: 'tableHeader' }),
-          expect.objectContaining({ text: 'QTT', style: 'tableHeader' })
+          expect.objectContaining({
+            text: 'ID',
+            fillColor: '#000000',
+            color: '#FFFFFF',
+            bold: true,
+          }),
+          expect.objectContaining({
+            text: 'DESCRIPCIÓN',
+            fillColor: '#000000',
+            color: '#FFFFFF',
+            bold: true,
+          }),
+          expect.objectContaining({
+            text: 'CANT',
+            fillColor: '#000000',
+            color: '#FFFFFF',
+            bold: true,
+          }),
         ])
       );
-      
-      // Verify data row
+
+      // Verify data row (item row)
       const dataRow = tableDef.body[1];
       expect(dataRow).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ text: '1' }),
-          expect.objectContaining({ text: 'Test Item' }),
-          expect.objectContaining({ text: '2' })
+          expect.objectContaining({ text: '1', alignment: 'center' }),
+          expect.objectContaining({ text: 'Test Item', alignment: 'left' }),
+          expect.objectContaining({ text: '2', alignment: 'center' }),
         ])
       );
+
+      // Verify table layout uses medium blue borders
+      expect(tableCall[0].layout.hLineColor()).toBe('#3559A6');
+      expect(tableCall[0].layout.vLineColor()).toBe('#3559A6');
+    });
+
+    it('should include IVA and Total summary rows', async () => {
+      const tableDataWithSummary: DataInvoicesTable[] = [
+        {
+          id: '01',
+          description: 'Test Item',
+          qtt: '1',
+          price: '206.61',
+          sTotal: '206.61',
+          perCentIva: '21',
+          total: '250.00',
+        },
+        {
+          id: '',
+          description: '',
+          qtt: '',
+          sTotal: '',
+          perCentIva: 'IVA',
+          total: '43.39',
+        },
+        {
+          id: '',
+          description: '',
+          qtt: '',
+          sTotal: '',
+          perCentIva: 'Total',
+          total: '250.00',
+        },
+      ];
+
+      await service.newGeneratePDFInvoices(
+        mockNameAddress,
+        mockEndPage,
+        completeMockRightInvoice,
+        tableDataWithSummary
+      );
+
+      const pdfMakeWrapper = require('pdfmake-wrapper');
+      const mockInstance = pdfMakeWrapper.PdfMakeWrapper.mock.results[0].value;
+
+      const tableCall = mockInstance.add.mock.calls[2];
+      const tableDef = tableCall[0].table;
+
+      // Table should have: header row + 1 item row + spacer row + IVA row + Total row = 5 rows
+      expect(tableDef.body.length).toBe(5);
+
+      // Verify IVA row (4th row, index 3)
+      const ivaRow = tableDef.body[3];
+      expect(ivaRow[4]).toEqual(
+        expect.objectContaining({ text: 'IVA', bold: true })
+      );
+      expect(ivaRow[5]).toEqual(
+        expect.objectContaining({ text: '43,39 €', alignment: 'right' })
+      );
+
+      // Verify Total row (5th row, index 4)
+      const totalRow = tableDef.body[4];
+      expect(totalRow[4]).toEqual(
+        expect.objectContaining({
+          text: 'Total',
+          bold: true,
+          fillColor: '#E5E5E5',
+        })
+      );
+      expect(totalRow[5]).toEqual(
+        expect.objectContaining({
+          text: '250,00 €',
+          bold: true,
+          fillColor: '#000000',
+          color: '#FFFFFF',
+        })
+      );
+    });
+
+    it('should format currency with comma as decimal separator and euro sign', async () => {
+      const tableDataWithDecimals: DataInvoicesTable[] = [
+        {
+          id: '01',
+          description: 'Test Item',
+          qtt: '1',
+          price: '206.61',
+          sTotal: '206.61',
+          perCentIva: '21',
+          total: '250.00',
+        },
+      ];
+
+      await service.newGeneratePDFInvoices(
+        mockNameAddress,
+        mockEndPage,
+        completeMockRightInvoice,
+        tableDataWithDecimals
+      );
+
+      const pdfMakeWrapper = require('pdfmake-wrapper');
+      const mockInstance = pdfMakeWrapper.PdfMakeWrapper.mock.results[0].value;
+
+      const tableCall = mockInstance.add.mock.calls[2];
+      const tableDef = tableCall[0].table;
+      const dataRow = tableDef.body[1];
+
+      // Check S.TOTAL column uses comma as decimal separator
+      expect(dataRow[3].text).toBe('206,61 €');
+      // Check TOTAL column uses comma as decimal separator
+      expect(dataRow[5].text).toBe('250,00 €');
     });
   });
 });
