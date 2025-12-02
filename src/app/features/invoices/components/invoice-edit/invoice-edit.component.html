@@ -90,7 +90,8 @@
         </div>
 
         <div class="col-12 md:col-6 field">
-          <label for="sender_identification" class="block font-semibold mb-2">
+          <label for="sender_identification" class="block font-semibold mb-2"
+            [class.p-error]="invoiceForm.get('sender_identification')?.invalid && invoiceForm.get('sender_identification')?.touched">
             {{ getText('invoices.sender_form.sender_identification') }}
           </label>
           <input
@@ -98,7 +99,11 @@
             id="sender_identification"
             formControlName="sender_identification"
             class="w-full"
+            [class.ng-dirty]="invoiceForm.get('sender_identification')?.invalid && invoiceForm.get('sender_identification')?.touched"
           />
+          @if (invoiceForm.get('sender_identification')?.invalid && invoiceForm.get('sender_identification')?.touched) {
+            <small class="p-error block mt-1">{{ getIdentificationErrorMessage() }}</small>
+          }
         </div>
       </div>
 
