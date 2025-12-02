@@ -68,6 +68,8 @@ export class InvoiceDestinationSelectorComponent implements OnInit, OnDestroy {
               value: `client_${client.id}`,
             }));
 
+            console.log('clientOptions:', clientOptions);
+
             // Transform addressees to dropdown options
             const addresseeOptions = addressees.map((addressee) => ({
               label: `📧 ${addressee.name_destination}`,
@@ -97,9 +99,13 @@ export class InvoiceDestinationSelectorComponent implements OnInit, OnDestroy {
 
   /**
    * Creates the form configuration with the dropdown.
+   * If there is only one option, it will be pre-selected.
    */
   createForm(options: { label: string; value: string }[]): void {
     const storedValue = this.store.getSecondForm()?.chooseDestination;
+
+    // Pre-select the only option if there's exactly one
+    const initialData = storedValue || (options.length === 1 ? options[0] : undefined);
 
     this.formConfig = [
       {
@@ -107,7 +113,7 @@ export class InvoiceDestinationSelectorComponent implements OnInit, OnDestroy {
         label: this.translate.instant('invoices.destination_form.choose_destination'),
         type: 'select',
         cols: 12,
-        initialData: storedValue,
+        initialData: initialData,
         primeNgConfig: {
           options: options,
           placeholder: this.translate.instant('invoices.destination_form.select_destination'),

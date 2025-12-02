@@ -345,7 +345,7 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
       });
 
       // Generate and download the PDF
-      const filename = `Invoice-${invoice.invoice_number}.pdf`;
+      const filename = `${invoice.invoice_number}.pdf`;
       await this.createInvoicePdfService.downloadPDFInvoice(
         nameAddressOrPassport,
         secondForm,
@@ -409,10 +409,14 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Format date
+   * Format date as dd/MM/yyyy
    */
   formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('es-ES');
+    const d = new Date(date);
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
   }
 
   /**

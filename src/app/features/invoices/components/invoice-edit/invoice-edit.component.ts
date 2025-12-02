@@ -16,10 +16,11 @@
  * - ActivatedRoute for getting invoice ID from URL
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
@@ -36,6 +37,8 @@ import { RadioButton } from 'primeng/radiobutton';
 import { InvoicesDataService } from '../../../../data-access/invoices/invoices-data.service';
 import { LanguageService } from '../../../../shared/services/language/language.service';
 import { Invoice, UpdateInvoiceDto } from '../../interfaces/database-models';
+import { IdentificationType } from '../../interfaces/first-form';
+import { spanishIdValidator } from '../../../../shared/validators/spanish-id.validator';
 
 @Component({
   selector: 'app-invoice-edit',
@@ -56,13 +59,16 @@ import { Invoice, UpdateInvoiceDto } from '../../interfaces/database-models';
   templateUrl: './invoice-edit.component.html',
   styleUrls: ['./invoice-edit.component.scss'],
 })
-export class InvoiceEditComponent implements OnInit {
+export class InvoiceEditComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly invoicesService = inject(InvoicesDataService);
   private readonly languageService = inject(LanguageService);
   private readonly messageService = inject(MessageService);
+
+  /** Subscription for identification type changes */
+  private idTypeSubscription?: Subscription;
 
   invoiceForm!: FormGroup;
   invoice: Invoice | null = null;
@@ -75,6 +81,10 @@ export class InvoiceEditComponent implements OnInit {
     this.loadInvoice();
   }
 
+  ngOnDestroy(): void {
+    this.idTypeSubscription?.unsubscribe();
+  }
+
   /**
    * Initialize the form
    */
@@ -84,7 +94,7 @@ export class InvoiceEditComponent implements OnInit {
       invoice_date: ['', Validators.required],
       sender_name: ['', Validators.required],
       sender_identification_type: ['DNI', Validators.required],
-      sender_identification: ['', Validators.required],
+      sender_identification: ['', [Validators.required, spanishIdValidator('DNI')]],
       destination_name: ['', Validators.required],
       destination_account: ['', Validators.required],
       destination_address: ['', Validators.required],
@@ -93,6 +103,39 @@ export class InvoiceEditComponent implements OnInit {
       destination_nif: ['', Validators.required],
       paid: [false],
     });
+
+    // Subscribe to identification type changes to update validators
+    this.setupIdTypeChangeListener();
+  }
+
+  /**
+   * Sets up a listener for identification type changes to update validators dynamically.
+   */
+  private setupIdTypeChangeListener(): void {
+    const idTypeControl = this.invoiceForm.get('sender_identification_type');
+    const idControl = this.invoiceForm.get('sender_identification');
+
+    if (idTypeControl && idControl) {
+      this.idTypeSubscription = idTypeControl.valueChanges.subscribe(
+        (newType: IdentificationType) => {
+          if (newType) {
+            this.updateIdentificationValidators(newType);
+          }
+        }
+      );
+    }
+  }
+
+  /**
+   * Updates the validators for the identification field based on the new type.
+   */
+  private updateIdentificationValidators(type: IdentificationType): void {
+    const idControl = this.invoiceForm.get('sender_identification');
+    if (idControl) {
+      idControl.clearValidators();
+      idControl.setValidators([Validators.required, spanishIdValidator(type)]);
+      idControl.updateValueAndValidity();
+    }
   }
 
   /**
@@ -126,11 +169,16 @@ export class InvoiceEditComponent implements OnInit {
    * Populate form with invoice data
    */
   private populateForm(invoice: Invoice): void {
+    const idType = (invoice.sender_identification_type || 'DNI') as IdentificationType;
+
+    // Update validators before patching values
+    this.updateIdentificationValidators(idType);
+
     this.invoiceForm.patchValue({
       invoice_number: invoice.invoice_number,
       invoice_date: new Date(invoice.invoice_date),
       sender_name: invoice.sender_name,
-      sender_identification_type: invoice.sender_identification_type || 'DNI',
+      sender_identification_type: idType,
       sender_identification: invoice.sender_identification || invoice.sender_passport || '',
       destination_name: invoice.destination_name,
       destination_account: invoice.destination_account,
@@ -200,6 +248,36 @@ export class InvoiceEditComponent implements OnInit {
    */
   getText(key: string): string {
     return this.languageService.getText(key);
+  }
+
+  /**
+   * Get the error message for the identification field based on current type
+   */
+  getIdentificationErrorMessage(): string {
+    const idControl = this.invoiceForm.get('sender_identification');
+    if (!idControl?.errors) return '';
+
+    if (idControl.errors['required']) {
+      return this.getText('common.validation.required');
+    }
+
+    if (idControl.errors['spanishId']) {
+      const idType = this.invoiceForm.get('sender_identification_type')?.value as IdentificationType;
+      switch (idType) {
+        case 'DNI':
+          return this.getText('invoices.sender_form.validation.invalid_dni');
+        case 'NIE':
+          return this.getText('invoices.sender_form.validation.invalid_nie');
+        case 'CIF':
+          return this.getText('invoices.sender_form.validation.invalid_cif');
+        case 'Passport':
+          return this.getText('invoices.sender_form.validation.invalid_passport');
+        default:
+          return this.getText('common.validation.required');
+      }
+    }
+
+    return '';
   }
 
   /**

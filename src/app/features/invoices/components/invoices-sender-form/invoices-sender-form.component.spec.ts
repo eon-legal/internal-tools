@@ -114,7 +114,7 @@ describe('InvoicesSenderFormComponent', () => {
       date: new Date(),
       name: 'Test Name',
       identificationType: 'DNI',
-      identification: 'P1234567',
+      identification: '12345678Z', // Valid DNI with correct checksum letter
     };
 
     component.formSenderGenericComponent.getForm.patchValue(formData);

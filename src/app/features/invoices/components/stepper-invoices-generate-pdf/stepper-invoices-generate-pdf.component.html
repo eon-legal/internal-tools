@@ -1,10 +1,9 @@
-<!--(valueChange)="onStepChange($event)"-->
-<p-stepper [value]="data()" [linear]="true" class="basis-[50rem]">
-  <p-step-list>
-    <p-step [value]="1">{{ nameStepOne }}</p-step>
-    <p-step [value]="2">{{ nameStepTwo }}</p-step>
-  </p-step-list>
-  <app-stepper-context [index]="data()" [stepperButtons]="stepper">
-    <ng-template #dynamicComponent></ng-template>
-  </app-stepper-context>
-</p-stepper>
+<div class="invoice-create-page">
+  <!-- Combined Invoice Form -->
+  <app-invoice-combined-form></app-invoice-combined-form>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons mt-4">
+    <app-button-generic [buttons]="buttonGroupConfig"></app-button-generic>
+  </div>
+</div>

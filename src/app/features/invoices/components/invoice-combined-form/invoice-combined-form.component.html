@@ -1,4 +1,18 @@
 <div class="invoice-combined-form">
+  <!-- Destination Selector Section -->
+  <div class="destination-section mb-4">
+    <h3 class="text-xl font-semibold mb-3">{{ 'invoices.destination_form.choose_destination' | translate }}</h3>
+    <p class="mb-3 text-color-secondary">
+      {{ 'invoices.destination_selector.description' | translate }}
+    </p>
+    @if (destinationFormConfig.length > 0) {
+      <app-form-generic #destinationForm [formConfig]="destinationFormConfig"></app-form-generic>
+    }
+  </div>
+
+  <!-- Divider -->
+  <div class="divider my-4"></div>
+
   <!-- Sender Form Section -->
   <div class="sender-section mb-4">
     <h3 class="text-xl font-semibold mb-3">{{ 'invoices.combined_form.sender_info' | translate }}</h3>

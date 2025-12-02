@@ -130,10 +130,17 @@ describe('CreateInvoicePdfService', () => {
       const pdfMakeWrapper = require('pdfmake-wrapper');
       expect(pdfMakeWrapper.PdfMakeWrapper).toHaveBeenCalled();
 
-      // Verify the Txt content includes the identification type (DNI in this case)
-      expect(pdfMakeWrapper.Txt).toHaveBeenCalledWith(
-        expect.stringContaining('DNI:')
-      );
+      // Get the mock PDF instance
+      const mockPdfInstance = pdfMakeWrapper.PdfMakeWrapper.mock.results[0].value;
+
+      // Verify pdf.add was called with content containing the identification type
+      // The identification is now rendered as a text array with bold type label
+      const addCalls = mockPdfInstance.add.mock.calls;
+      const hasIdentificationType = addCalls.some((call: unknown[]) => {
+        const content = JSON.stringify(call);
+        return content.includes('DNI:') || content.includes('"DNI: "');
+      });
+      expect(hasIdentificationType).toBe(true);
     });
 
     it('should handle null date', async () => {

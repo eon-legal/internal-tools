@@ -94,7 +94,7 @@
                 "clear_filters": "Limpiar Filtros"
             },
             "filters": {
-                "search_placeholder": "Buscar por número de factura, remitente o destinatario...",
+                "search_placeholder": "Buscar por número de factura, destinatario o remitente...",
                 "start_date": "Fecha Inicio",
                 "end_date": "Fecha Fin",
                 "paid_status": "Estado de Pago",
@@ -106,8 +106,8 @@
             "table": {
                 "invoice_number": "Número de Factura",
                 "invoice_date": "Fecha de Factura",
-                "sender_name": "Remitente",
-                "destination_name": "Destinatario",
+                "sender_name": "Destinatario",
+                "destination_name": "Remitente",
                 "total_amount": "Monto Total",
                 "paid": "Pagada",
                 "created_at": "Creada",
@@ -145,7 +145,7 @@
         "stepper": {
             "steps": {
                 "invoice_data": "Datos de Factura",
-                "select_destination": "Seleccionar Destinatario"
+                "select_destination": "Seleccionar Remitente"
             },
             "buttons": {
                 "clear_all": "Limpiar Todo",
@@ -153,16 +153,16 @@
             }
         },
         "combined_form": {
-            "sender_info": "Información del Remitente",
+            "sender_info": "Información del Destinatario",
             "invoice_items": "Artículos de la Factura"
         },
         "destination_selector": {
-            "description": "Seleccione el destinatario de esta factura de sus clientes o destinatarios guardados."
+            "description": "Seleccione el remitente de esta factura de sus clientes o remitentes guardados."
         },
         "validation": {
             "step1_invalid": "Por favor complete todos los campos requeridos en los datos de la factura",
-            "step2_invalid": "Por favor seleccione un destinatario",
-            "destination_required": "Por favor seleccione un destinatario para la factura"
+            "step2_invalid": "Por favor seleccione un remitente",
+            "destination_required": "Por favor seleccione un remitente para la factura"
         },
         "messages": {
             "invoice_created": "Factura {{number}} creada exitosamente",
@@ -173,10 +173,10 @@
             "period": "Período",
             "date": "Fecha *",
             "date_range": "Rango Fecha *",
-            "sender_name": "Nombre Remitente *",
+            "sender_name": "Nombre Destinatario *",
             "national": "Nacional",
-            "sender_address": "Dirección Remitente *",
-            "sender_passport": "Pasaporte Remitente *",
+            "sender_address": "Dirección Destinatario *",
+            "sender_passport": "Pasaporte Destinatario *",
             "identification_type": "Tipo de Identificación",
             "sender_identification": "Identificación *",
             "passport": "Pasaporte",
@@ -185,6 +185,12 @@
                 "date_range_required": "Debes elegir un rango de fechas.",
                 "step1_invalid": "Deben ser válidos los formularios del paso 1.",
                 "step3_invalid": "Deben ser válidos los formularios del paso 3."
+            },
+            "validation": {
+                "invalid_dni": "DNI inválido. Formato: 8 dígitos + letra (ej: 12345678Z)",
+                "invalid_nie": "NIE inválido. Formato: X/Y/Z + 7 dígitos + letra (ej: X1234567L)",
+                "invalid_cif": "CIF inválido. Formato: letra + 7 dígitos + control (ej: B12345678)",
+                "invalid_passport": "Pasaporte inválido. Debe tener entre 5-20 caracteres"
             }
         },
         "table": {
@@ -219,17 +225,17 @@
             "modal_title": "Inserte Datos Factura"
         },
         "destination_form": {
-            "choose_destination": "Elegir Destinatario",
-            "select_destination": "Seleccionar Cliente o Destinatario",
-            "destination_name": "Nombre Destino *",
-            "destination_account": "Cuenta Destino *",
-            "destination_address": "Dirección Destino *",
+            "choose_destination": "Elegir Remitente",
+            "select_destination": "Seleccionar Cliente o Remitente",
+            "destination_name": "Nombre Remitente *",
+            "destination_account": "Cuenta Remitente *",
+            "destination_address": "Dirección Remitente *",
             "bank_name": "Nombre Banco *",
             "bank_address": "Dirección Banco *",
             "nif": "NIF *",
-            "error_loading": "Error al cargar destinatarios",
+            "error_loading": "Error al cargar remitentes",
             "validation": {
-                "client_required": "Por favor seleccione un cliente o destinatario"
+                "client_required": "Por favor seleccione un cliente o remitente"
             }
         },
         "pdf": {
@@ -240,7 +246,7 @@
     },
     "addressee": {
         "buttons": {
-            "add_addressee": "Adicionar Destinatario"
+            "add_addressee": "Adicionar Remitente"
         },
         "table": {
             "destination_name": "Nombre del Destino",

@@ -52,7 +52,7 @@ export class CreateInvoicePdfService {
     filename?: string
   ) {
     const pdf = await this.buildPDF(nameAddressOrPassport, endPage, rightInvoice, tableData);
-    const downloadName = filename || `Invoice-${rightInvoice.numberInvoice}.pdf`;
+    const downloadName = filename || `${rightInvoice.numberInvoice}.pdf`;
     pdf.create().download(downloadName);
   }
 
@@ -98,16 +98,23 @@ export class CreateInvoicePdfService {
             {
               stack: [
                 new Txt('ORDENANTE:').bold().fontSize(14).margin([0, 0, 0, 10]).end,
-                new Txt(
-                  `${nameAddressOrPassport[0]}\n${rightInvoice.identificationType || 'DNI'}: ${nameAddressOrPassport[1]}`
-                ).margin([0, 0, 0, 5]).end,
+                { text: nameAddressOrPassport[0], margin: [0, 0, 0, 2] },
+                {
+                  text: [
+                    { text: `${rightInvoice.identificationType || 'DNI'}: `, bold: true },
+                    { text: nameAddressOrPassport[1] },
+                  ],
+                  margin: [0, 0, 0, 5],
+                },
               ],
             },
             // Columna derecha (Cuadro negro)
             {
-              text: `FACTURA\nFactura # ${rightInvoice.numberInvoice}\n${
-                this.formatDateSpanish(rightInvoice.date)
-              }`,
+              stack: [
+                { text: 'FACTURA', bold: true, fontSize: 14 },
+                { text: `Factura # ${rightInvoice.numberInvoice}` },
+                { text: this.formatDateSpanish(rightInvoice.date) },
+              ],
               fillColor: '#000000',
               color: '#ffffff',
               fontSize: 12,
