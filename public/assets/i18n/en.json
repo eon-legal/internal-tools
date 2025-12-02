@@ -185,6 +185,12 @@
                 "date_range_required": "You must choose a date range.",
                 "step1_invalid": "Step 1 forms must be valid.",
                 "step3_invalid": "Step 3 forms must be valid."
+            },
+            "validation": {
+                "invalid_dni": "Invalid DNI. Format: 8 digits + letter (e.g., 12345678Z)",
+                "invalid_nie": "Invalid NIE. Format: X/Y/Z + 7 digits + letter (e.g., X1234567L)",
+                "invalid_cif": "Invalid CIF. Format: letter + 7 digits + control (e.g., B12345678)",
+                "invalid_passport": "Invalid Passport. Must be 5-20 characters"
             }
         },
         "table": {

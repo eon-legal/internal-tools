@@ -185,6 +185,12 @@
                 "date_range_required": "Debes elegir un rango de fechas.",
                 "step1_invalid": "Deben ser válidos los formularios del paso 1.",
                 "step3_invalid": "Deben ser válidos los formularios del paso 3."
+            },
+            "validation": {
+                "invalid_dni": "DNI inválido. Formato: 8 dígitos + letra (ej: 12345678Z)",
+                "invalid_nie": "NIE inválido. Formato: X/Y/Z + 7 dígitos + letra (ej: X1234567L)",
+                "invalid_cif": "CIF inválido. Formato: letra + 7 dígitos + control (ej: B12345678)",
+                "invalid_passport": "Pasaporte inválido. Debe tener entre 5-20 caracteres"
             }
         },
         "table": {
