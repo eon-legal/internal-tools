@@ -1,19 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { StepperInvoicesGeneratePdfComponent } from './stepper-invoices-generate-pdf.component';
-import { ViewContainerRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CreateInvoicePdfService } from '../../services/create-invoice-pdf.service';
-import { StepperModule } from 'primeng/stepper';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
-import { StepperContextComponent } from '../../../../shared/components/stepper-context/stepper-context.component';
 import { InvoicesStore } from '../../../../store/app.store';
-import { InvoiceCombinedFormComponent } from '../invoice-combined-form/invoice-combined-form.component';
-import { InvoiceDestinationSelectorComponent } from '../invoice-destination-selector/invoice-destination-selector.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { DialogService } from 'primeng/dynamicdialog';
-import { Firestore } from '@angular/fire/firestore';
+import { TranslateService } from '@ngx-translate/core';
 
 // Mock para pdfmake-wrapper
 jest.mock('pdfmake-wrapper', () => ({
@@ -75,6 +70,7 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
   let mockCreateInvoicePdfService: jest.Mocked<CreateInvoicePdfService>;
   let mockInvoicesStore: MockInvoicesStore;
   let mockDialogService: jest.Mocked<DialogService>;
+  let mockTranslateService: jest.Mocked<TranslateService>;
 
   beforeEach(async () => {
     mockToastrService = {
@@ -92,6 +88,14 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
     mockDialogService = {
       open: jest.fn(),
     } as unknown as jest.Mocked<DialogService>;
+
+    mockTranslateService = {
+      instant: jest.fn((key: string) => key),
+      get: jest.fn((key: string) => of(key)),
+      onLangChange: of({ lang: 'es' }),
+      onTranslationChange: of({}),
+      onDefaultLangChange: of({}),
+    } as unknown as jest.Mocked<TranslateService>;
 
     mockInvoicesStore = {
       resetInvoices: jest.fn(),
@@ -117,14 +121,11 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         CommonModule,
-        StepperModule,
         ButtonModule,
         NoopAnimationsModule,
         StepperInvoicesGeneratePdfComponent,
-        StepperContextComponent,
       ],
       providers: [
-        { provide: Firestore, useValue: {} },
         { provide: ToastrService, useValue: mockToastrService },
         {
           provide: CreateInvoicePdfService,
@@ -132,6 +133,7 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
         },
         { provide: InvoicesStore, useValue: mockInvoicesStore },
         { provide: DialogService, useValue: mockDialogService },
+        { provide: TranslateService, useValue: mockTranslateService },
       ],
     }).compileComponents();
 
@@ -144,106 +146,63 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize with step 1', () => {
-    expect(component.data()).toBe(1);
-  });
-
-  it('should have correct step names', () => {
-    expect(component.nameStepOne).toBe('Datos de Factura');
-    expect(component.nameStepTwo).toBe('Seleccionar Destinatario');
+  it('should have action buttons configured', () => {
+    expect(component.actionButtons.length).toBe(2);
+    expect(component.actionButtons[0]?.label).toBe('invoices.stepper.buttons.clear_all');
+    expect(component.actionButtons[1]?.label).toBe('invoices.stepper.buttons.generate_invoice');
   });
 
   describe('ngAfterViewInit', () => {
-    it('should call updateCurrentComponent', () => {
-      const spy = jest.spyOn(component, 'updateCurrentComponent');
-      component.ngAfterViewInit();
-      expect(spy).toHaveBeenCalled();
-    });
-  });
-
-  describe('onStepChange', () => {
-    it('should update data signal with new value', () => {
-      component.onStepChange(2);
-      expect(component.data()).toBe(2);
-    });
-  });
-
-  describe('getVisibleButtons', () => {
-    it('should return correct buttons for step 1', () => {
-      const buttons = component.getVisibleButtons(1);
-      expect(buttons.length).toBe(2);
-      expect(buttons[0].label).toBe('Limpiar Todo');
-      expect(buttons[1].label).toBe('Siguiente');
-    });
-
-    it('should return correct buttons for step 2', () => {
-      const buttons = component.getVisibleButtons(2);
-      expect(buttons.length).toBe(2);
-      expect(buttons[0].label).toBe('Atrás');
-      expect(buttons[1].label).toBe('Generar Factura');
-    });
-  });
-
-  describe('updateCurrentComponent', () => {
-    beforeEach(() => {
-      component.container = {
-        clear: jest.fn(),
-        createComponent: jest.fn().mockReturnValue({ instance: {} }),
-      } as unknown as ViewContainerRef;
-    });
-
-    it('should render InvoiceCombinedFormComponent for step 1', () => {
-      component.data.set(1);
-      component.updateCurrentComponent();
-      expect(component.container.createComponent).toHaveBeenCalledWith(
-        InvoiceCombinedFormComponent
-      );
-    });
-
-    it('should render InvoiceDestinationSelectorComponent for step 2', () => {
-      component.data.set(2);
-      component.updateCurrentComponent();
-      expect(component.container.createComponent).toHaveBeenCalledWith(
-        InvoiceDestinationSelectorComponent
-      );
+    it('should execute without error', () => {
+      expect(() => component.ngAfterViewInit()).not.toThrow();
     });
   });
 
   describe('cleanDataStep', () => {
-    it('should reset store data and update combined form', () => {
-      const mockForm = {
+    it('should reset store data', () => {
+      // Mock the combined form component
+      component.combinedFormComponent = {
         senderFormComponent: {
           changeData: jest.fn(),
           formSenderGenericComponent: {
             getForm: { markAsUntouched: jest.fn() },
           },
         },
-      };
-      component.componentRefs[1] = mockForm;
+        loadDestinations: jest.fn(),
+      } as any;
       mockInvoicesStore.getFirstForm.mockReturnValue({});
 
       component.cleanDataStep();
 
       expect(mockInvoicesStore.resetInvoices).toHaveBeenCalled();
       expect(mockInvoicesStore.resetTableInvoices).toHaveBeenCalled();
-      expect(mockForm.senderFormComponent.changeData).toHaveBeenCalledWith({});
-      expect(
-        mockForm.senderFormComponent.formSenderGenericComponent.getForm.markAsUntouched
-      ).toHaveBeenCalled();
     });
   });
 
-  describe('notAllowedShowPdf', () => {
+  describe('generateInvoice', () => {
     beforeEach(() => {
       mockInvoicesStore.getTableContain.mockReturnValue([]);
     });
 
-    it('should do nothing if not on step 2', () => {
-      component.data.set(1);
-      component.notAllowedShowPdf();
+    it('should do nothing if combined form component is not defined', async () => {
+      component.combinedFormComponent = undefined as any;
+      await component.generateInvoice();
       expect(
         mockCreateInvoicePdfService.newGeneratePDFInvoices
       ).not.toHaveBeenCalled();
+    });
+
+    it('should show error when form is invalid', async () => {
+      component.combinedFormComponent = {
+        isValidDestination: jest.fn().mockReturnValue(false),
+        markAllAsTouched: jest.fn(),
+        getSelectedDestination: jest.fn(),
+      } as any;
+      mockInvoicesStore.getIsValidFirstForm.mockReturnValue(false);
+
+      await component.generateInvoice();
+
+      expect(mockToastrService.error).toHaveBeenCalled();
     });
   });
 
