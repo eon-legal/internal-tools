@@ -224,7 +224,7 @@ export class CreateInvoicePdfService {
 
     const fromElements = [
       {
-        text: 'From:',
+        text: 'FROM:',
         style: 'fromHeader',
         margin: [0, 20, 0, 10],
       },
@@ -234,7 +234,7 @@ export class CreateInvoicePdfService {
         margin: [0, 0, 0, 5],
       },
       {
-        text: `Cuenta: ${endPage.accountDestination}`,
+        text: `Account (IBAN): ${endPage.accountDestination}`,
         style: 'fromItem',
         margin: [0, 0, 0, 5],
         wordWrap: true,
