@@ -94,7 +94,7 @@
                 "clear_filters": "Clear Filters"
             },
             "filters": {
-                "search_placeholder": "Search by invoice number, sender, or recipient...",
+                "search_placeholder": "Search by invoice number, recipient, or sender...",
                 "start_date": "Start Date",
                 "end_date": "End Date",
                 "paid_status": "Payment Status",
@@ -106,8 +106,8 @@
             "table": {
                 "invoice_number": "Invoice Number",
                 "invoice_date": "Invoice Date",
-                "sender_name": "Sender",
-                "destination_name": "Recipient",
+                "sender_name": "Recipient",
+                "destination_name": "Sender",
                 "total_amount": "Total Amount",
                 "paid": "Paid",
                 "created_at": "Created",
@@ -145,7 +145,7 @@
         "stepper": {
             "steps": {
                 "invoice_data": "Invoice Data",
-                "select_destination": "Select Recipient"
+                "select_destination": "Select Sender"
             },
             "buttons": {
                 "clear_all": "Clear All",
@@ -153,16 +153,16 @@
             }
         },
         "combined_form": {
-            "sender_info": "Sender Information",
+            "sender_info": "Recipient Information",
             "invoice_items": "Invoice Items"
         },
         "destination_selector": {
-            "description": "Select the recipient for this invoice from your saved clients or addressees."
+            "description": "Select the sender for this invoice from your saved clients or addressees."
         },
         "validation": {
             "step1_invalid": "Please complete all required fields in the invoice data",
-            "step2_invalid": "Please select a recipient",
-            "destination_required": "Please select a recipient for the invoice"
+            "step2_invalid": "Please select a sender",
+            "destination_required": "Please select a sender for the invoice"
         },
         "messages": {
             "invoice_created": "Invoice {{number}} created successfully",
@@ -173,10 +173,10 @@
             "period": "Period",
             "date": "Date *",
             "date_range": "Date Range *",
-            "sender_name": "Sender Name *",
+            "sender_name": "Recipient Name *",
             "national": "National",
-            "sender_address": "Sender Address *",
-            "sender_passport": "Sender Passport *",
+            "sender_address": "Recipient Address *",
+            "sender_passport": "Recipient Passport *",
             "identification_type": "Identification Type",
             "sender_identification": "Identification *",
             "passport": "Passport",
@@ -225,17 +225,17 @@
             "modal_title": "Insert Invoice Data"
         },
         "destination_form": {
-            "choose_destination": "Choose Destination",
-            "select_destination": "Select Client or Addressee",
-            "destination_name": "Destination Name *",
-            "destination_account": "Destination Account *",
-            "destination_address": "Destination Address *",
+            "choose_destination": "Choose Sender",
+            "select_destination": "Select Client or Sender",
+            "destination_name": "Sender Name *",
+            "destination_account": "Sender Account *",
+            "destination_address": "Sender Address *",
             "bank_name": "Bank Name *",
             "bank_address": "Bank Address *",
             "nif": "NIF *",
-            "error_loading": "Error loading destinations",
+            "error_loading": "Error loading senders",
             "validation": {
-                "client_required": "Please select a client or addressee"
+                "client_required": "Please select a client or sender"
             }
         },
         "pdf": {
@@ -246,7 +246,7 @@
     },
     "addressee": {
         "buttons": {
-            "add_addressee": "Add Addressee"
+            "add_addressee": "Add Sender"
         },
         "table": {
             "destination_name": "Destination Name",
