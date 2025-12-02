@@ -158,10 +158,6 @@
           {{ getText('invoices.history.table.sender_name') }}
           <p-sortIcon field="sender_name"></p-sortIcon>
         </th>
-        <th pSortableColumn="destination_name">
-          {{ getText('invoices.history.table.destination_name') }}
-          <p-sortIcon field="destination_name"></p-sortIcon>
-        </th>
         <th pSortableColumn="total_amount" class="text-right">
           {{ getText('invoices.history.table.total_amount') }}
           <p-sortIcon field="total_amount"></p-sortIcon>
@@ -191,7 +187,6 @@
         </td>
         <td>{{ formatDate(invoice.invoice_date) }}</td>
         <td>{{ invoice.sender_name }}</td>
-        <td>{{ invoice.destination_name }}</td>
         <td class="text-right">{{ formatCurrency(invoice.total_amount) }}</td>
         <td class="text-center">
           <span
