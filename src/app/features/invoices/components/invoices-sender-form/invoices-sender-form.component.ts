@@ -56,11 +56,29 @@ export class InvoicesSenderFormComponent implements AfterViewInit, OnDestroy {
       validators: this.usualValidate,
     },
     {
-      name: 'passport',
-      label: this.translate.instant('invoices.sender_form.sender_passport'),
+      name: 'identificationType',
+      label: this.translate.instant('invoices.sender_form.identification_type'),
+      type: 'radio',
+      cols: 12,
+      initialData: this.getFirstFormStore()?.identificationType || 'DNI',
+      primeNgConfig: {
+        radioOptions: {
+          options: [
+            { label: 'DNI', value: 'DNI' },
+            { label: 'NIE', value: 'NIE' },
+            { label: this.translate.instant('invoices.sender_form.passport'), value: 'Passport' },
+            { label: 'CIF', value: 'CIF' },
+          ],
+          layout: 'horizontal',
+        },
+      },
+    },
+    {
+      name: 'identification',
+      label: this.translate.instant('invoices.sender_form.sender_identification'),
       type: 'input',
       cols: 6,
-      initialData: this.getFirstFormStore()?.passport,
+      initialData: this.getFirstFormStore()?.identification,
       validators: this.usualValidate,
     },
   ];

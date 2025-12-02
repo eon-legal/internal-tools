@@ -117,6 +117,9 @@ export interface Invoice {
 
   // Sender information (from first form)
   sender_name?: string;
+  sender_identification_type?: string; // DNI, NIE, Passport, or CIF
+  sender_identification?: string;
+  /** @deprecated Use sender_identification instead */
   sender_passport?: string;
 
   // Destination information (from second form)
@@ -165,7 +168,8 @@ export interface CreateInvoiceDto {
   invoice_date: string; // ISO 8601 timestamp
   client_id?: string;
   sender_name?: string;
-  sender_passport?: string;
+  sender_identification_type?: string;
+  sender_identification?: string;
   destination_name?: string;
   destination_account?: string;
   destination_address?: string;
@@ -186,7 +190,8 @@ export interface UpdateInvoiceDto {
   invoice_date?: string;
   client_id?: string;
   sender_name?: string;
-  sender_passport?: string;
+  sender_identification_type?: string;
+  sender_identification?: string;
   destination_name?: string;
   destination_account?: string;
   destination_address?: string;

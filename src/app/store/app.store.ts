@@ -34,7 +34,8 @@ const initialState: InvoicesState = {
     numberInvoice: '',
     date: new Date(),
     name: '',
-    passport: '',
+    identificationType: 'DNI',
+    identification: '',
   },
   second: {
     chooseDestination: SELECT_DATA_INITIAL,

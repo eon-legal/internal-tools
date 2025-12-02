@@ -30,6 +30,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { RadioButton } from 'primeng/radiobutton';
 
 // Services
 import { InvoicesDataService } from '../../../../data-access/invoices/invoices-data.service';
@@ -49,6 +50,7 @@ import { Invoice, UpdateInvoiceDto } from '../../interfaces/database-models';
     CheckboxModule,
     ProgressSpinnerModule,
     ToastModule,
+    RadioButton,
   ],
   providers: [MessageService],
   templateUrl: './invoice-edit.component.html',
@@ -81,7 +83,8 @@ export class InvoiceEditComponent implements OnInit {
       invoice_number: [{ value: '', disabled: true }], // Read-only
       invoice_date: ['', Validators.required],
       sender_name: ['', Validators.required],
-      sender_passport: ['', Validators.required],
+      sender_identification_type: ['DNI', Validators.required],
+      sender_identification: ['', Validators.required],
       destination_name: ['', Validators.required],
       destination_account: ['', Validators.required],
       destination_address: ['', Validators.required],
@@ -127,7 +130,8 @@ export class InvoiceEditComponent implements OnInit {
       invoice_number: invoice.invoice_number,
       invoice_date: new Date(invoice.invoice_date),
       sender_name: invoice.sender_name,
-      sender_passport: invoice.sender_passport,
+      sender_identification_type: invoice.sender_identification_type || 'DNI',
+      sender_identification: invoice.sender_identification || invoice.sender_passport || '',
       destination_name: invoice.destination_name,
       destination_account: invoice.destination_account,
       destination_address: invoice.destination_address,
@@ -153,7 +157,8 @@ export class InvoiceEditComponent implements OnInit {
     const updateData: UpdateInvoiceDto = {
       invoice_date: formValue.invoice_date.toISOString(),
       sender_name: formValue.sender_name,
-      sender_passport: formValue.sender_passport,
+      sender_identification_type: formValue.sender_identification_type,
+      sender_identification: formValue.sender_identification,
       destination_name: formValue.destination_name,
       destination_account: formValue.destination_account,
       destination_address: formValue.destination_address,

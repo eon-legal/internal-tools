@@ -302,7 +302,8 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
         invoice_date: this.getInvoiceDate(first),
         client_id: clientId, // Save client reference if selected
         sender_name: first.name,
-        sender_passport: first.passport,
+        sender_identification_type: first.identificationType,
+        sender_identification: first.identification,
         destination_name: destinationData.nameDestination,
         destination_account: destinationData.accountDestination,
         destination_address: destinationData.addressDestination,
@@ -328,7 +329,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
 
       // Generate the PDF
       this.createInvoicePdfService.newGeneratePDFInvoices(
-        [first.name, first.passport],
+        [first.name, first.identification],
         destinationData,
         first,
         table

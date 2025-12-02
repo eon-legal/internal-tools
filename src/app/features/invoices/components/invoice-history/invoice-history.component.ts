@@ -39,6 +39,9 @@ import { InvoicesListStore } from '../../state/invoices-list.store';
 import { LanguageService } from '../../../../shared/services/language/language.service';
 import { Invoice } from '../../interfaces/database-models';
 import { CreateInvoicePdfService } from '../../services/create-invoice-pdf.service';
+import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
+import { DataInvoicesConstant } from '../../constants/data-invoices';
+import { IdentificationType } from '../../interfaces/first-form';
 
 @Component({
   selector: 'app-invoice-history',
@@ -290,9 +293,11 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
       this.store.updateDownloadTimestamp(invoice.id);
 
       // Convert Invoice to the format expected by PDF service
+      // Use new identification field, fallback to legacy sender_passport for backwards compatibility
+      const identification = invoice.sender_identification || invoice.sender_passport || '';
       const nameAddressOrPassport: [string, string] = [
         invoice.sender_name || '',
-        invoice.sender_passport || ''
+        identification
       ];
 
       const secondForm = {
@@ -308,11 +313,12 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
         numberInvoice: invoice.invoice_number,
         date: new Date(invoice.invoice_date),
         name: invoice.sender_name || '',
-        passport: invoice.sender_passport || '',
+        identificationType: (invoice.sender_identification_type as IdentificationType) || 'DNI',
+        identification: identification,
       };
 
       // Convert invoice items to table data format
-      const tableData = invoice.invoice_items.map(item => ({
+      const tableData: DataInvoicesTable[] = invoice.invoice_items.map(item => ({
         id: item.id,
         description: item.description,
         qtt: item.qtt,
@@ -321,6 +327,22 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
         sTotal: item.sTotal,
         perCentIva: item.perCentIva,
       }));
+
+      // Add IVA and Total rows for PDF generation
+      tableData.push({
+        id: '',
+        description: '',
+        sTotal: '',
+        perCentIva: DataInvoicesConstant.IVA,
+        total: invoice.iva_amount,
+      });
+      tableData.push({
+        id: '',
+        description: '',
+        sTotal: '',
+        perCentIva: DataInvoicesConstant.TOTAL,
+        total: invoice.total_amount,
+      });
 
       // Generate and download the PDF
       const filename = `Invoice-${invoice.invoice_number}.pdf`;

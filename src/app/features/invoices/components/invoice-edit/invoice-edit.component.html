@@ -65,14 +65,38 @@
           />
         </div>
 
+        <div class="col-12 field">
+          <label class="block font-semibold mb-2">
+            {{ getText('invoices.sender_form.identification_type') }}
+          </label>
+          <div class="flex flex-wrap gap-4">
+            <div class="flex align-items-center">
+              <p-radiobutton inputId="id_type_dni" name="sender_identification_type" value="DNI" formControlName="sender_identification_type" />
+              <label for="id_type_dni" class="ml-2 cursor-pointer">DNI</label>
+            </div>
+            <div class="flex align-items-center">
+              <p-radiobutton inputId="id_type_nie" name="sender_identification_type" value="NIE" formControlName="sender_identification_type" />
+              <label for="id_type_nie" class="ml-2 cursor-pointer">NIE</label>
+            </div>
+            <div class="flex align-items-center">
+              <p-radiobutton inputId="id_type_passport" name="sender_identification_type" value="Passport" formControlName="sender_identification_type" />
+              <label for="id_type_passport" class="ml-2 cursor-pointer">{{ getText('invoices.sender_form.passport') }}</label>
+            </div>
+            <div class="flex align-items-center">
+              <p-radiobutton inputId="id_type_cif" name="sender_identification_type" value="CIF" formControlName="sender_identification_type" />
+              <label for="id_type_cif" class="ml-2 cursor-pointer">CIF</label>
+            </div>
+          </div>
+        </div>
+
         <div class="col-12 md:col-6 field">
-          <label for="sender_passport" class="block font-semibold mb-2">
-            {{ getText('invoices.sender_form.sender_passport') }}
+          <label for="sender_identification" class="block font-semibold mb-2">
+            {{ getText('invoices.sender_form.sender_identification') }}
           </label>
           <input
             pInputText
-            id="sender_passport"
-            formControlName="sender_passport"
+            id="sender_identification"
+            formControlName="sender_identification"
             class="w-full"
           />
         </div>

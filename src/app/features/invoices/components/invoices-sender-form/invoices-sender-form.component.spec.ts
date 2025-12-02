@@ -15,7 +15,8 @@ interface MockFirstForm {
   numberInvoice: string;
   date: Date | null;
   name: string;
-  passport: string;
+  identificationType: string;
+  identification: string;
 }
 
 class MockInvoicesStore {
@@ -25,7 +26,8 @@ class MockInvoicesStore {
       numberInvoice: '',
       date: new Date(),
       name: '',
-      passport: '',
+      identificationType: 'DNI',
+      identification: '',
     })
   );
   firstForm = jest.fn(() => ({}));
@@ -78,7 +80,8 @@ describe('InvoicesSenderFormComponent', () => {
       numberInvoice: 'INV-001',
       date: new Date(),
       name: 'Test Name',
-      passport: 'P1234567',
+      identificationType: 'DNI',
+      identification: 'P1234567',
     };
 
     mockStore.getFirstForm.mockReturnValue(storeData);
@@ -88,7 +91,9 @@ describe('InvoicesSenderFormComponent', () => {
     fixture.detectChanges();
 
     expect(component.formConfig[1]?.initialData).toBe(storeData.name);
-    expect(component.formConfig[2]?.initialData).toBe(storeData.passport);
+    // formConfig[2] is identificationType, formConfig[3] is identification
+    expect(component.formConfig[2]?.initialData).toBe(storeData.identificationType);
+    expect(component.formConfig[3]?.initialData).toBe(storeData.identification);
   });
 
   it('should mark all fields as touched when required', () => {
@@ -108,7 +113,8 @@ describe('InvoicesSenderFormComponent', () => {
       numberInvoice: 'INV-001',
       date: new Date(),
       name: 'Test Name',
-      passport: 'P1234567',
+      identificationType: 'DNI',
+      identification: 'P1234567',
     };
 
     component.formSenderGenericComponent.getForm.patchValue(formData);
@@ -123,7 +129,8 @@ describe('InvoicesSenderFormComponent', () => {
       numberInvoice: '',
       date: null,
       name: '',
-      passport: '',
+      identificationType: 'DNI',
+      identification: '',
     });
 
     component.ngOnDestroy();
