@@ -134,6 +134,18 @@ export class InvoicesDataService {
   }
 
   /**
+   * Capitalizes a name (first letter of every word in uppercase)
+   */
+  private capitalizeName(name: string | undefined): string | undefined {
+    if (!name) return name;
+    return name
+      .toLowerCase()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  /**
    * Create a new invoice with auto-generated invoice number
    */
   createInvoice(invoiceData: CreateInvoiceDto): Observable<Invoice> {
@@ -144,6 +156,7 @@ export class InvoicesDataService {
         const newInvoice = {
           ...invoiceData,
           invoice_number: invoiceNumber,
+          sender_name: this.capitalizeName(invoiceData.sender_name),
           paid: false,
         };
 
@@ -167,8 +180,15 @@ export class InvoicesDataService {
    * Note: invoice_number cannot be changed after creation
    */
   updateInvoice(id: string, updates: UpdateInvoiceDto): Observable<Invoice> {
+    const normalizedUpdates = {
+      ...updates,
+      sender_name: updates.sender_name
+        ? this.capitalizeName(updates.sender_name)
+        : updates.sender_name,
+    };
+
     return from(
-      this.supabase.from('invoices').update(updates).eq('id', id).select().single()
+      this.supabase.from('invoices').update(normalizedUpdates).eq('id', id).select().single()
     ).pipe(
       map((response) => {
         if (response.error) throw response.error;
