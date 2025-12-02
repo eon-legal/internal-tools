@@ -130,13 +130,12 @@ export class CreateInvoicePdfService {
     pdf.add({
       table: {
         headerRows: 1,
-        widths: ['auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto'],
+        widths: ['auto', '*', 'auto', 'auto', 'auto', 'auto'],
         body: [
           [
             { text: 'ID', style: 'tableHeader' },
             { text: 'DESCRIPCIÓN', style: 'tableHeader' },
-            { text: 'QTT', style: 'tableHeader' },
-            { text: 'PRICE', style: 'tableHeader' },
+            { text: 'CANT', style: 'tableHeader' },
             { text: 'S.TOTAL', style: 'tableHeader' },
             { text: '% IVA', style: 'tableHeader' },
             { text: 'TOTAL', style: 'tableHeader' },
@@ -152,7 +151,7 @@ export class CreateInvoicePdfService {
               border:
                 index >= tableData.length - 2
                   ? [false, false, false, false]
-                  : undefined, // Borde izquierdo en las últimas filas primero true
+                  : undefined,
             },
             {
               text: item.description,
@@ -161,23 +160,15 @@ export class CreateInvoicePdfService {
               border:
                 index >= tableData.length - 2
                   ? [false, false, false, false]
-                  : undefined, // Sin bordes en las últimas filas
+                  : undefined,
             },
             {
-              text: item?.qtt || '',
+              text: item?.qtt || '1',
               style: 'tableCell',
               border:
                 index >= tableData.length - 2
                   ? [false, false, false, false]
-                  : undefined, // Sin bordes en las últimas filas
-            },
-            {
-              text: item?.price || '',
-              style: 'tableCell',
-              border:
-                index >= tableData.length - 2
-                  ? [false, false, false, false]
-                  : undefined, // Sin bordes en las últimas filas
+                  : undefined,
             },
             {
               text: ` ${
@@ -195,7 +186,7 @@ export class CreateInvoicePdfService {
               border:
                 index >= tableData.length - 2
                   ? [false, false, false, false]
-                  : undefined, // Sin bordes en las últimas filas
+                  : undefined,
             },
             {
               text: `${item.perCentIva} ${
@@ -208,7 +199,7 @@ export class CreateInvoicePdfService {
               border:
                 index >= tableData.length - 2
                   ? [true, true, true, true]
-                  : undefined, // Sin bordes en las últimas filas
+                  : undefined,
             },
             {
               text: `${item.total} ${UM.EU}`,
@@ -217,7 +208,7 @@ export class CreateInvoicePdfService {
               border:
                 index >= tableData.length - 2
                   ? [true, true, true, true]
-                  : undefined, // Bordes derecho e inferior en las últimas filas
+                  : undefined,
             },
           ]),
         ],
