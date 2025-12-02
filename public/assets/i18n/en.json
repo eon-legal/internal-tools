@@ -177,21 +177,15 @@
             "national": "National",
             "sender_address": "Sender Address *",
             "sender_passport": "Sender Passport *",
+            "identification_type": "Identification Type",
+            "sender_identification": "Identification *",
+            "passport": "Passport",
             "messages": {
                 "date_range_error": "The first date must be less than the second.",
                 "date_range_required": "You must choose a date range.",
                 "step1_invalid": "Step 1 forms must be valid.",
                 "step3_invalid": "Step 3 forms must be valid."
             }
-        },
-        "destination_form": {
-            "select_destination": "Select Destination",
-            "destination_name": "Destination Name *",
-            "destination_account": "Destination Account *",
-            "destination_address": "Destination Address *",
-            "bank_name": "Bank Name *",
-            "bank_address": "Bank Address *",
-            "nif": "NIF *"
         },
         "table": {
             "buttons": {
@@ -208,6 +202,7 @@
             },
             "form": {
                 "description": "Description *",
+                "description_placeholder": "Type to search descriptions...",
                 "iva_percent": "% VAT *",
                 "iva_options": {
                     "0": "0%",
@@ -224,6 +219,7 @@
             "modal_title": "Insert Invoice Data"
         },
         "destination_form": {
+            "choose_destination": "Choose Destination",
             "select_destination": "Select Client or Addressee",
             "destination_name": "Destination Name *",
             "destination_account": "Destination Account *",
@@ -231,6 +227,7 @@
             "bank_name": "Bank Name *",
             "bank_address": "Bank Address *",
             "nif": "NIF *",
+            "error_loading": "Error loading destinations",
             "validation": {
                 "client_required": "Please select a client or addressee"
             }

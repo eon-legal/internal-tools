@@ -169,29 +169,23 @@
             "save_error": "Error al guardar la factura. Por favor, inténtelo de nuevo."
         },
         "sender_form": {
-            "invoice_number": "N\u00famero Factura *",
-            "period": "Per\u00edodo",
+            "invoice_number": "Número Factura *",
+            "period": "Período",
             "date": "Fecha *",
             "date_range": "Rango Fecha *",
             "sender_name": "Nombre Remitente *",
             "national": "Nacional",
-            "sender_address": "Direcci\u00f3n Remitente *",
+            "sender_address": "Dirección Remitente *",
             "sender_passport": "Pasaporte Remitente *",
+            "identification_type": "Tipo de Identificación",
+            "sender_identification": "Identificación *",
+            "passport": "Pasaporte",
             "messages": {
                 "date_range_error": "La primera fecha debe ser menor que la segunda.",
                 "date_range_required": "Debes elegir un rango de fechas.",
-                "step1_invalid": "Deben ser v\u00e1lidos los formularios del paso 1.",
-                "step3_invalid": "Deben ser v\u00e1lidos los formularios del paso 3."
+                "step1_invalid": "Deben ser válidos los formularios del paso 1.",
+                "step3_invalid": "Deben ser válidos los formularios del paso 3."
             }
-        },
-        "destination_form": {
-            "select_destination": "Seleccione Destino",
-            "destination_name": "Nombre Destino *",
-            "destination_account": "Cuenta Destino *",
-            "destination_address": "Direcci\u00f3n Destino *",
-            "bank_name": "Nombre Banco *",
-            "bank_address": "Direcci\u00f3n Banco *",
-            "nif": "NIF *"
         },
         "table": {
             "buttons": {
@@ -207,7 +201,8 @@
                 "iva": "% IVA"
             },
             "form": {
-                "description": "Descripci\u00f3n *",
+                "description": "Descripción *",
+                "description_placeholder": "Escriba para buscar descripciones...",
                 "iva_percent": "% IVA *",
                 "iva_options": {
                     "0": "0%",
@@ -224,6 +219,7 @@
             "modal_title": "Inserte Datos Factura"
         },
         "destination_form": {
+            "choose_destination": "Elegir Destinatario",
             "select_destination": "Seleccionar Cliente o Destinatario",
             "destination_name": "Nombre Destino *",
             "destination_account": "Cuenta Destino *",
@@ -231,6 +227,7 @@
             "bank_name": "Nombre Banco *",
             "bank_address": "Dirección Banco *",
             "nif": "NIF *",
+            "error_loading": "Error al cargar destinatarios",
             "validation": {
                 "client_required": "Por favor seleccione un cliente o destinatario"
             }
