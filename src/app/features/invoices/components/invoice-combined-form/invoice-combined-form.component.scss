@@ -1,6 +1,13 @@
 .invoice-combined-form {
   padding: 1rem;
 
+  .destination-section {
+    background-color: var(--surface-card);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--surface-border);
+  }
+
   .sender-section {
     background-color: var(--surface-card);
     padding: 1.5rem;
