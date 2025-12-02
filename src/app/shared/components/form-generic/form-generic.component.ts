@@ -5,6 +5,7 @@ import {
   Input,
   OnInit,
 } from '@angular/core';
+import { NgClass } from '@angular/common';
 import {
   AbstractControl,
   FormBuilder,
@@ -14,7 +15,7 @@ import {
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputText, InputTextModule } from 'primeng/inputtext';
 import { InputNumberInputEvent, InputNumberModule } from 'primeng/inputnumber';
-import { FormField } from './interfaces/form-field';
+import { FormField, AutocompleteSuggestion } from './interfaces/form-field';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { MessagesModule } from 'primeng/messages';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -30,6 +31,8 @@ import {
   NumberValidator,
   TextValidator,
 } from './interfaces/validators-text-number';
+import { AutoCompleteModule, AutoCompleteSelectEvent, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
+import { RadioButton } from 'primeng/radiobutton';
 
 /**
  * Generic dynamic form component that renders fields based on configuration
@@ -41,6 +44,7 @@ import {
   selector: 'app-form-generic',
   standalone: true,
   imports: [
+    NgClass,
     ReactiveFormsModule,
     DatePickerModule,
     InputTextModule,
@@ -50,6 +54,8 @@ import {
     MessagesModule,
     InputNumberModule,
     FileUploadComponent,
+    AutoCompleteModule,
+    RadioButton,
   ],
   templateUrl: './form-generic.component.html',
   styleUrl: './form-generic.component.scss',
@@ -270,6 +276,28 @@ export class FormGenericComponent<T> implements OnInit {
       setTimeout(() => {
         this.form.get(field)?.setValue(value, { emitEvent: false });
       });
+    }
+  }
+
+  /**
+   * Handles autocomplete complete event (search)
+   * @param event - AutoComplete complete event
+   * @param field - Field configuration
+   */
+  onAutocompleteComplete(event: AutoCompleteCompleteEvent, field: FormField<T>): void {
+    if (field.primeNgConfig?.autocompleteOptions?.completeMethod) {
+      field.primeNgConfig.autocompleteOptions.completeMethod(event);
+    }
+  }
+
+  /**
+   * Handles autocomplete selection
+   * @param event - AutoComplete select event
+   * @param field - Field configuration
+   */
+  onAutocompleteSelect(event: AutoCompleteSelectEvent, field: FormField<T>): void {
+    if (field.primeNgConfig?.autocompleteOptions?.onSelect) {
+      field.primeNgConfig.autocompleteOptions.onSelect(event);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import {
   AbstractControl,
   AsyncValidatorFn,
@@ -9,13 +9,15 @@ import {
 import { map, Observable } from 'rxjs';
 import { FormGenericComponent } from '../../../../../shared/components/form-generic/form-generic.component';
 import { DataInvoicesTable } from '../../../interfaces/data-invoices-table';
-import { FormField } from '../../../../../shared/components/form-generic/interfaces/form-field';
+import { FormField, AutocompleteSuggestion } from '../../../../../shared/components/form-generic/interfaces/form-field';
 import { TranslateService } from '@ngx-translate/core';
-import { inject } from '@angular/core';
+import { InvoicePresetsDataService } from '../../../../../data-access/invoice-presets/invoice-presets-data.service';
+import { InvoiceDataPreset } from '../../../interfaces/database-models';
 
 /**
  * Component for managing invoice data in a form.
  * This component is used within a dialog to add or edit invoice data.
+ * Supports description autocomplete from pre-saved presets.
  */
 @Component({
   selector: 'app-form-invoices-data',
@@ -24,8 +26,15 @@ import { inject } from '@angular/core';
   templateUrl: './form-invoices-data.component.html',
   styleUrl: './form-invoices-data.component.scss',
 })
-export class FormInvoicesDataComponent {
+export class FormInvoicesDataComponent implements OnInit {
   private readonly translate = inject(TranslateService);
+  private readonly invoicePresetsService = inject(InvoicePresetsDataService);
+
+  /** Autocomplete suggestions for description field */
+  descriptionSuggestions: AutocompleteSuggestion[] = [];
+
+  /** All presets loaded from database */
+  private allPresets: InvoiceDataPreset[] = [];
 
   /** Reference to the FormGenericComponent for managing the form */
   @ViewChild('formTable') formTable!: FormGenericComponent<{
@@ -41,11 +50,23 @@ export class FormInvoicesDataComponent {
     {
       name: 'description',
       label: this.translate.instant('invoices.table.form.description'),
-      type: 'input',
+      type: 'autocomplete',
       cols: 12,
       validators: [
         { validator: Validators.required, message: this.translate.instant('common.validation.required') },
       ],
+      primeNgConfig: {
+        placeholder: this.translate.instant('invoices.table.form.description_placeholder') || '',
+        autocompleteOptions: {
+          suggestions: [],
+          field: 'label',
+          minLength: 1,
+          dropdown: true,
+          forceSelection: false,
+          completeMethod: (event) => this.searchDescriptions(event),
+          onSelect: (event) => this.onDescriptionSelect(event),
+        },
+      },
     },
     {
       name: 'perCentIva',
@@ -101,6 +122,60 @@ export class FormInvoicesDataComponent {
       ],
     },
   ];
+
+  /**
+   * Initializes the component and loads presets from database
+   */
+  ngOnInit(): void {
+    this.loadPresets();
+  }
+
+  /**
+   * Loads all presets from the database
+   */
+  private loadPresets(): void {
+    this.invoicePresetsService.getPresets().subscribe({
+      next: (presets) => {
+        this.allPresets = presets;
+      },
+      error: (err) => {
+        console.error('Error loading invoice presets:', err);
+      },
+    });
+  }
+
+  /**
+   * Searches descriptions based on user input
+   * @param event - Autocomplete complete event with query
+   */
+  private searchDescriptions(event: { query: string }): void {
+    const query = event.query.toLowerCase();
+    const filtered = this.allPresets
+      .filter((preset) => preset.description.toLowerCase().includes(query))
+      .map((preset) => ({
+        label: preset.description,
+        value: preset.description,
+        preset: preset,
+      }));
+
+    // Update suggestions in the form config
+    const descriptionField = this.formConfig.find((f) => f.name === 'description');
+    if (descriptionField?.primeNgConfig?.autocompleteOptions) {
+      descriptionField.primeNgConfig.autocompleteOptions.suggestions = filtered;
+    }
+  }
+
+  /**
+   * Handles selection of a description from autocomplete
+   * @param event - Selection event with selected value
+   */
+  private onDescriptionSelect(event: { value: AutocompleteSuggestion }): void {
+    const selectedPreset = (event.value as any).preset as InvoiceDataPreset | undefined;
+    if (selectedPreset) {
+      // Increment usage count for the selected preset
+      this.invoicePresetsService.incrementUsageCount(selectedPreset.id).subscribe();
+    }
+  }
 
   /**
    * Creates a custom synchronous validator.

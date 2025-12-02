@@ -38,6 +38,13 @@ type DropdownOption = {
   disabled?: boolean;
 };
 
+// Autocomplete suggestion item type
+export interface AutocompleteSuggestion {
+  label: string;
+  value: string;
+  [key: string]: unknown;
+}
+
 // Para configuraciones específicas de PrimeNG
 type PrimeNgConfig = {
   rows?: number;
@@ -60,6 +67,19 @@ type PrimeNgConfig = {
     uploadHandler?: (files?: File[], fieldName?: string) => void; // Función de subida
     onSelectHandler?: (files: File[], fieldName: string) => void; // Nuevo manejador de selecció
   };
+  autocompleteOptions?: {
+    suggestions: AutocompleteSuggestion[];
+    field?: string; // Field to display in suggestions (default: 'label')
+    minLength?: number; // Minimum characters before searching (default: 1)
+    completeMethod?: (event: { query: string }) => void; // Method to call for searching
+    onSelect?: (event: { value: AutocompleteSuggestion }) => void; // Handler when suggestion is selected
+    forceSelection?: boolean; // Force user to select from suggestions
+    dropdown?: boolean; // Show dropdown button
+  };
+  radioOptions?: {
+    options: DropdownOption[]; // Radio button options
+    layout?: 'horizontal' | 'vertical'; // Layout direction (default: 'horizontal')
+  };
 };
 
 export type FieldType =
@@ -73,4 +93,6 @@ export type FieldType =
   | 'number_currency'
   | 'number_percent'
   | 'decimal'
-  | 'file';
+  | 'file'
+  | 'autocomplete'
+  | 'radio';
