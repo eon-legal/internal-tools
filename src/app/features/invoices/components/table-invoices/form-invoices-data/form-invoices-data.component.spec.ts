@@ -12,12 +12,16 @@ import {
   ValidationErrors,
 } from '@angular/forms';
 import { Observable, of } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { InvoicePresetsDataService } from '../../../../../data-access/invoice-presets/invoice-presets-data.service';
 
 describe('FormInvoicesDataComponent', () => {
   let component: FormInvoicesDataComponent;
   let fixture: ComponentFixture<FormInvoicesDataComponent>;
   let mockDialogRef: jest.Mocked<DynamicDialogRef>;
   let mockDialogConfig: Partial<DynamicDialogConfig>;
+  let mockTranslateService: Partial<TranslateService>;
+  let mockInvoicePresetsService: Partial<InvoicePresetsDataService>;
 
   beforeEach(async () => {
     mockDialogRef = {
@@ -28,11 +32,23 @@ describe('FormInvoicesDataComponent', () => {
       data: {},
     };
 
+    mockTranslateService = {
+      instant: jest.fn((key: string) => key),
+    };
+
+    mockInvoicePresetsService = {
+      getPresets: jest.fn(() => of([])),
+      searchPresets: jest.fn(() => of([])),
+      incrementUsageCount: jest.fn(() => of({} as any)),
+    };
+
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, FormInvoicesDataComponent],
       providers: [
         { provide: DynamicDialogRef, useValue: mockDialogRef },
         { provide: DynamicDialogConfig, useValue: mockDialogConfig },
+        { provide: TranslateService, useValue: mockTranslateService },
+        { provide: InvoicePresetsDataService, useValue: mockInvoicePresetsService },
       ],
     }).compileComponents();
 
@@ -72,7 +88,7 @@ describe('FormInvoicesDataComponent', () => {
     it('should have required validator for description field', () => {
       const field = component.formConfig.find((f) => f.name === 'description');
       const requiredValidator = field?.validators?.find(
-        (v) => v.message === 'Campo requerido.'
+        (v) => v.message === 'common.validation.required'
       );
       expect(requiredValidator).toBeDefined();
     });
@@ -80,7 +96,7 @@ describe('FormInvoicesDataComponent', () => {
     it('should have min validator for total field', () => {
       const field = component.formConfig.find((f) => f.name === 'total');
       const minValidator = field?.validators?.find(
-        (v) => v.message === 'Deben ser valores mayores que cero'
+        (v) => v.message === 'invoices.table.form.messages.greater_than_zero'
       );
       expect(minValidator).toBeDefined();
     });

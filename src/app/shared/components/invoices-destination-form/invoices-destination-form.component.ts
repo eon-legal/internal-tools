@@ -15,17 +15,22 @@ import {
   SecondForm,
 } from '../../../features/invoices/interfaces/second-form';
 import { FormField } from '../form-generic/interfaces/form-field';
-import { GenericFirestoreService } from '../../services/generic-firestore/generic-firestore.service';
-import { ADDRESSEE_TABLE } from '../../../features/crud-addressee/constants/collection-table';
-import { catchError, of, Subscription, tap } from 'rxjs';
+import { AddresseesDataService } from '../../../data-access/addressees/addressees-data.service';
+import { ClientsDataService } from '../../../data-access/clients/clients-data.service';
+import { catchError, of, Subscription, tap, map, forkJoin } from 'rxjs';
 import { SELECT_DATA_INITIAL } from '../form-generic/constants/select-data-initial';
 import { ToastrService } from 'ngx-toastr';
 import { MESSAGE_ERROR } from '../../constants/message-error';
 import { LoadingService } from '../../services/loading/loading.service';
+import { TranslateService } from '@ngx-translate/core';
+import { getClientDisplayName } from '../../../features/invoices/interfaces/database-models';
 
 /**
  * Component for managing the destination form in the invoice generation process.
  * This form collects details about the destination, such as name, address, and bank information.
+ *
+ * Dependencies: AddresseesDataService, ClientsDataService (Supabase), InvoicesStore, LoadingService, ToastrService
+ * Side Effects: Loads addressees and clients from Supabase, updates form state
  */
 @Component({
   selector: 'app-invoices-destination-form',
@@ -37,6 +42,14 @@ import { LoadingService } from '../../services/loading/loading.service';
 export class InvoicesDestinationFormComponent
   implements OnDestroy, AfterViewInit, OnInit
 {
+  /** Injected services */
+  private readonly translate = inject(TranslateService);
+  readonly store = inject(InvoicesStore);
+  private readonly addresseesDataService = inject(AddresseesDataService);
+  private readonly clientsDataService = inject(ClientsDataService);
+  private readonly toastr = inject(ToastrService);
+  private readonly loadingService = inject(LoadingService);
+
   /** subscription for clean component observable */
   subscription: Subscription[] = [];
   /** save data when consume service table adressee */
@@ -44,8 +57,8 @@ export class InvoicesDestinationFormComponent
   /** isModal know component mananage like modal */
   @Input() isModal: boolean = false;
   @Input() initialField!: SecondForm;
-  /** Injected store for managing invoice data */
-  readonly store = inject(InvoicesStore);
+  /** Store selected client ID for invoice creation */
+  selectedClientId?: string;
 
   /** Reference to the FormGenericComponent for managing the form */
   @ViewChild(FormGenericComponent)
@@ -53,16 +66,6 @@ export class InvoicesDestinationFormComponent
 
   /** Configuration for the form fields */
   formConfig!: FormField<SecondForm>[];
-
-  /** service for read data table addressee */
-  genericFirestoreService: GenericFirestoreService<SecondForm> = inject(
-    GenericFirestoreService
-  );
-
-  /** Toastr service for notifications */
-  toastr: ToastrService = inject(ToastrService);
-
-  loadingService: LoadingService = inject(LoadingService);
 
   ngOnInit(): void {
     if (this.isModal) this.createForm();
@@ -73,34 +76,49 @@ export class InvoicesDestinationFormComponent
     this.loadingService.show();
     this.createForm();
     this.subscription.push(
-      this.genericFirestoreService
-        .getAll(ADDRESSEE_TABLE)
+      forkJoin({
+        addressees: this.addresseesDataService.getAddressees(),
+        clients: this.clientsDataService.getClients(),
+      })
         .pipe(
-          tap((v) => {
-            const result = v as DestinationBDReal[];
-            const arrayTrasnsformDropDown = result.map((e) => ({
-              label: e.nameDestination,
-              value: e.id,
+          map(({ addressees, clients }) => {
+            // Transform Supabase addressees to dropdown options
+            const addresseeOptions = addressees.map((addressee) => ({
+              label: `📧 ${addressee.name_destination}`,
+              value: `addressee_${addressee.id}`,
             }));
+
+            // Transform clients to dropdown options
+            const clientOptions = clients.map((client) => ({
+              label: `👤 ${getClientDisplayName(client)}`,
+              value: `client_${client.id}`,
+            }));
+
+            // Combine both lists
+            const allOptions = [...clientOptions, ...addresseeOptions];
+
             if (
               this.formConfig.length &&
-              Array.isArray(arrayTrasnsformDropDown)
+              Array.isArray(allOptions)
             ) {
               if (this.formConfig[0]) {
                 this.formConfig[0]!.primeNgConfig!.options = [
                   SELECT_DATA_INITIAL,
-                  ...arrayTrasnsformDropDown,
+                  ...allOptions,
                 ];
               }
             }
 
             this.loadingService.hide();
+            return { addressees, clients };
           }),
           catchError((error) => {
             this.loadingService.hide();
-            this.toastr.error(MESSAGE_ERROR, 'Error');
-            // Opción 2: Devolver un array vacío para que la aplicación continúe
-            return of([]); // of() de 'rxjs'
+            this.toastr.error(
+              this.translate.instant('common.messages.service_error'),
+              this.translate.instant('common.labels.error')
+            );
+            return of({ addressees: [], clients: [] });
           })
         )
         .subscribe()
@@ -110,7 +128,7 @@ export class InvoicesDestinationFormComponent
   createForm() {
     const firstItem: FormField<SecondForm> = {
       name: 'chooseDestination',
-      label: 'Seleccione Destino',
+      label: this.translate.instant('invoices.destination_form.select_destination'),
       type: 'select',
       cols: 12,
       initialData: this.getSecondFormStore()?.chooseDestination,
@@ -121,84 +139,84 @@ export class InvoicesDestinationFormComponent
     const restArray: FormField<SecondForm>[] = [
       {
         name: 'nameDestination',
-        label: 'Nombre Destino *',
+        label: this.translate.instant('invoices.destination_form.destination_name'),
         type: 'input',
         cols: this.isModal ? 6 : 4,
         initialData: this.isModal
           ? this.initialField?.nameDestination
           : this.getSecondFormStore()?.nameDestination,
         validators: [
-          { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
+          { validator: Validators.required, message: this.translate.instant('common.validation.required') },
         ],
         disabled:
           !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'accountDestination',
-        label: 'Cuenta Destino *',
+        label: this.translate.instant('invoices.destination_form.destination_account'),
         type: 'input',
         cols: this.isModal ? 6 : 4,
         initialData: this.isModal
           ? this.initialField?.accountDestination
           : this.getSecondFormStore()?.accountDestination,
         validators: [
-          { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
+          { validator: Validators.required, message: this.translate.instant('common.validation.required') },
         ],
         disabled:
           !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'addressDestination',
-        label: 'Dirección Destino *',
+        label: this.translate.instant('invoices.destination_form.destination_address'),
         type: 'input',
         cols: this.isModal ? 6 : 4,
         initialData: this.isModal
           ? this.initialField?.addressDestination
           : this.getSecondFormStore()?.addressDestination,
         validators: [
-          { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
+          { validator: Validators.required, message: this.translate.instant('common.validation.required') },
         ],
         disabled:
           !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'nameBank',
-        label: 'Nombre Banco *',
+        label: this.translate.instant('invoices.destination_form.bank_name'),
         type: 'input',
         initialData: this.isModal
           ? this.initialField?.nameBank
           : this.getSecondFormStore()?.nameBank,
         cols: this.isModal ? 6 : 4,
         validators: [
-          { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
+          { validator: Validators.required, message: this.translate.instant('common.validation.required') },
         ],
         disabled:
           !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'addressBank',
-        label: 'Dirección Banco *',
+        label: this.translate.instant('invoices.destination_form.bank_address'),
         type: 'input',
         initialData: this.isModal
           ? this.initialField?.addressBank
           : this.getSecondFormStore()?.addressBank,
         cols: this.isModal ? 6 : 4,
         validators: [
-          { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
+          { validator: Validators.required, message: this.translate.instant('common.validation.required') },
         ],
         disabled:
           !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
       },
       {
         name: 'nif',
-        label: 'NIF *',
+        label: this.translate.instant('invoices.destination_form.nif'),
         type: 'input',
         initialData: this.isModal
           ? this.initialField?.nif
           : this.getSecondFormStore()?.nif,
         cols: this.isModal ? 6 : 4,
         validators: [
-          { validator: Validators.required, message: 'Campo requerido.' }, // Required field validator
+          { validator: Validators.required, message: this.translate.instant('common.validation.required') },
         ],
         disabled:
           !this.isModal && !!this.getSecondFormStore()?.chooseDestination?.value,
@@ -249,25 +267,74 @@ export class InvoicesDestinationFormComponent
                   ?.disable();
               }
             });
-            this.subscription.push(
-              this.genericFirestoreService
-                .getById(ADDRESSEE_TABLE, value.value)
-                .pipe(
-                  tap((v) => {
-                    this.formDestinationGenericComponent?.getForm?.patchValue(
-                      v
-                    );
-                    this.loadingService.hide();
-                  }),
-                  catchError((error) => {
-                    this.loadingService.hide();
-                    this.toastr.error(MESSAGE_ERROR, 'Error');
-                    // Opción 2: Devolver un array vacío para que la aplicación continúe
-                    return of([]); // of() de 'rxjs'
-                  })
-                )
-                .subscribe()
-            );
+
+            // Determine if it's a client or addressee based on prefix
+            const isClient = value.value.startsWith('client_');
+            const id = value.value.replace(/^(client_|addressee_)/, '');
+
+            if (isClient) {
+              // Store client ID for invoice creation
+              this.selectedClientId = id;
+
+              this.subscription.push(
+                this.clientsDataService
+                  .getClientById(id)
+                  .pipe(
+                    map((client) => {
+                      // Transform client to form format
+                      const formData: Partial<SecondForm> = {
+                        nameDestination: getClientDisplayName(client),
+                        accountDestination: '', // Clients don't have bank account info
+                        addressDestination: client.address || '',
+                        nameBank: '',
+                        addressBank: '',
+                        nif: client.nif || '',
+                      };
+
+                      this.formDestinationGenericComponent?.getForm?.patchValue(formData);
+                      this.loadingService.hide();
+                      return client;
+                    }),
+                    catchError((error) => {
+                      this.loadingService.hide();
+                      this.toastr.error(MESSAGE_ERROR, 'Error');
+                      return of(null);
+                    })
+                  )
+                  .subscribe()
+              );
+            } else {
+              // Clear client ID when addressee is selected
+              this.selectedClientId = undefined;
+
+              this.subscription.push(
+                this.addresseesDataService
+                  .getAddresseeById(id)
+                  .pipe(
+                    map((addressee) => {
+                      // Transform Supabase addressee to form format
+                      const formData: Partial<SecondForm> = {
+                        nameDestination: addressee.name_destination,
+                        accountDestination: addressee.account_destination || '',
+                        addressDestination: addressee.address_destination || '',
+                        nameBank: addressee.name_bank || '',
+                        addressBank: addressee.address_bank || '',
+                        nif: addressee.nif || '',
+                      };
+
+                      this.formDestinationGenericComponent?.getForm?.patchValue(formData);
+                      this.loadingService.hide();
+                      return addressee;
+                    }),
+                    catchError((error) => {
+                      this.loadingService.hide();
+                      this.toastr.error(MESSAGE_ERROR, 'Error');
+                      return of(null);
+                    })
+                  )
+                  .subscribe()
+              );
+            }
           } else {
             Object.keys(
               this.formDestinationGenericComponent?.getForm?.controls
@@ -306,10 +373,28 @@ export class InvoicesDestinationFormComponent
 
   /**
    * Checks if the form is valid.
+   * Also validates that a client or addressee is selected when not in modal mode.
    * @returns True if the form is valid, otherwise false.
    */
   isValidForm(): boolean {
-    return this.formDestinationGenericComponent?.getForm?.valid;
+    const formValid = this.formDestinationGenericComponent?.getForm?.valid;
+
+    // In non-modal mode, ensure a client or addressee is selected
+    if (!this.isModal) {
+      const chooseDestination = this.formDestinationGenericComponent?.getForm?.get('chooseDestination')?.value;
+      const hasSelection = chooseDestination && chooseDestination.value && chooseDestination.value !== '';
+
+      if (!hasSelection) {
+        // Show error message
+        this.toastr.warning(
+          this.translate.instant('invoices.destination_form.validation.client_required'),
+          this.translate.instant('common.labels.warning')
+        );
+        return false;
+      }
+    }
+
+    return formValid;
   }
 
   /**
@@ -326,5 +411,13 @@ export class InvoicesDestinationFormComponent
    */
   getSecondFormStore() {
     return this.store.getSecondForm();
+  }
+
+  /**
+   * Get the selected client ID (if a client was selected)
+   * @returns The client ID or undefined
+   */
+  getSelectedClientId(): string | undefined {
+    return this.selectedClientId;
   }
 }

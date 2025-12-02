@@ -1,0 +1,226 @@
+<div class="invoice-edit-container p-4">
+  <!-- Header -->
+  <div class="flex justify-content-between align-items-center mb-4">
+    <h1 class="text-3xl font-bold m-0">{{ getText('invoices.history.actions.edit') }}</h1>
+    <p-button
+      [label]="getText('common.buttons.back')"
+      icon="pi pi-arrow-left"
+      (onClick)="onCancel()"
+      styleClass="p-button-text"
+    ></p-button>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="flex justify-content-center align-items-center p-5" *ngIf="isLoading">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+
+  <!-- Edit Form -->
+  <div class="surface-card p-4 border-round" *ngIf="!isLoading && invoice">
+    <form [formGroup]="invoiceForm" (ngSubmit)="onSave()">
+      <!-- Invoice Number (Read-only) -->
+      <div class="field mb-4">
+        <label for="invoice_number" class="block font-semibold mb-2">
+          {{ getText('invoices.sender_form.invoice_number') }}
+        </label>
+        <input
+          pInputText
+          id="invoice_number"
+          formControlName="invoice_number"
+          class="w-full"
+          readonly
+        />
+        <small class="text-500">{{ getText('invoices.history.messages.invoice_number_readonly') || 'Invoice number cannot be changed' }}</small>
+      </div>
+
+      <!-- Invoice Date -->
+      <div class="field mb-4">
+        <label for="invoice_date" class="block font-semibold mb-2">
+          {{ getText('invoices.sender_form.date') }}
+        </label>
+        <p-calendar
+          id="invoice_date"
+          formControlName="invoice_date"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          styleClass="w-full"
+        ></p-calendar>
+      </div>
+
+      <!-- Sender Information -->
+      <div class="grid">
+        <div class="col-12">
+          <h3 class="text-xl font-semibold mb-3">{{ getText('invoices.pdf.from') }}</h3>
+        </div>
+
+        <div class="col-12 md:col-6 field">
+          <label for="sender_name" class="block font-semibold mb-2">
+            {{ getText('invoices.sender_form.sender_name') }}
+          </label>
+          <input
+            pInputText
+            id="sender_name"
+            formControlName="sender_name"
+            class="w-full"
+          />
+        </div>
+
+        <div class="col-12 field">
+          <label class="block font-semibold mb-2">
+            {{ getText('invoices.sender_form.identification_type') }}
+          </label>
+          <div class="flex flex-wrap gap-4">
+            <div class="flex align-items-center">
+              <p-radiobutton inputId="id_type_dni" name="sender_identification_type" value="DNI" formControlName="sender_identification_type" />
+              <label for="id_type_dni" class="ml-2 cursor-pointer">DNI</label>
+            </div>
+            <div class="flex align-items-center">
+              <p-radiobutton inputId="id_type_nie" name="sender_identification_type" value="NIE" formControlName="sender_identification_type" />
+              <label for="id_type_nie" class="ml-2 cursor-pointer">NIE</label>
+            </div>
+            <div class="flex align-items-center">
+              <p-radiobutton inputId="id_type_passport" name="sender_identification_type" value="Passport" formControlName="sender_identification_type" />
+              <label for="id_type_passport" class="ml-2 cursor-pointer">{{ getText('invoices.sender_form.passport') }}</label>
+            </div>
+            <div class="flex align-items-center">
+              <p-radiobutton inputId="id_type_cif" name="sender_identification_type" value="CIF" formControlName="sender_identification_type" />
+              <label for="id_type_cif" class="ml-2 cursor-pointer">CIF</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6 field">
+          <label for="sender_identification" class="block font-semibold mb-2">
+            {{ getText('invoices.sender_form.sender_identification') }}
+          </label>
+          <input
+            pInputText
+            id="sender_identification"
+            formControlName="sender_identification"
+            class="w-full"
+          />
+        </div>
+      </div>
+
+      <!-- Recipient Information -->
+      <div class="grid mt-4">
+        <div class="col-12">
+          <h3 class="text-xl font-semibold mb-3">{{ getText('invoices.pdf.to') }}</h3>
+        </div>
+
+        <div class="col-12 md:col-6 field">
+          <label for="destination_name" class="block font-semibold mb-2">
+            {{ getText('invoices.destination_form.destination_name') }}
+          </label>
+          <input
+            pInputText
+            id="destination_name"
+            formControlName="destination_name"
+            class="w-full"
+          />
+        </div>
+
+        <div class="col-12 md:col-6 field">
+          <label for="destination_nif" class="block font-semibold mb-2">
+            {{ getText('invoices.destination_form.nif') }}
+          </label>
+          <input
+            pInputText
+            id="destination_nif"
+            formControlName="destination_nif"
+            class="w-full"
+          />
+        </div>
+
+        <div class="col-12 field">
+          <label for="destination_address" class="block font-semibold mb-2">
+            {{ getText('invoices.destination_form.destination_address') }}
+          </label>
+          <textarea
+            pInputTextarea
+            id="destination_address"
+            formControlName="destination_address"
+            rows="3"
+            class="w-full"
+          ></textarea>
+        </div>
+
+        <div class="col-12 md:col-6 field">
+          <label for="destination_account" class="block font-semibold mb-2">
+            {{ getText('invoices.destination_form.destination_account') }}
+          </label>
+          <input
+            pInputText
+            id="destination_account"
+            formControlName="destination_account"
+            class="w-full"
+          />
+        </div>
+
+        <div class="col-12 md:col-6 field">
+          <label for="destination_bank_name" class="block font-semibold mb-2">
+            {{ getText('invoices.destination_form.bank_name') }}
+          </label>
+          <input
+            pInputText
+            id="destination_bank_name"
+            formControlName="destination_bank_name"
+            class="w-full"
+          />
+        </div>
+
+        <div class="col-12 field">
+          <label for="destination_bank_address" class="block font-semibold mb-2">
+            {{ getText('invoices.destination_form.bank_address') }}
+          </label>
+          <textarea
+            pInputTextarea
+            id="destination_bank_address"
+            formControlName="destination_bank_address"
+            rows="3"
+            class="w-full"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Paid Status -->
+      <div class="field mt-4">
+        <div class="flex align-items-center">
+          <p-checkbox
+            id="paid"
+            formControlName="paid"
+            [binary]="true"
+          ></p-checkbox>
+          <label for="paid" class="ml-2 font-semibold">
+            {{ getText('invoices.history.table.paid') }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-2 mt-4">
+        <p-button
+          type="submit"
+          [label]="getText('common.buttons.save')"
+          icon="pi pi-check"
+          [loading]="isSaving"
+          [disabled]="invoiceForm.invalid"
+          styleClass="p-button-success"
+        ></p-button>
+        <p-button
+          type="button"
+          [label]="getText('common.buttons.cancel')"
+          icon="pi pi-times"
+          (onClick)="onCancel()"
+          styleClass="p-button-secondary"
+          [disabled]="isSaving"
+        ></p-button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>
+
+

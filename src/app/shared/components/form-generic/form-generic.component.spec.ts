@@ -178,9 +178,8 @@ describe('FormGenericComponent', () => {
     component.getForm.get('file')?.setValue(mockFiles);
     component.onUpload('file');
 
-    expect(
-      formConfig[0].primeNgConfig?.fileOptions?.uploadHandler
-    ).toHaveBeenCalledWith(mockFiles, 'file');
+    const uploadHandler = formConfig[0]?.primeNgConfig?.fileOptions?.uploadHandler;
+    expect(uploadHandler).toHaveBeenCalledWith(mockFiles, 'file');
   });
 
   it('should clear files', () => {

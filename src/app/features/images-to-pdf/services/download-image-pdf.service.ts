@@ -85,9 +85,10 @@ export class DownloadImagePdfService {
           const y = (pageHeight - newHeight) / 2;
 
           // Añade la imagen
+          const imageFormat = (file.type.split('/')[1] ?? 'JPEG').toUpperCase();
           doc.addImage(
             base64Image,
-            file.type.split('/')[1].toUpperCase(), // Obtiene el formato de la imagen
+            imageFormat, // Obtiene el formato de la imagen
             x,
             y,
             newWidth,

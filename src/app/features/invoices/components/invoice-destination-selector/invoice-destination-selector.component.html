@@ -1,0 +1,9 @@
+<div class="destination-selector">
+  <p class="mb-3 text-color-secondary">
+    {{ 'invoices.destination_selector.description' | translate }}
+  </p>
+  @if (formConfig.length > 0) {
+    <app-form-generic [formConfig]="formConfig"></app-form-generic>
+  }
+</div>
+

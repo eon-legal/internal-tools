@@ -5,15 +5,16 @@ import {
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { SplitButtonModule } from 'primeng/splitbutton';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 
 /**
  * HeaderComponent is a reusable component that represents the header of the application.
- * It provides functionality to toggle the menu state by emitting an event.
+ * It provides functionality to toggle the menu state and switch languages.
  */
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [ButtonModule, SplitButtonModule], // Imports PrimeNG button modules for UI components
+  imports: [ButtonModule, SplitButtonModule, LanguageSwitcherComponent], // Imports PrimeNG button modules and language switcher
   templateUrl: './header.component.html', // Template for the header
   styleUrl: './header.component.scss', // Styles for the header
 })

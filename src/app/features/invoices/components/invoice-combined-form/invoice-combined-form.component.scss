@@ -1,0 +1,28 @@
+.invoice-combined-form {
+  padding: 1rem;
+
+  .sender-section {
+    background-color: var(--surface-card);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--surface-border);
+  }
+
+  .divider {
+    height: 1px;
+    background-color: var(--surface-border);
+  }
+
+  .table-section {
+    background-color: var(--surface-card);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--surface-border);
+  }
+
+  h3 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+  }
+}
+

@@ -8,9 +8,8 @@ import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { StepperContextComponent } from '../../../../shared/components/stepper-context/stepper-context.component';
 import { InvoicesStore } from '../../../../store/app.store';
-import { ContainInvoicesComponent } from '../table-invoices/contain-invoices/contain-invoices.component';
-import { InvoicesDestinationFormComponent } from '../../../../shared/components/invoices-destination-form/invoices-destination-form.component';
-import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-sender-form.component';
+import { InvoiceCombinedFormComponent } from '../invoice-combined-form/invoice-combined-form.component';
+import { InvoiceDestinationSelectorComponent } from '../invoice-destination-selector/invoice-destination-selector.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -150,9 +149,8 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
   });
 
   it('should have correct step names', () => {
-    expect(component.nameStepOne).toBe('Remitente Factura');
-    expect(component.nameStepTwo).toBe('Tabla Factura');
-    expect(component.nameStepThree).toBe('Destinatario - Generar Factura');
+    expect(component.nameStepOne).toBe('Datos de Factura');
+    expect(component.nameStepTwo).toBe('Seleccionar Destinatario');
   });
 
   describe('ngAfterViewInit', () => {
@@ -182,13 +180,6 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
       const buttons = component.getVisibleButtons(2);
       expect(buttons.length).toBe(2);
       expect(buttons[0].label).toBe('Atrás');
-      expect(buttons[1].label).toBe('Siguiente');
-    });
-
-    it('should return correct buttons for step 3', () => {
-      const buttons = component.getVisibleButtons(3);
-      expect(buttons.length).toBe(2);
-      expect(buttons[0].label).toBe('Atrás');
       expect(buttons[1].label).toBe('Generar Factura');
     });
   });
@@ -201,37 +192,31 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
       } as unknown as ViewContainerRef;
     });
 
-    it('should render InvoicesSenderFormComponent for step 1', () => {
+    it('should render InvoiceCombinedFormComponent for step 1', () => {
       component.data.set(1);
       component.updateCurrentComponent();
       expect(component.container.createComponent).toHaveBeenCalledWith(
-        InvoicesSenderFormComponent
+        InvoiceCombinedFormComponent
       );
     });
 
-    it('should render ContainInvoicesComponent for step 2', () => {
+    it('should render InvoiceDestinationSelectorComponent for step 2', () => {
       component.data.set(2);
       component.updateCurrentComponent();
       expect(component.container.createComponent).toHaveBeenCalledWith(
-        ContainInvoicesComponent
-      );
-    });
-
-    it('should render InvoicesDestinationFormComponent for step 3', () => {
-      component.data.set(3);
-      component.updateCurrentComponent();
-      expect(component.container.createComponent).toHaveBeenCalledWith(
-        InvoicesDestinationFormComponent
+        InvoiceDestinationSelectorComponent
       );
     });
   });
 
   describe('cleanDataStep', () => {
-    it('should reset store data and update form', () => {
+    it('should reset store data and update combined form', () => {
       const mockForm = {
-        changeData: jest.fn(),
-        formSenderGenericComponent: {
-          getForm: { markAsUntouched: jest.fn() },
+        senderFormComponent: {
+          changeData: jest.fn(),
+          formSenderGenericComponent: {
+            getForm: { markAsUntouched: jest.fn() },
+          },
         },
       };
       component.componentRefs[1] = mockForm;
@@ -241,9 +226,9 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
 
       expect(mockInvoicesStore.resetInvoices).toHaveBeenCalled();
       expect(mockInvoicesStore.resetTableInvoices).toHaveBeenCalled();
-      expect(mockForm.changeData).toHaveBeenCalledWith({});
+      expect(mockForm.senderFormComponent.changeData).toHaveBeenCalledWith({});
       expect(
-        mockForm.formSenderGenericComponent.getForm.markAsUntouched
+        mockForm.senderFormComponent.formSenderGenericComponent.getForm.markAsUntouched
       ).toHaveBeenCalled();
     });
   });
@@ -253,81 +238,12 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
       mockInvoicesStore.getTableContain.mockReturnValue([]);
     });
 
-    it('should do nothing if not on step 3', () => {
-      component.data.set(2);
+    it('should do nothing if not on step 2', () => {
+      component.data.set(1);
       component.notAllowedShowPdf();
       expect(
         mockCreateInvoicePdfService.newGeneratePDFInvoices
       ).not.toHaveBeenCalled();
-    });
-
-    it('should show error if step 1 form is invalid', () => {
-      component.data.set(3);
-      component.componentRefs[3] = {
-        isValidForm: jest.fn().mockReturnValue(true),
-        formDestinationGenericComponent: {
-          getForm: { markAllAsTouched: jest.fn() },
-        },
-      };
-      mockInvoicesStore.getIsValidFirstForm.mockReturnValue(false);
-
-      component.notAllowedShowPdf();
-
-      expect(mockToastrService.error).toHaveBeenCalledWith(
-        'Deben ser válidos los formularios del paso 1.',
-        'Error'
-      );
-      expect(
-        mockCreateInvoicePdfService.newGeneratePDFInvoices
-      ).not.toHaveBeenCalled();
-    });
-
-    it('should show error if step 3 form is invalid', () => {
-      component.data.set(3);
-      component.componentRefs[3] = {
-        isValidForm: jest.fn().mockReturnValue(false),
-        formDestinationGenericComponent: {
-          getForm: { markAllAsTouched: jest.fn() },
-        },
-      };
-      mockInvoicesStore.getIsValidFirstForm.mockReturnValue(true);
-      mockInvoicesStore.getIsValidSecondForm.mockReturnValue(false);
-
-      component.notAllowedShowPdf();
-
-      expect(mockToastrService.error).toHaveBeenCalledWith(
-        'Deben ser válidos los formularios del paso 3.',
-        'Error'
-      );
-      expect(
-        mockCreateInvoicePdfService.newGeneratePDFInvoices
-      ).not.toHaveBeenCalled();
-    });
-
-    it('should generate PDF when all forms are valid', () => {
-      component.data.set(3);
-      component.componentRefs[3] = {
-        isValidForm: jest.fn().mockReturnValue(true),
-        formDestinationGenericComponent: {
-          getDataFormComplete: jest.fn().mockReturnValue({}),
-          getForm: { markAllAsTouched: jest.fn() },
-        },
-      };
-      mockInvoicesStore.getIsValidFirstForm.mockReturnValue(true);
-      mockInvoicesStore.getIsValidSecondForm.mockReturnValue(true);
-      mockInvoicesStore.getFirstForm.mockReturnValue({
-        name: 'Test',
-        address: '123 St',
-      });
-      mockInvoicesStore.getTableContain.mockReturnValue([
-        { id: '1', description: 'Item', total: 100 },
-      ]);
-
-      component.notAllowedShowPdf();
-
-      expect(
-        mockCreateInvoicePdfService.newGeneratePDFInvoices
-      ).toHaveBeenCalled();
     });
   });
 

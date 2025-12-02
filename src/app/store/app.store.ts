@@ -32,13 +32,10 @@ type InvoicesState = {
 const initialState: InvoicesState = {
   firstForm: {
     numberInvoice: '',
-    dateOrDateRange: false,
-    date: null,
-    rangeDates: null,
+    date: new Date(),
     name: '',
-    national: true,
-    address: '',
-    passport: '',
+    identificationType: 'DNI',
+    identification: '',
   },
   second: {
     chooseDestination: SELECT_DATA_INITIAL,

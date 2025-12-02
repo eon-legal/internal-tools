@@ -7,8 +7,8 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { ContainInvoicesComponent } from '../table-invoices/contain-invoices/contain-invoices.component';
-import { InvoicesDestinationFormComponent } from '../../../../shared/components/invoices-destination-form/invoices-destination-form.component';
+import { InvoiceCombinedFormComponent } from '../invoice-combined-form/invoice-combined-form.component';
+import { InvoiceDestinationSelectorComponent } from '../invoice-destination-selector/invoice-destination-selector.component';
 import { ToastrService } from 'ngx-toastr';
 import { CreateInvoicePdfService } from '../../services/create-invoice-pdf.service';
 import { StepperModule } from 'primeng/stepper';
@@ -21,14 +21,20 @@ import {
   ButtonConfig,
   ButtonGenericInterface,
 } from '../../../../shared/components/button-generic/interfaces/buttons';
-import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-sender-form.component';
 import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
+import { TranslateService } from '@ngx-translate/core';
+import { InvoicesDataService } from '../../../../data-access/invoices/invoices-data.service';
+import { ClientsDataService } from '../../../../data-access/clients/clients-data.service';
+import { AddresseesDataService } from '../../../../data-access/addressees/addressees-data.service';
+import { generateNextInvoiceNumberFromArray } from '../../../../domain/invoices/invoice-number-generator';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { getClientDisplayName } from '../../interfaces/database-models';
 
 /** Dictionary of components for each step */
 const stepComponents: { [key: number]: any } = {
-  1: InvoicesSenderFormComponent, // Step 1: Sender form
-  2: ContainInvoicesComponent, // Step 2: Invoice table
-  3: InvoicesDestinationFormComponent, // Step 3: Destination form
+  1: InvoiceCombinedFormComponent, // Step 1: Combined sender form and invoice table
+  2: InvoiceDestinationSelectorComponent, // Step 2: Destination selector
 };
 
 @Component({
@@ -46,11 +52,24 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
   /** Signal to track the active step */
   data = signal(1);
 
+  /** Injected services */
+  private readonly translate = inject(TranslateService);
+  readonly store = inject(InvoicesStore);
+  toastr: ToastrService = inject(ToastrService);
+  createInvoicePdfService: CreateInvoicePdfService = inject(CreateInvoicePdfService);
+  private readonly invoicesDataService = inject(InvoicesDataService);
+  private readonly clientsDataService = inject(ClientsDataService);
+  private readonly addresseesDataService = inject(AddresseesDataService);
+  private readonly router = inject(Router);
+
+  /** Signal to track if invoice is being saved */
+  isSaving = signal(false);
+
   /** Array of all buttons for the stepper */
   private allButtons: ButtonConfig[] = [
     {
       id: 1,
-      label: 'Limpiar Todo',
+      label: this.translate.instant('invoices.stepper.buttons.clear_all'),
       icon: 'pi pi-times',
       severity: 'warn',
       iconPos: 'right',
@@ -59,20 +78,20 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
     },
     {
       id: 2,
-      label: 'Siguiente',
+      label: this.translate.instant('common.buttons.next'),
       icon: 'pi pi-arrow-right',
       iconPos: 'right',
       action: () => {
-        const step1 = this.componentRefs[1] as InvoicesSenderFormComponent;
-        const valid = step1.formSenderGenericComponent?.getForm?.valid;
+        const step1 = this.componentRefs[1] as InvoiceCombinedFormComponent;
+        const valid = step1.isValid();
         if (valid) this.data.set(2); // Move to step 2
-        else step1.formSenderGenericComponent?.getForm?.markAllAsTouched();
+        else step1.markAllAsTouched();
       },
       hideDependsFunction: (step: number) => step === 1, // Only visible in step 1
     },
     {
       id: 3,
-      label: 'Atrás',
+      label: this.translate.instant('common.buttons.back'),
       severity: 'secondary',
       icon: 'pi pi-arrow-left',
       action: () => {
@@ -82,31 +101,11 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
     },
     {
       id: 4,
-      label: 'Siguiente',
-      icon: 'pi pi-arrow-right',
-      iconPos: 'right',
-      action: () => {
-        this.data.set(3); // Move to step 3
-      },
-      hideDependsFunction: (step: number) => step === 2, // Only visible in step 2
-    },
-    {
-      id: 5,
-      label: 'Atrás',
-      severity: 'secondary',
-      icon: 'pi pi-arrow-left',
-      action: () => {
-        this.data.set(2); // Move back to step 2
-      },
-      hideDependsFunction: (step: number) => step === 3, // Only visible in step 3
-    },
-    {
-      id: 6,
-      label: 'Generar Factura',
+      label: this.translate.instant('invoices.stepper.buttons.generate_invoice'),
       icon: 'pi pi-file-pdf',
       iconPos: 'right',
       action: () => this.notAllowedShowPdf(), // Action to generate the PDF
-      hideDependsFunction: (step: number) => step === 3, // Only visible in step 3
+      hideDependsFunction: (step: number) => step === 2, // Only visible in step 2
     },
   ];
 
@@ -120,20 +119,8 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
   };
 
   /** Names of the steps */
-  nameStepOne = 'Remitente Factura'; // Step 1: Sender form
-  nameStepTwo = 'Tabla Factura'; // Step 2: Invoice table
-  nameStepThree = 'Destinatario - Generar Factura'; // Step 3: Destination form
-
-  /** Store for managing invoice data */
-  readonly store = inject(InvoicesStore);
-
-  /** Toastr service for notifications */
-  toastr: ToastrService = inject(ToastrService);
-
-  /** Service for generating PDFs */
-  createInvoicePdfService: CreateInvoicePdfService = inject(
-    CreateInvoicePdfService
-  );
+  nameStepOne = this.translate.instant('invoices.stepper.steps.invoice_data');
+  nameStepTwo = this.translate.instant('invoices.stepper.steps.select_destination');
 
   /** References to dynamically created components */
   componentRefs: { [key: number]: any } = {};
@@ -186,7 +173,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
 
     // Get the component corresponding to the active step
     const component =
-      stepComponents[this.data()] || InvoicesSenderFormComponent;
+      stepComponents[this.data()] || InvoiceCombinedFormComponent;
 
     // Create the component dynamically
     const componentRef = this.container.createComponent(component);
@@ -201,54 +188,223 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
   cleanDataStep() {
     this.store.resetInvoices(); // Reset invoice data
     this.store.resetTableInvoices(); // Reset table data
-    const step1 = this.componentRefs[1] as InvoicesSenderFormComponent;
-    step1.changeData(this.store.getFirstForm()); // Update the sender form with reset data
-    step1.formSenderGenericComponent?.getForm?.markAsUntouched();
+    const step1 = this.componentRefs[1] as InvoiceCombinedFormComponent;
+    step1.senderFormComponent?.changeData(this.store.getFirstForm()); // Update the sender form with reset data
+    step1.senderFormComponent?.formSenderGenericComponent?.getForm?.markAsUntouched();
   }
 
   /**
-   * Validates the form and generates the PDF if valid.
+   * Validates the form, saves to Supabase, and generates the PDF if valid.
    */
-  notAllowedShowPdf() {
+  async notAllowedShowPdf() {
     this.askHaveDataTableCreate(); // Ensure the table has data
 
-    // Check if step 3 is active and the component is defined
-    if (this.data() !== 3 || !this.componentRefs[3]) {
+    // Check if step 2 is active and the component is defined
+    if (this.data() !== 2 || !this.componentRefs[2]) {
       return;
     }
 
-    const step3 = this.componentRefs[3] as InvoicesDestinationFormComponent;
+    const step2 = this.componentRefs[2] as InvoiceDestinationSelectorComponent;
     const isValidFirstForm = this.store.getIsValidFirstForm(); // Check if step 1 form is valid
-    const isValidSecondForm = this.store.getIsValidSecondForm(); // Check if step 2 form is valid
-    const messages = 'Deben ser válidos los formularios del paso 1.'; // Error message
-    step3.formDestinationGenericComponent?.getForm?.markAllAsTouched();
+    const messages = this.translate.instant('invoices.validation.step1_invalid');
+    step2.markAllAsTouched();
+
     // Show error if forms are invalid
-    if (!isValidFirstForm || (!isValidSecondForm && !step3.isValidForm())) {
+    if (!isValidFirstForm || !step2.isValid()) {
       this.store.updateAllMarkFieldForm(true); // Mark all fields as touched
       this.toastr.error(
         !isValidFirstForm
           ? messages
-          : 'Deben ser válidos los formularios del paso 3.',
-        'Error'
+          : this.translate.instant('invoices.validation.step2_invalid'),
+        this.translate.instant('common.labels.error')
       );
-    } else {
-      // Get data from the forms and table
-      const first = this.store.getFirstForm();
-      let second = this.store.getSecondForm();
-      const table = this.store.getTableContain();
+      return;
+    }
 
-      // Use destination form data if valid
-      if (step3.isValidForm())
-        second = step3.formDestinationGenericComponent.getDataFormComplete();
+    // Get data from the forms and table
+    const first = this.store.getFirstForm();
+    const table = this.store.getTableContain();
+
+    // Get selected destination
+    const selectedDestination = step2.getSelectedDestination();
+    if (!selectedDestination) {
+      this.toastr.error(
+        this.translate.instant('invoices.validation.destination_required'),
+        this.translate.instant('common.labels.error')
+      );
+      return;
+    }
+
+    // Extract client ID from the selected destination value
+    const clientId = selectedDestination.value.startsWith('client_')
+      ? selectedDestination.value.replace('client_', '')
+      : undefined;
+
+    try {
+      this.isSaving.set(true);
+
+      // Fetch destination data based on selection
+      let destinationData;
+      if (selectedDestination.value.startsWith('client_')) {
+        const client = await firstValueFrom(
+          this.clientsDataService.getClientById(clientId!)
+        );
+        destinationData = {
+          nameDestination: getClientDisplayName(client),
+          accountDestination: '', // Clients don't have bank account info
+          addressDestination: client.address || '',
+          nameBank: '', // Clients don't have bank info
+          addressBank: '', // Clients don't have bank info
+          nif: client.nif || '',
+        };
+      } else {
+        const addresseeId = selectedDestination.value.replace('addressee_', '');
+        const addressee = await firstValueFrom(
+          this.addresseesDataService.getAddresseeById(addresseeId)
+        );
+        destinationData = {
+          nameDestination: addressee.name_destination || '',
+          accountDestination: addressee.account_destination || '',
+          addressDestination: addressee.address_destination || '',
+          nameBank: addressee.name_bank || '',
+          addressBank: addressee.address_bank || '',
+          nif: addressee.nif || '',
+        };
+      }
+
+      // Generate invoice number
+      const invoiceNumber = await this.generateInvoiceNumber();
+
+      // Calculate totals from table
+      const { subtotal, ivaAmount, totalAmount } = this.calculateTotals(table);
+
+      // Prepare invoice items (exclude IVA and TOTAL rows)
+      const invoiceItems = table
+        .filter(item =>
+          item.perCentIva !== DataInvoicesConstant.IVA &&
+          item.perCentIva !== DataInvoicesConstant.TOTAL
+        )
+        .map(item => ({
+          id: item.id,
+          description: item.description,
+          qtt: typeof item.qtt === 'number' ? item.qtt : (typeof item.qtt === 'string' ? parseFloat(item.qtt) : undefined),
+          price: typeof item.price === 'number' ? item.price : (typeof item.price === 'string' ? parseFloat(item.price) : undefined),
+          total: typeof item.total === 'number' ? item.total : parseFloat(String(item.total)),
+          sTotal: typeof item.sTotal === 'number' ? item.sTotal : parseFloat(String(item.sTotal)),
+          perCentIva: typeof item.perCentIva === 'number' ? item.perCentIva :
+                      (typeof item.perCentIva === 'object' && 'value' in item.perCentIva ? item.perCentIva.value :
+                       parseFloat(String(item.perCentIva)))
+        }));
+
+      // Create invoice object
+      const invoiceData = {
+        invoice_number: invoiceNumber,
+        invoice_date: this.getInvoiceDate(first),
+        client_id: clientId, // Save client reference if selected
+        sender_name: first.name,
+        sender_identification_type: first.identificationType,
+        sender_identification: first.identification,
+        destination_name: destinationData.nameDestination,
+        destination_account: destinationData.accountDestination,
+        destination_address: destinationData.addressDestination,
+        destination_bank_name: destinationData.nameBank,
+        destination_bank_address: destinationData.addressBank,
+        destination_nif: destinationData.nif,
+        invoice_items: invoiceItems,
+        subtotal,
+        iva_amount: ivaAmount,
+        total_amount: totalAmount,
+        paid: false
+      };
+
+      // Save to Supabase
+      const savedInvoice = await firstValueFrom(
+        this.invoicesDataService.createInvoice(invoiceData)
+      );
+
+      this.toastr.success(
+        this.translate.instant('invoices.messages.invoice_created', { number: invoiceNumber }),
+        this.translate.instant('common.labels.success')
+      );
 
       // Generate the PDF
       this.createInvoicePdfService.newGeneratePDFInvoices(
-        [first.name, first.national ? first.address : first.passport],
-        second,
+        [first.name, first.identification],
+        destinationData,
         first,
         table
       );
+
+      // Reset form and navigate to invoice list
+      this.store.resetInvoices();
+      this.store.resetTableInvoices();
+
+      // Navigate to invoice history after a short delay
+      setTimeout(() => {
+        this.router.navigate(['/invoices']);
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error saving invoice:', error);
+      this.toastr.error(
+        this.translate.instant('invoices.messages.save_error'),
+        this.translate.instant('common.labels.error')
+      );
+    } finally {
+      this.isSaving.set(false);
     }
+  }
+
+  /**
+   * Generates the next invoice number based on existing invoices
+   */
+  private async generateInvoiceNumber(): Promise<string> {
+    try {
+      const allInvoices = await firstValueFrom(
+        this.invoicesDataService.getInvoices()
+      );
+      return generateNextInvoiceNumberFromArray(allInvoices);
+    } catch (error) {
+      console.error('Error generating invoice number:', error);
+      // Fallback to default if error
+      return generateNextInvoiceNumberFromArray([]);
+    }
+  }
+
+  /**
+   * Gets the invoice date from the first form
+   */
+  private getInvoiceDate(first: any): string {
+    if (first.date) {
+      return new Date(first.date).toISOString();
+    }
+    // Default to current date
+    return new Date().toISOString();
+  }
+
+  /**
+   * Calculates subtotal, IVA, and total from table data
+   */
+  private calculateTotals(table: DataInvoicesTable[]): {
+    subtotal: number;
+    ivaAmount: number;
+    totalAmount: number;
+  } {
+    const ivaRow = table.find(item => item.perCentIva === DataInvoicesConstant.IVA);
+    const totalRow = table.find(item => item.perCentIva === DataInvoicesConstant.TOTAL);
+
+    // Calculate subtotal from regular items
+    const subtotal = table
+      .filter(item =>
+        item.perCentIva !== DataInvoicesConstant.IVA &&
+        item.perCentIva !== DataInvoicesConstant.TOTAL
+      )
+      .reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+
+    const ivaAmount = ivaRow ? Number(ivaRow.total) || 0 : 0;
+    const totalAmount = totalRow ? Number(totalRow.total) || 0 : subtotal + ivaAmount;
+
+    return { subtotal, ivaAmount, totalAmount };
   }
 
   /**

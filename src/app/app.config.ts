@@ -1,4 +1,5 @@
 import {
+  APP_INITIALIZER,
   ApplicationConfig,
   importProvidersFrom,
   provideZoneChangeDetection,
@@ -12,7 +13,7 @@ import Aura from '@primeng/themes/aura';
 import { provideToastr } from 'ngx-toastr';
 import { DialogService } from 'primeng/dynamicdialog';
 
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import {
@@ -22,39 +23,40 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { getAuth, provideAuth } from '@angular/fire/auth';
+import { environment } from '../environments/environment';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
 
-import { getFirestore, provideFirestore } from '@angular/fire/firestore';
-import {
-  provideRemoteConfig,
-  getRemoteConfig,
-} from '@angular/fire/remote-config';
-
-import { getStorage, provideStorage } from '@angular/fire/storage';
-
-export const provideTranslation = () => ({
-  //defaultLanguage: "en",
-  loader: {
-    provide: TranslateLoader,
-    useFactory: HttpLoaderFactory,
-    deps: [HttpClient],
-  },
-});
-
+/**
+ * Factory function to create the TranslateHttpLoader.
+ * This loader fetches translation files from the assets/i18n directory.
+ */
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyACfLV8asrf62FJcpiPSVbN7jMZT42IusM',
-  authDomain: 'eontech-solutions-web.firebaseapp.com',
-  projectId: 'eontech-solutions-web',
-  storageBucket: 'eontech-solutions-web.firebasestorage.app',
-  messagingSenderId: '790481331254',
-  appId: '1:790481331254:web:9c9d41b78ba00ef09ba497',
-  measurementId: 'G-2RRB8ZYXJ5',
-};
+/**
+ * Factory function to initialize translations before app starts.
+ * This ensures all translation files are loaded before components render.
+ *
+ * @param translate - TranslateService instance
+ * @returns Promise that resolves when translations are loaded
+ */
+export function initializeTranslations(translate: TranslateService) {
+  return (): Promise<void> => {
+    // Set default language
+    translate.setDefaultLang('es');
+
+    // Determine which language to use
+    const savedLang = localStorage.getItem('selectedLanguage');
+    const browserLang = translate.getBrowserLang();
+    const langToUse = savedLang || (browserLang?.match(/en|es/) ? browserLang : 'es');
+
+    // Load the translation file and wait for it to complete
+    return translate.use(langToUse).toPromise().then(() => {
+      console.log(`Translations loaded for language: ${langToUse}`);
+    });
+  };
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -62,26 +64,29 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimationsAsync(),
     provideToastr({ timeOut: 2000, preventDuplicates: true }),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([errorInterceptor]), withInterceptorsFromDi()),
     DialogService,
     providePrimeNG({
       theme: {
         preset: Aura,
       },
     }),
-    importProvidersFrom([TranslateModule.forRoot(provideTranslation())]),
-    // aqui viene firebase
-    provideFirebaseApp(() => initializeApp(firebaseConfig)),
-    provideAuth(() => getAuth()), // Provides Firebase Authentication service
-    // Provide Firebase Authentication service
-    provideFirestore(() => getFirestore()), // Provides Firebase Firestore service
-    provideStorage(() => getStorage()), // Fournit le service Firebase Storage
-    provideRemoteConfig(() => getRemoteConfig()),
-    //provideHttpClient(withInterceptors([loggingInterceptor])),
-    provideRemoteConfig(() => {
-      const remoteConfig = getRemoteConfig();
-      remoteConfig.settings.minimumFetchIntervalMillis = 1000;
-      return remoteConfig;
-    }),
+    // Configure i18n with TranslateModule
+    importProvidersFrom(
+      TranslateModule.forRoot({
+        loader: {
+          provide: TranslateLoader,
+          useFactory: HttpLoaderFactory,
+          deps: [HttpClient],
+        },
+      })
+    ),
+    // Initialize translations before app starts
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeTranslations,
+      deps: [TranslateService],
+      multi: true,
+    },
   ],
 };

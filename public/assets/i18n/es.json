@@ -1,9 +1,303 @@
 {
-    "images_to_pdf": {
+    "common": {
         "buttons": {
-            "choose": "Selecccionar",
+            "save": "Guardar",
+            "cancel": "Cancelar",
+            "accept": "Aceptar",
+            "clean": "Limpiar",
+            "next": "Siguiente",
+            "back": "Atr\u00e1s",
+            "choose": "Seleccionar",
             "download": "Descargar",
-            "clean": "Limpiar"
+            "upload": "Subir",
+            "reset_order": "Restablecer Orden Inicial Archivos",
+            "clean_all": "Limpiar Todo",
+            "generate_invoice": "Generar Factura",
+            "add_data": "Agregar Dato Facturas"
+        },
+        "labels": {
+            "select": "Seleccione",
+            "image": "Imagen",
+            "name": "Nombre",
+            "size": "Tama\u00f1o",
+            "type": "Tipo",
+            "description": "Descripci\u00f3n",
+            "total": "Total",
+            "error": "Error",
+            "warning": "Advertencia",
+            "success": "Éxito",
+            "yes": "Sí",
+            "no": "No"
+        },
+        "messages": {
+            "required_field": "Campo requerido.",
+            "service_error": "Ha ocurrido un error al consumir el servicio",
+            "unexpected_error": "Ha ocurrido un error inesperado",
+            "invalid_request": "Solicitud inv\u00e1lida",
+            "unauthorized": "No autorizado. Por favor, inicie sesi\u00f3n nuevamente.",
+            "forbidden": "No tiene permisos para realizar esta acci\u00f3n",
+            "not_found": "Recurso no encontrado",
+            "server_error": "Error interno del servidor",
+            "service_unavailable": "Servicio no disponible. Intente nuevamente m\u00e1s tarde.",
+            "connection_error": "No se pudo conectar al servidor. Verifique su conexi\u00f3n a internet.",
+            "confirm_action": "\u00bfEst\u00e1s seguro de que deseas realizar esta acci\u00f3n?"
+        },
+        "sizes": {
+            "bytes": "Bytes",
+            "kb": "KB",
+            "mb": "MB",
+            "gb": "GB"
+        },
+        "validation": {
+            "required": "Campo requerido."
+        }
+    },
+    "menu": {
+        "images_to_pdf": "Imagen - PDF",
+        "pdf_merge": "Mezclar PDFs",
+        "invoices": "Facturas",
+        "addressee": "Destinarios",
+        "clients": "Clientes"
+    },
+    "routes": {
+        "images_to_pdf_title": "Convertidor Im\u00e1genes a PDF"
+    },
+    "images_to_pdf": {
+        "note": "Arrastre y suelte im\u00e1genes aqu\u00ed.",
+        "messages": {
+            "only_images": "Solo se aceptan im\u00e1genes.",
+            "no_images_selected": "No se han seleccionado im\u00e1genes para generar el PDF",
+            "no_valid_images": "No hay im\u00e1genes v\u00e1lidas para generar el PDF",
+            "generation_error": "Error al generar el PDF. Por favor, intente nuevamente."
+        }
+    },
+    "pdf_merge": {
+        "note": "Arrastre y suelte archivos pdf aqu\u00ed.",
+        "messages": {
+            "only_pdf": "Solo se aceptan pdf.",
+            "no_pdf_selected": "No se han seleccionado archivos PDF para fusionar",
+            "no_valid_pdf": "No hay archivos PDF v\u00e1lidos para fusionar",
+            "min_two_files": "Para combinar el PDF al menos deben existir dos archivos pdf",
+            "merge_error": "Error al fusionar los PDFs. Por favor, intente nuevamente.",
+            "popup_blocked": "El navegador bloque\u00f3 la ventana emergente. Por favor, habilite popups para esta p\u00e1gina."
+        }
+    },
+    "invoices": {
+        "history": {
+            "title": "Historial de Facturas",
+            "buttons": {
+                "create_new": "Crear Nueva Factura",
+                "download_selected": "Descargar Seleccionadas",
+                "mark_as_paid": "Marcar como Pagadas",
+                "delete_selected": "Eliminar Seleccionadas",
+                "refresh": "Actualizar",
+                "clear_filters": "Limpiar Filtros"
+            },
+            "filters": {
+                "search_placeholder": "Buscar por número de factura, remitente o destinatario...",
+                "start_date": "Fecha Inicio",
+                "end_date": "Fecha Fin",
+                "paid_status": "Estado de Pago",
+                "all": "Todas",
+                "paid": "Pagadas",
+                "unpaid": "No Pagadas",
+                "company": "Empresa"
+            },
+            "table": {
+                "invoice_number": "Número de Factura",
+                "invoice_date": "Fecha de Factura",
+                "sender_name": "Remitente",
+                "destination_name": "Destinatario",
+                "total_amount": "Monto Total",
+                "paid": "Pagada",
+                "created_at": "Creada",
+                "last_download": "Última Descarga",
+                "actions": "Acciones",
+                "no_data": "No se encontraron facturas",
+                "loading": "Cargando facturas..."
+            },
+            "actions": {
+                "view": "Ver",
+                "edit": "Editar",
+                "download": "Descargar PDF",
+                "delete": "Eliminar",
+                "mark_paid": "Marcar como Pagada",
+                "mark_unpaid": "Marcar como No Pagada"
+            },
+            "messages": {
+                "delete_confirm": "¿Está seguro de que desea eliminar esta factura?",
+                "delete_multiple_confirm": "¿Está seguro de que desea eliminar {count} factura(s)?",
+                "delete_success": "Factura eliminada exitosamente",
+                "delete_multiple_success": "{count} factura(s) eliminada(s) exitosamente",
+                "mark_paid_success": "{count} factura(s) marcada(s) como pagada(s)",
+                "download_success": "Factura descargada exitosamente",
+                "download_error": "Error al generar el PDF. Por favor, intente nuevamente.",
+                "load_error": "Error al cargar las facturas",
+                "delete_error": "Error al eliminar factura(s)",
+                "mark_paid_error": "Error al marcar factura(s) como pagada(s)",
+                "no_selection": "Por favor seleccione al menos una factura"
+            },
+            "status": {
+                "paid": "Pagada",
+                "unpaid": "No Pagada"
+            }
+        },
+        "stepper": {
+            "steps": {
+                "invoice_data": "Datos de Factura",
+                "select_destination": "Seleccionar Destinatario"
+            },
+            "buttons": {
+                "clear_all": "Limpiar Todo",
+                "generate_invoice": "Generar Factura"
+            }
+        },
+        "combined_form": {
+            "sender_info": "Información del Remitente",
+            "invoice_items": "Artículos de la Factura"
+        },
+        "destination_selector": {
+            "description": "Seleccione el destinatario de esta factura de sus clientes o destinatarios guardados."
+        },
+        "validation": {
+            "step1_invalid": "Por favor complete todos los campos requeridos en los datos de la factura",
+            "step2_invalid": "Por favor seleccione un destinatario",
+            "destination_required": "Por favor seleccione un destinatario para la factura"
+        },
+        "messages": {
+            "invoice_created": "Factura {{number}} creada exitosamente",
+            "save_error": "Error al guardar la factura. Por favor, inténtelo de nuevo."
+        },
+        "sender_form": {
+            "invoice_number": "Número Factura *",
+            "period": "Período",
+            "date": "Fecha *",
+            "date_range": "Rango Fecha *",
+            "sender_name": "Nombre Remitente *",
+            "national": "Nacional",
+            "sender_address": "Dirección Remitente *",
+            "sender_passport": "Pasaporte Remitente *",
+            "identification_type": "Tipo de Identificación",
+            "sender_identification": "Identificación *",
+            "passport": "Pasaporte",
+            "messages": {
+                "date_range_error": "La primera fecha debe ser menor que la segunda.",
+                "date_range_required": "Debes elegir un rango de fechas.",
+                "step1_invalid": "Deben ser válidos los formularios del paso 1.",
+                "step3_invalid": "Deben ser válidos los formularios del paso 3."
+            }
+        },
+        "table": {
+            "buttons": {
+                "add_invoice_data": "Agregar Dato Facturas"
+            },
+            "headers": {
+                "id": "ID",
+                "description": "Descripci\u00f3n",
+                "qtt": "QTT",
+                "price": "Price",
+                "subtotal": "S.Total",
+                "total": "Total",
+                "iva": "% IVA"
+            },
+            "form": {
+                "description": "Descripción *",
+                "description_placeholder": "Escriba para buscar descripciones...",
+                "iva_percent": "% IVA *",
+                "iva_options": {
+                    "0": "0%",
+                    "21": "21%"
+                },
+                "total": "Total *",
+                "qtt": "QTT",
+                "price": "Precio",
+                "messages": {
+                    "greater_than_zero": "Deben ser valores mayores que cero",
+                    "positive_values": "Deben ser valores positivos"
+                }
+            },
+            "modal_title": "Inserte Datos Factura"
+        },
+        "destination_form": {
+            "choose_destination": "Elegir Destinatario",
+            "select_destination": "Seleccionar Cliente o Destinatario",
+            "destination_name": "Nombre Destino *",
+            "destination_account": "Cuenta Destino *",
+            "destination_address": "Dirección Destino *",
+            "bank_name": "Nombre Banco *",
+            "bank_address": "Dirección Banco *",
+            "nif": "NIF *",
+            "error_loading": "Error al cargar destinatarios",
+            "validation": {
+                "client_required": "Por favor seleccione un cliente o destinatario"
+            }
+        },
+        "pdf": {
+            "to": "To:",
+            "from": "From:",
+            "passport": "Pasaporte"
+        }
+    },
+    "addressee": {
+        "buttons": {
+            "add_addressee": "Adicionar Destinatario"
+        },
+        "table": {
+            "destination_name": "Nombre del Destino",
+            "destination_account": "Cuenta de Destino",
+            "destination_address": "Direcci\u00f3n del Destino",
+            "bank_name": "Nombre del Banco",
+            "bank_address": "Direcci\u00f3n del Banco",
+            "nif": "NIF"
+        }
+    },
+    "clients": {
+        "title": "Gestión de Clientes",
+        "buttons": {
+            "add_client": "Agregar Cliente",
+            "add_individual": "Agregar Persona",
+            "add_company": "Agregar Empresa"
+        },
+        "table": {
+            "client_type": "Tipo",
+            "name": "Nombre",
+            "address": "Dirección",
+            "nif": "NIF",
+            "national": "Nacional",
+            "is_default": "Predeterminado",
+            "actions": "Acciones"
+        },
+        "form": {
+            "title_add_individual": "Agregar Cliente Individual",
+            "title_edit_individual": "Editar Cliente Individual",
+            "title_add_company": "Agregar Cliente Empresa",
+            "title_edit_company": "Editar Cliente Empresa",
+            "client_type": "Tipo de Cliente",
+            "individual": "Persona",
+            "company": "Empresa",
+            "first_name": "Nombre *",
+            "last_name": "Apellidos *",
+            "company_name": "Nombre de la Empresa *",
+            "company_registration_number": "Número de Registro",
+            "personal_id": "DNI/NIE",
+            "address": "Dirección",
+            "passport": "Pasaporte",
+            "national": "Cliente Nacional",
+            "nif": "NIF/CIF *",
+            "is_default": "Establecer como Cliente Predeterminado"
+        },
+        "messages": {
+            "delete_confirm": "¿Está seguro de que desea eliminar este cliente?",
+            "delete_success": "Cliente eliminado exitosamente",
+            "create_success": "Cliente creado exitosamente",
+            "update_success": "Cliente actualizado exitosamente",
+            "load_error": "Error al cargar clientes",
+            "save_error": "Error al guardar cliente",
+            "delete_error": "Error al eliminar cliente"
+        },
+        "types": {
+            "individual": "Persona",
+            "company": "Empresa"
         }
     }
 }

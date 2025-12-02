@@ -120,9 +120,9 @@
         />
         } @case('file') {
         <app-file-upload
-          [accept]="field.primeNgConfig?.fileOptions?.accept"
-          [uploadIcon]="field.primeNgConfig?.fileOptions?.uploadIcon"
-          [styleClass]="field.primeNgConfig?.fileOptions?.styleClass"
+          [accept]="field.primeNgConfig?.fileOptions?.accept ?? []"
+          [uploadIcon]="field.primeNgConfig?.fileOptions?.uploadIcon ?? 'pi pi-upload'"
+          [styleClass]="field.primeNgConfig?.fileOptions?.styleClass ?? ''"
           [name]="field.name"
           [auto]="field.primeNgConfig?.fileOptions?.auto || false"
           [multiple]="field.primeNgConfig?.fileOptions?.multiple || false"
@@ -136,7 +136,7 @@
             field.primeNgConfig?.fileOptions?.cancelLabel || 'Limpiar'
           "
           [files]="getFormControl(field.name)?.value || []"
-          [noFooter]="field.primeNgConfig?.fileOptions?.noFooter"
+          [noFooter]="field.primeNgConfig?.fileOptions?.noFooter ?? false"
           (select)="onFileSelect($event, field.name)"
           (upload)="onUpload(field.name)"
           (clean)="onClear(field.name)"
@@ -186,6 +186,40 @@
           [formControlName]="field.name"
         >
         </p-checkbox>
+        } @case('autocomplete'){
+        <p-autocomplete
+          class="w-full"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+          [id]="field.name"
+          [formControlName]="field.name"
+          [suggestions]="field.primeNgConfig?.autocompleteOptions?.suggestions || []"
+          [field]="field.primeNgConfig?.autocompleteOptions?.field || 'label'"
+          [minLength]="field.primeNgConfig?.autocompleteOptions?.minLength ?? 1"
+          [forceSelection]="field.primeNgConfig?.autocompleteOptions?.forceSelection ?? false"
+          [dropdown]="field.primeNgConfig?.autocompleteOptions?.dropdown ?? true"
+          [placeholder]="field.primeNgConfig?.placeholder || ''"
+          [class.ng-dirty]="
+            getFormControl(field.name)?.invalid &&
+            getFormControl(field.name)?.touched
+          "
+          (completeMethod)="onAutocompleteComplete($event, field)"
+          (onSelect)="onAutocompleteSelect($event, field)"
+        />
+        } @case('radio') {
+        <div class="flex flex-wrap gap-4" [ngClass]="{'flex-column': field.primeNgConfig?.radioOptions?.layout === 'vertical'}">
+          @for (option of field.primeNgConfig?.radioOptions?.options || []; track option.value) {
+          <div class="flex align-items-center">
+            <p-radiobutton
+              [inputId]="field.name + '_' + option.value"
+              [name]="field.name"
+              [value]="option.value"
+              [formControlName]="field.name"
+            />
+            <label [for]="field.name + '_' + option.value" class="ml-2 cursor-pointer">{{ option.label }}</label>
+          </div>
+          }
+        </div>
         } }
 
         <!-- Mensajes de error  -->

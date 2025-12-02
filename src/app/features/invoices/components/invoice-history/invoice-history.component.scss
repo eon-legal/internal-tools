@@ -1,0 +1,43 @@
+.invoice-history-container {
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .filter-section {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .batch-actions {
+    padding: 1rem;
+    background-color: var(--surface-50);
+    border-radius: 6px;
+    border: 1px solid var(--surface-200);
+  }
+
+  :host ::ng-deep {
+    .p-datatable {
+      .p-datatable-thead > tr > th {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+      }
+
+      .p-datatable-tbody > tr {
+        &:hover {
+          background-color: var(--surface-100);
+        }
+      }
+    }
+
+    .p-calendar,
+    .p-dropdown {
+      width: 100%;
+    }
+
+    // Ensure icon field takes full width
+    p-iconfield {
+      width: 100%;
+      display: block;
+    }
+  }
+}
+
