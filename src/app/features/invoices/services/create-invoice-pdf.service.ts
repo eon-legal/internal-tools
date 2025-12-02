@@ -14,7 +14,7 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 /**
  * CreateInvoicePdfService is a service that generates PDF invoices using the pdfmake library.
- * It provides a method to create and open a PDF invoice with dynamic content.
+ * It provides methods to create, open, and download PDF invoices with dynamic content.
  */
 @Injectable({
   providedIn: 'root', // Makes the service available application-wide
@@ -28,6 +28,44 @@ export class CreateInvoicePdfService {
    * @param tableData - The table data containing invoice line items.
    */
   async newGeneratePDFInvoices(
+    nameAddressOrPassport: [string, string],
+    endPage: SecondForm,
+    rightInvoice: FisrtForm,
+    tableData: DataInvoicesTable[]
+  ) {
+    const pdf = await this.buildPDF(nameAddressOrPassport, endPage, rightInvoice, tableData);
+    pdf.create().open();
+  }
+
+  /**
+   * Generates and downloads a PDF invoice with the provided data.
+   * @param nameAddressOrPassport - A tuple containing the name and address/passport information.
+   * @param endPage - The second form data containing destination and bank details.
+   * @param rightInvoice - The first form data containing invoice details.
+   * @param tableData - The table data containing invoice line items.
+   * @param filename - Optional filename for the downloaded PDF (defaults to invoice number)
+   */
+  async downloadPDFInvoice(
+    nameAddressOrPassport: [string, string],
+    endPage: SecondForm,
+    rightInvoice: FisrtForm,
+    tableData: DataInvoicesTable[],
+    filename?: string
+  ) {
+    const pdf = await this.buildPDF(nameAddressOrPassport, endPage, rightInvoice, tableData);
+    const downloadName = filename || `Invoice-${rightInvoice.numberInvoice}.pdf`;
+    pdf.create().download(downloadName);
+  }
+
+  /**
+   * Builds the PDF document structure with the provided data.
+   * @param nameAddressOrPassport - A tuple containing the name and address/passport information.
+   * @param endPage - The second form data containing destination and bank details.
+   * @param rightInvoice - The first form data containing invoice details.
+   * @param tableData - The table data containing invoice line items.
+   * @returns PdfMakeWrapper instance ready to be created
+   */
+  private async buildPDF(
     nameAddressOrPassport: [string, string],
     endPage: SecondForm,
     rightInvoice: FisrtForm,
@@ -56,23 +94,19 @@ export class CreateInvoicePdfService {
         widths: ['*', 250], // Columna izquierda flexible, derecha fija
         body: [
           [
-            // Columna izquierda (To:)
+            // Columna izquierda (ORDENANTE:)
             {
               stack: [
-                new Txt('To:').bold().fontSize(14).margin([0, 0, 0, 10]).end,
+                new Txt('ORDENANTE:').bold().fontSize(14).margin([0, 0, 0, 10]).end,
                 new Txt(
-                  `${nameAddressOrPassport[0]}\n${
-                    rightInvoice.national ? '' : 'Pasaporte'
-                  } ${nameAddressOrPassport[1]}}`
+                  `${nameAddressOrPassport[0]}\nNIE: ${nameAddressOrPassport[1]}`
                 ).margin([0, 0, 0, 5]).end,
               ],
             },
             // Columna derecha (Cuadro negro)
             {
-              text: `INVOICE\nInvoice # ${rightInvoice.numberInvoice}\n${
-                rightInvoice.date
-                  ? formatDateByParams(rightInvoice.date)
-                  : formatDateByParams(rightInvoice.rangeDates)
+              text: `FACTURA\nFactura # ${rightInvoice.numberInvoice}\n${
+                this.formatDateSpanish(rightInvoice.date)
               }`,
               fillColor: '#000000',
               color: '#ffffff',
@@ -259,7 +293,33 @@ export class CreateInvoicePdfService {
       },
     });
 
-    // Crea y abre el PDF
-    pdf.create().open();
+    return pdf;
+  }
+
+  /**
+   * Formats a date in Spanish format (e.g., "Fecha: Noviembre 17, 2025")
+   */
+  private formatDateSpanish(date: Date | [Date, Date] | null): string {
+    if (!date) return '';
+
+    const spanishMonths = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    const formatSingleDate = (d: Date): string => {
+      if (isNaN(d.getTime())) return '';
+      const month = spanishMonths[d.getMonth()];
+      const day = d.getDate();
+      const year = d.getFullYear();
+      return `${month} ${day}, ${year}`;
+    };
+
+    if (Array.isArray(date)) {
+      const [first, second] = date;
+      return `Fecha: ${formatSingleDate(first)} - ${formatSingleDate(second)}`;
+    }
+
+    return `Fecha: ${formatSingleDate(date)}`;
   }
 }
