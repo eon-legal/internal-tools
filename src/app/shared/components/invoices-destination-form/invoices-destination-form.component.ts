@@ -16,19 +16,21 @@ import {
 } from '../../../features/invoices/interfaces/second-form';
 import { FormField } from '../form-generic/interfaces/form-field';
 import { AddresseesDataService } from '../../../data-access/addressees/addressees-data.service';
-import { catchError, of, Subscription, tap, map } from 'rxjs';
+import { ClientsDataService } from '../../../data-access/clients/clients-data.service';
+import { catchError, of, Subscription, tap, map, forkJoin } from 'rxjs';
 import { SELECT_DATA_INITIAL } from '../form-generic/constants/select-data-initial';
 import { ToastrService } from 'ngx-toastr';
 import { MESSAGE_ERROR } from '../../constants/message-error';
 import { LoadingService } from '../../services/loading/loading.service';
 import { TranslateService } from '@ngx-translate/core';
+import { getClientDisplayName } from '../../../features/invoices/interfaces/database-models';
 
 /**
  * Component for managing the destination form in the invoice generation process.
  * This form collects details about the destination, such as name, address, and bank information.
  *
- * Dependencies: AddresseesDataService (Supabase), InvoicesStore, LoadingService, ToastrService
- * Side Effects: Loads addressees from Supabase, updates form state
+ * Dependencies: AddresseesDataService, ClientsDataService (Supabase), InvoicesStore, LoadingService, ToastrService
+ * Side Effects: Loads addressees and clients from Supabase, updates form state
  */
 @Component({
   selector: 'app-invoices-destination-form',
@@ -44,6 +46,7 @@ export class InvoicesDestinationFormComponent
   private readonly translate = inject(TranslateService);
   readonly store = inject(InvoicesStore);
   private readonly addresseesDataService = inject(AddresseesDataService);
+  private readonly clientsDataService = inject(ClientsDataService);
   private readonly toastr = inject(ToastrService);
   private readonly loadingService = inject(LoadingService);
 
@@ -54,6 +57,8 @@ export class InvoicesDestinationFormComponent
   /** isModal know component mananage like modal */
   @Input() isModal: boolean = false;
   @Input() initialField!: SecondForm;
+  /** Store selected client ID for invoice creation */
+  selectedClientId?: string;
 
   /** Reference to the FormGenericComponent for managing the form */
   @ViewChild(FormGenericComponent)
@@ -71,30 +76,41 @@ export class InvoicesDestinationFormComponent
     this.loadingService.show();
     this.createForm();
     this.subscription.push(
-      this.addresseesDataService
-        .getAddressees()
+      forkJoin({
+        addressees: this.addresseesDataService.getAddressees(),
+        clients: this.clientsDataService.getClients(),
+      })
         .pipe(
-          map((addressees) => {
+          map(({ addressees, clients }) => {
             // Transform Supabase addressees to dropdown options
-            const arrayTrasnsformDropDown = addressees.map((addressee) => ({
-              label: addressee.name_destination,
-              value: addressee.id,
+            const addresseeOptions = addressees.map((addressee) => ({
+              label: `📧 ${addressee.name_destination}`,
+              value: `addressee_${addressee.id}`,
             }));
+
+            // Transform clients to dropdown options
+            const clientOptions = clients.map((client) => ({
+              label: `👤 ${getClientDisplayName(client)}`,
+              value: `client_${client.id}`,
+            }));
+
+            // Combine both lists
+            const allOptions = [...clientOptions, ...addresseeOptions];
 
             if (
               this.formConfig.length &&
-              Array.isArray(arrayTrasnsformDropDown)
+              Array.isArray(allOptions)
             ) {
               if (this.formConfig[0]) {
                 this.formConfig[0]!.primeNgConfig!.options = [
                   SELECT_DATA_INITIAL,
-                  ...arrayTrasnsformDropDown,
+                  ...allOptions,
                 ];
               }
             }
 
             this.loadingService.hide();
-            return addressees;
+            return { addressees, clients };
           }),
           catchError((error) => {
             this.loadingService.hide();
@@ -102,7 +118,7 @@ export class InvoicesDestinationFormComponent
               this.translate.instant('common.messages.service_error'),
               this.translate.instant('common.labels.error')
             );
-            return of([]);
+            return of({ addressees: [], clients: [] });
           })
         )
         .subscribe()
@@ -251,33 +267,74 @@ export class InvoicesDestinationFormComponent
                   ?.disable();
               }
             });
-            this.subscription.push(
-              this.addresseesDataService
-                .getAddresseeById(value.value)
-                .pipe(
-                  map((addressee) => {
-                    // Transform Supabase addressee to form format
-                    const formData: Partial<SecondForm> = {
-                      nameDestination: addressee.name_destination,
-                      accountDestination: addressee.account_destination || '',
-                      addressDestination: addressee.address_destination || '',
-                      nameBank: addressee.name_bank || '',
-                      addressBank: addressee.address_bank || '',
-                      nif: addressee.nif || '',
-                    };
 
-                    this.formDestinationGenericComponent?.getForm?.patchValue(formData);
-                    this.loadingService.hide();
-                    return addressee;
-                  }),
-                  catchError((error) => {
-                    this.loadingService.hide();
-                    this.toastr.error(MESSAGE_ERROR, 'Error');
-                    return of(null);
-                  })
-                )
-                .subscribe()
-            );
+            // Determine if it's a client or addressee based on prefix
+            const isClient = value.value.startsWith('client_');
+            const id = value.value.replace(/^(client_|addressee_)/, '');
+
+            if (isClient) {
+              // Store client ID for invoice creation
+              this.selectedClientId = id;
+
+              this.subscription.push(
+                this.clientsDataService
+                  .getClientById(id)
+                  .pipe(
+                    map((client) => {
+                      // Transform client to form format
+                      const formData: Partial<SecondForm> = {
+                        nameDestination: getClientDisplayName(client),
+                        accountDestination: '', // Clients don't have bank account info
+                        addressDestination: client.address || '',
+                        nameBank: '',
+                        addressBank: '',
+                        nif: client.nif || '',
+                      };
+
+                      this.formDestinationGenericComponent?.getForm?.patchValue(formData);
+                      this.loadingService.hide();
+                      return client;
+                    }),
+                    catchError((error) => {
+                      this.loadingService.hide();
+                      this.toastr.error(MESSAGE_ERROR, 'Error');
+                      return of(null);
+                    })
+                  )
+                  .subscribe()
+              );
+            } else {
+              // Clear client ID when addressee is selected
+              this.selectedClientId = undefined;
+
+              this.subscription.push(
+                this.addresseesDataService
+                  .getAddresseeById(id)
+                  .pipe(
+                    map((addressee) => {
+                      // Transform Supabase addressee to form format
+                      const formData: Partial<SecondForm> = {
+                        nameDestination: addressee.name_destination,
+                        accountDestination: addressee.account_destination || '',
+                        addressDestination: addressee.address_destination || '',
+                        nameBank: addressee.name_bank || '',
+                        addressBank: addressee.address_bank || '',
+                        nif: addressee.nif || '',
+                      };
+
+                      this.formDestinationGenericComponent?.getForm?.patchValue(formData);
+                      this.loadingService.hide();
+                      return addressee;
+                    }),
+                    catchError((error) => {
+                      this.loadingService.hide();
+                      this.toastr.error(MESSAGE_ERROR, 'Error');
+                      return of(null);
+                    })
+                  )
+                  .subscribe()
+              );
+            }
           } else {
             Object.keys(
               this.formDestinationGenericComponent?.getForm?.controls
@@ -316,10 +373,28 @@ export class InvoicesDestinationFormComponent
 
   /**
    * Checks if the form is valid.
+   * Also validates that a client or addressee is selected when not in modal mode.
    * @returns True if the form is valid, otherwise false.
    */
   isValidForm(): boolean {
-    return this.formDestinationGenericComponent?.getForm?.valid;
+    const formValid = this.formDestinationGenericComponent?.getForm?.valid;
+
+    // In non-modal mode, ensure a client or addressee is selected
+    if (!this.isModal) {
+      const chooseDestination = this.formDestinationGenericComponent?.getForm?.get('chooseDestination')?.value;
+      const hasSelection = chooseDestination && chooseDestination.value && chooseDestination.value !== '';
+
+      if (!hasSelection) {
+        // Show error message
+        this.toastr.warning(
+          this.translate.instant('invoices.destination_form.validation.client_required'),
+          this.translate.instant('common.labels.warning')
+        );
+        return false;
+      }
+    }
+
+    return formValid;
   }
 
   /**
@@ -336,5 +411,13 @@ export class InvoicesDestinationFormComponent
    */
   getSecondFormStore() {
     return this.store.getSecondForm();
+  }
+
+  /**
+   * Get the selected client ID (if a client was selected)
+   * @returns The client ID or undefined
+   */
+  getSelectedClientId(): string | undefined {
+    return this.selectedClientId;
   }
 }

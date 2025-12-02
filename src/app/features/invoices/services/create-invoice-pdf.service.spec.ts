@@ -80,11 +80,7 @@ describe('CreateInvoicePdfService', () => {
     const completeMockRightInvoice: FisrtForm = {
       numberInvoice: 'INV-001',
       date: new Date(),
-      national: true,
-      rangeDates: [new Date('2023-01-01'), new Date('2023-01-31')],
-      dateOrDateRange: true,
       name: 'Test Name',
-      address: 'Test Address',
       passport: 'PASSPORT123'
     };
 
@@ -122,39 +118,33 @@ describe('CreateInvoicePdfService', () => {
       expect(mockInstance.create().open).toHaveBeenCalled();
     });
 
-    it('should handle international addresses', async () => {
-      const internationalInvoice: FisrtForm = {
-        ...completeMockRightInvoice,
-        national: false
-      };
-
+    it('should always include passport in PDF', async () => {
       await service.newGeneratePDFInvoices(
         mockNameAddress,
         mockEndPage,
-        internationalInvoice,
+        completeMockRightInvoice,
         mockTableData
       );
 
       const pdfMakeWrapper = require('pdfmake-wrapper');
       expect(pdfMakeWrapper.PdfMakeWrapper).toHaveBeenCalled();
-      
-      // Verify the Txt content includes "Pasaporte" for international addresses
+
+      // Verify the Txt content includes "Pasaporte" since we always use passport now
       expect(pdfMakeWrapper.Txt).toHaveBeenCalledWith(
         expect.stringContaining('Pasaporte')
       );
     });
 
-    it('should handle date range when date is not provided', async () => {
-      const invoiceWithDateRange: FisrtForm = {
+    it('should handle null date', async () => {
+      const invoiceWithNullDate: FisrtForm = {
         ...completeMockRightInvoice,
-        date: null,
-        dateOrDateRange: false
+        date: null
       };
 
       await service.newGeneratePDFInvoices(
         mockNameAddress,
         mockEndPage,
-        invoiceWithDateRange,
+        invoiceWithNullDate,
         mockTableData
       );
 

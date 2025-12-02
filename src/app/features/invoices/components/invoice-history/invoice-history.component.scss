@@ -32,6 +32,12 @@
     .p-dropdown {
       width: 100%;
     }
+
+    // Ensure icon field takes full width
+    p-iconfield {
+      width: 100%;
+      display: block;
+    }
   }
 }
 

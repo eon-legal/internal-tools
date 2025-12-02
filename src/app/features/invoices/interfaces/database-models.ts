@@ -114,13 +114,11 @@ export interface Invoice {
   invoice_number: string; // User-visible invoice reference (e.g., "EON-25-L001")
   invoice_date: string; // ISO 8601 timestamp (UTC)
   client_id?: string; // UUID reference to clients table
-  
+
   // Sender information (from first form)
   sender_name?: string;
-  sender_address?: string;
   sender_passport?: string;
-  sender_national: boolean;
-  
+
   // Destination information (from second form)
   destination_name?: string;
   destination_account?: string;
@@ -128,15 +126,15 @@ export interface Invoice {
   destination_bank_name?: string;
   destination_bank_address?: string;
   destination_nif?: string;
-  
+
   // Invoice line items
   invoice_items: InvoiceItem[];
-  
+
   // Calculated totals
   subtotal: number;
   iva_amount: number;
   total_amount: number;
-  
+
   // Status and metadata
   paid: boolean;
   created_at: string; // ISO 8601 timestamp
@@ -167,9 +165,7 @@ export interface CreateInvoiceDto {
   invoice_date: string; // ISO 8601 timestamp
   client_id?: string;
   sender_name?: string;
-  sender_address?: string;
   sender_passport?: string;
-  sender_national: boolean;
   destination_name?: string;
   destination_account?: string;
   destination_address?: string;
@@ -190,9 +186,7 @@ export interface UpdateInvoiceDto {
   invoice_date?: string;
   client_id?: string;
   sender_name?: string;
-  sender_address?: string;
   sender_passport?: string;
-  sender_national?: boolean;
   destination_name?: string;
   destination_account?: string;
   destination_address?: string;

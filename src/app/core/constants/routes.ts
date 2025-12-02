@@ -32,6 +32,11 @@ export function getMenuItems(translate: TranslateService): MenuItem[] {
       icon: 'pi pi-id-card',
       routerLink: ['/addressee'],
     },
+    {
+      label: translate.instant('menu.clients'),
+      icon: 'pi pi-users',
+      routerLink: ['/clients'],
+    },
   ];
 }
 

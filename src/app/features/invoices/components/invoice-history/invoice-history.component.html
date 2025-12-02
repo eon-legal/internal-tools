@@ -15,8 +15,8 @@
     <div class="grid">
       <!-- Search -->
       <div class="col-12 md:col-4">
-        <span class="p-input-icon-left w-full">
-          <i class="pi pi-search"></i>
+        <p-iconField iconPosition="left">
+          <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
           <input
             pInputText
             type="text"
@@ -25,7 +25,7 @@
             class="w-full"
             (input)="loadInvoices()"
           />
-        </span>
+        </p-iconField>
       </div>
 
       <!-- Start Date -->

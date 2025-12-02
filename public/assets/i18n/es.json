@@ -24,7 +24,10 @@
             "description": "Descripci\u00f3n",
             "total": "Total",
             "error": "Error",
-            "warning": "Advertencia"
+            "warning": "Advertencia",
+            "success": "Éxito",
+            "yes": "Sí",
+            "no": "No"
         },
         "messages": {
             "required_field": "Campo requerido.",
@@ -53,7 +56,8 @@
         "images_to_pdf": "Imagen - PDF",
         "pdf_merge": "Mezclar PDFs",
         "invoices": "Facturas",
-        "addressee": "Destinarios"
+        "addressee": "Destinarios",
+        "clients": "Clientes"
     },
     "routes": {
         "images_to_pdf_title": "Convertidor Im\u00e1genes a PDF"
@@ -127,6 +131,7 @@
                 "delete_multiple_success": "{count} factura(s) eliminada(s) exitosamente",
                 "mark_paid_success": "{count} factura(s) marcada(s) como pagada(s)",
                 "download_success": "Factura descargada exitosamente",
+                "download_error": "Error al generar el PDF. Por favor, intente nuevamente.",
                 "load_error": "Error al cargar las facturas",
                 "delete_error": "Error al eliminar factura(s)",
                 "mark_paid_error": "Error al marcar factura(s) como pagada(s)",
@@ -139,18 +144,25 @@
         },
         "stepper": {
             "steps": {
-                "sender_form": "Remitente Factura",
-                "invoice_table": "Tabla Factura",
-                "destination_generate": "Destinatario - Generar Factura"
+                "invoice_data": "Datos de Factura",
+                "select_destination": "Seleccionar Destinatario"
             },
             "buttons": {
                 "clear_all": "Limpiar Todo",
                 "generate_invoice": "Generar Factura"
             }
         },
+        "combined_form": {
+            "sender_info": "Información del Remitente",
+            "invoice_items": "Artículos de la Factura"
+        },
+        "destination_selector": {
+            "description": "Seleccione el destinatario de esta factura de sus clientes o destinatarios guardados."
+        },
         "validation": {
-            "step1_invalid": "El formulario del paso 1 debe ser válido",
-            "step3_invalid": "El formulario del paso 3 debe ser válido"
+            "step1_invalid": "Por favor complete todos los campos requeridos en los datos de la factura",
+            "step2_invalid": "Por favor seleccione un destinatario",
+            "destination_required": "Por favor seleccione un destinatario para la factura"
         },
         "messages": {
             "invoice_created": "Factura {{number}} creada exitosamente",
@@ -212,13 +224,16 @@
             "modal_title": "Inserte Datos Factura"
         },
         "destination_form": {
-            "select_destination": "Seleccione Destino",
+            "select_destination": "Seleccionar Cliente o Destinatario",
             "destination_name": "Nombre Destino *",
             "destination_account": "Cuenta Destino *",
             "destination_address": "Dirección Destino *",
             "bank_name": "Nombre Banco *",
             "bank_address": "Dirección Banco *",
-            "nif": "NIF *"
+            "nif": "NIF *",
+            "validation": {
+                "client_required": "Por favor seleccione un cliente o destinatario"
+            }
         },
         "pdf": {
             "to": "To:",
@@ -237,6 +252,55 @@
             "bank_name": "Nombre del Banco",
             "bank_address": "Direcci\u00f3n del Banco",
             "nif": "NIF"
+        }
+    },
+    "clients": {
+        "title": "Gestión de Clientes",
+        "buttons": {
+            "add_client": "Agregar Cliente",
+            "add_individual": "Agregar Persona",
+            "add_company": "Agregar Empresa"
+        },
+        "table": {
+            "client_type": "Tipo",
+            "name": "Nombre",
+            "address": "Dirección",
+            "nif": "NIF",
+            "national": "Nacional",
+            "is_default": "Predeterminado",
+            "actions": "Acciones"
+        },
+        "form": {
+            "title_add_individual": "Agregar Cliente Individual",
+            "title_edit_individual": "Editar Cliente Individual",
+            "title_add_company": "Agregar Cliente Empresa",
+            "title_edit_company": "Editar Cliente Empresa",
+            "client_type": "Tipo de Cliente",
+            "individual": "Persona",
+            "company": "Empresa",
+            "first_name": "Nombre *",
+            "last_name": "Apellidos *",
+            "company_name": "Nombre de la Empresa *",
+            "company_registration_number": "Número de Registro",
+            "personal_id": "DNI/NIE",
+            "address": "Dirección",
+            "passport": "Pasaporte",
+            "national": "Cliente Nacional",
+            "nif": "NIF/CIF *",
+            "is_default": "Establecer como Cliente Predeterminado"
+        },
+        "messages": {
+            "delete_confirm": "¿Está seguro de que desea eliminar este cliente?",
+            "delete_success": "Cliente eliminado exitosamente",
+            "create_success": "Cliente creado exitosamente",
+            "update_success": "Cliente actualizado exitosamente",
+            "load_error": "Error al cargar clientes",
+            "save_error": "Error al guardar cliente",
+            "delete_error": "Error al eliminar cliente"
+        },
+        "types": {
+            "individual": "Persona",
+            "company": "Empresa"
         }
     }
 }

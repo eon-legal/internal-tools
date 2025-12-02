@@ -24,7 +24,10 @@
             "description": "Description",
             "total": "Total",
             "error": "Error",
-            "warning": "Warning"
+            "warning": "Warning",
+            "success": "Success",
+            "yes": "Yes",
+            "no": "No"
         },
         "messages": {
             "required_field": "Required field.",
@@ -53,7 +56,8 @@
         "images_to_pdf": "Image - PDF",
         "pdf_merge": "Merge PDFs",
         "invoices": "Invoices",
-        "addressee": "Addressees"
+        "addressee": "Addressees",
+        "clients": "Clients"
     },
     "routes": {
         "images_to_pdf_title": "Image to PDF Converter"
@@ -127,6 +131,7 @@
                 "delete_multiple_success": "{count} invoice(s) deleted successfully",
                 "mark_paid_success": "{count} invoice(s) marked as paid",
                 "download_success": "Invoice downloaded successfully",
+                "download_error": "Failed to generate PDF. Please try again.",
                 "load_error": "Failed to load invoices",
                 "delete_error": "Failed to delete invoice(s)",
                 "mark_paid_error": "Failed to mark invoice(s) as paid",
@@ -139,18 +144,25 @@
         },
         "stepper": {
             "steps": {
-                "sender_form": "Invoice Sender",
-                "invoice_table": "Invoice Table",
-                "destination_generate": "Recipient - Generate Invoice"
+                "invoice_data": "Invoice Data",
+                "select_destination": "Select Recipient"
             },
             "buttons": {
                 "clear_all": "Clear All",
                 "generate_invoice": "Generate Invoice"
             }
         },
+        "combined_form": {
+            "sender_info": "Sender Information",
+            "invoice_items": "Invoice Items"
+        },
+        "destination_selector": {
+            "description": "Select the recipient for this invoice from your saved clients or addressees."
+        },
         "validation": {
-            "step1_invalid": "Step 1 form must be valid",
-            "step3_invalid": "Step 3 form must be valid"
+            "step1_invalid": "Please complete all required fields in the invoice data",
+            "step2_invalid": "Please select a recipient",
+            "destination_required": "Please select a recipient for the invoice"
         },
         "messages": {
             "invoice_created": "Invoice {{number}} created successfully",
@@ -212,13 +224,16 @@
             "modal_title": "Insert Invoice Data"
         },
         "destination_form": {
-            "select_destination": "Select Destination",
+            "select_destination": "Select Client or Addressee",
             "destination_name": "Destination Name *",
             "destination_account": "Destination Account *",
             "destination_address": "Destination Address *",
             "bank_name": "Bank Name *",
             "bank_address": "Bank Address *",
-            "nif": "NIF *"
+            "nif": "NIF *",
+            "validation": {
+                "client_required": "Please select a client or addressee"
+            }
         },
         "pdf": {
             "to": "To:",
@@ -237,6 +252,55 @@
             "bank_name": "Bank Name",
             "bank_address": "Bank Address",
             "nif": "NIF"
+        }
+    },
+    "clients": {
+        "title": "Client Management",
+        "buttons": {
+            "add_client": "Add Client",
+            "add_individual": "Add Individual",
+            "add_company": "Add Company"
+        },
+        "table": {
+            "client_type": "Type",
+            "name": "Name",
+            "address": "Address",
+            "nif": "NIF",
+            "national": "National",
+            "is_default": "Default",
+            "actions": "Actions"
+        },
+        "form": {
+            "title_add_individual": "Add Individual Client",
+            "title_edit_individual": "Edit Individual Client",
+            "title_add_company": "Add Company Client",
+            "title_edit_company": "Edit Company Client",
+            "client_type": "Client Type",
+            "individual": "Individual",
+            "company": "Company",
+            "first_name": "First Name *",
+            "last_name": "Last Name *",
+            "company_name": "Company Name *",
+            "company_registration_number": "Registration Number",
+            "personal_id": "Personal ID (DNI/NIE)",
+            "address": "Address",
+            "passport": "Passport",
+            "national": "National Client",
+            "nif": "NIF/CIF *",
+            "is_default": "Set as Default Client"
+        },
+        "messages": {
+            "delete_confirm": "Are you sure you want to delete this client?",
+            "delete_success": "Client deleted successfully",
+            "create_success": "Client created successfully",
+            "update_success": "Client updated successfully",
+            "load_error": "Error loading clients",
+            "save_error": "Error saving client",
+            "delete_error": "Error deleting client"
+        },
+        "types": {
+            "individual": "Individual",
+            "company": "Company"
         }
     }
 }

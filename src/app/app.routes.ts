@@ -54,7 +54,15 @@ export const routes: Routes = [
           import(
             './features/crud-addressee/components/crud-addressee.component'
           ).then((m) => m.CrudAddresseeComponent),
-        title: 'Convertidor Imágenes a PDF',
+        title: 'Addressees',
+      },
+      {
+        path: 'clients',
+        loadComponent: () =>
+          import(
+            './features/clients/components/crud-clients/crud-clients.component'
+          ).then((m) => m.CrudClientsComponent),
+        title: 'Client Management',
       },
     ],
   },

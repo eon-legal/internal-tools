@@ -292,7 +292,7 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
       // Convert Invoice to the format expected by PDF service
       const nameAddressOrPassport: [string, string] = [
         invoice.sender_name || '',
-        invoice.sender_national ? (invoice.sender_address || '') : (invoice.sender_passport || '')
+        invoice.sender_passport || ''
       ];
 
       const secondForm = {
@@ -306,12 +306,8 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
 
       const firstForm = {
         numberInvoice: invoice.invoice_number,
-        dateOrDateRange: false,
-        rangeDates: null,
         date: new Date(invoice.invoice_date),
         name: invoice.sender_name || '',
-        national: invoice.sender_national,
-        address: invoice.sender_address || '',
         passport: invoice.sender_passport || '',
       };
 
