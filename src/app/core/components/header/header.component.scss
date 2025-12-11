@@ -26,6 +26,38 @@
     gap: 1rem;
   }
 
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left: 1rem;
+    border-left: 1px solid var(--surface-border);
+
+    .user-email {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-color-secondary);
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      i {
+        color: var(--primary-color);
+      }
+    }
+
+    .logout-btn {
+      padding: 0.5rem;
+
+      &:hover {
+        color: var(--red-500);
+      }
+    }
+  }
+
   .mobile-menu-btn {
     display: none;
     margin-right: 1rem;
@@ -34,6 +66,12 @@
   @media (max-width: 768px) {
     .mobile-menu-btn {
       display: block !important;
+    }
+
+    .user-info {
+      .user-email {
+        display: none;
+      }
     }
   }
 }
