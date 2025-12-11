@@ -1,9 +1,15 @@
 /**
  * Production environment configuration
- * This file contains configuration values for the production environment.
  *
- * IMPORTANT: Replace these values with production Firebase and Supabase credentials.
- * Consider using environment variables or secret management for production.
+ * This file contains configuration values for the production environment.
+ * The Supabase credentials point to the PRODUCTION database instance.
+ *
+ * IMPORTANT:
+ * - This file is used when running `ng build --configuration production`
+ * - These credentials connect to the live production database
+ * - Changes to this file affect the deployed application
+ *
+ * @see environment.ts for development configuration
  */
 export const environment = {
   production: true,
@@ -20,8 +26,18 @@ export const environment = {
     minimumFetchIntervalMillis: 3600000, // 1 hour for production
   },
   supabase: {
+    /**
+     * Production Supabase Configuration (eon-invoice-backend)
+     * Project ID: wzmppksgwtdffnxhkljh
+     * Region: eu-west-1
+     */
     url: 'https://wzmppksgwtdffnxhkljh.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6bXBwa3Nnd3RkZmZueGhrbGpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0NDYzMzAsImV4cCI6MjA3NjAyMjMzMH0.1Kl_fh6AlNo0vKc_-a2Vxh07WYQs3EDJVthuLhwjZ8A',
+    anonKey:
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6bXBwa3Nnd3RkZmZueGhrbGpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0NDYzMzAsImV4cCI6MjA3NjAyMjMzMH0.1Kl_fh6AlNo0vKc_-a2Vxh07WYQs3EDJVthuLhwjZ8A',
+  },
+  auth: {
+    /** Disable user registration in production by default */
+    registrationEnabled: false,
   },
 };
 
