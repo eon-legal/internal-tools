@@ -1,12 +1,34 @@
 import { Routes } from '@angular/router';
+import { authGuard, noAuthGuard, registrationGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
+  // Authentication routes (no layout, no auth required)
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/components/login/login.component').then(
+        (m) => m.LoginComponent
+      ),
+    canActivate: [noAuthGuard],
+    title: 'Sign In',
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./features/auth/components/register/register.component').then(
+        (m) => m.RegisterComponent
+      ),
+    canActivate: [noAuthGuard, registrationGuard],
+    title: 'Register',
+  },
+  // Protected routes (with layout, auth required)
   {
     path: '',
     loadComponent: () =>
       import('./core/components/layout/layout.component').then(
         (m) => m.LayoutComponent
       ),
+    canActivate: [authGuard],
     children: [
       {
         path: '',
@@ -68,7 +90,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'images-pdf',
+    redirectTo: '',
     pathMatch: 'full',
   },
 ];
