@@ -1,0 +1,106 @@
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%);
+  padding: 1rem;
+}
+
+.register-container {
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+}
+
+.language-switcher-wrapper {
+  position: absolute;
+  top: -3rem;
+  right: 0;
+  z-index: 10;
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  .logo {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+  }
+
+  p {
+    color: var(--text-color-secondary);
+    margin: 0;
+  }
+}
+
+.register-form {
+  .field {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .p-error {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+.register-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--surface-border);
+
+  p {
+    margin: 0;
+    color: var(--text-color-secondary);
+  }
+
+  .login-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+:host ::ng-deep {
+  .p-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .p-card-body {
+    padding: 2rem;
+  }
+
+  .p-inputtext {
+    width: 100%;
+  }
+
+  .p-password {
+    width: 100%;
+  }
+}
+

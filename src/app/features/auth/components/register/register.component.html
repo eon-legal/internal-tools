@@ -1,0 +1,100 @@
+<div class="register-page">
+  <div class="register-container">
+    <!-- Language Switcher -->
+    <div class="language-switcher-wrapper">
+      <app-language-switcher></app-language-switcher>
+    </div>
+
+    <p-card>
+      <div class="register-header">
+        <h1 class="logo">DocPro</h1>
+        <h2>{{ getText('auth.register.title') }}</h2>
+        <p>{{ getText('auth.register.subtitle') }}</p>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        <!-- Email Field -->
+        <div class="field">
+          <label for="email">{{ getText('auth.register.email') }}</label>
+          <input
+            pInputText
+            id="email"
+            type="email"
+            formControlName="email"
+            [placeholder]="getText('auth.register.email_placeholder')"
+            class="w-full"
+            [class.ng-invalid]="hasError('email', 'required') || hasError('email', 'email')"
+          />
+          @if (hasError('email', 'required')) {
+            <small class="p-error">{{ getText('auth.validation.email_required') }}</small>
+          }
+          @if (hasError('email', 'email')) {
+            <small class="p-error">{{ getText('auth.errors.invalid_email') }}</small>
+          }
+        </div>
+
+        <!-- Password Field -->
+        <div class="field">
+          <label for="password">{{ getText('auth.register.password') }}</label>
+          <p-password
+            id="password"
+            formControlName="password"
+            [placeholder]="getText('auth.register.password_placeholder')"
+            [toggleMask]="true"
+            [feedback]="true"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          ></p-password>
+          @if (hasError('password', 'required')) {
+            <small class="p-error">{{ getText('auth.validation.password_required') }}</small>
+          }
+          @if (hasError('password', 'minlength')) {
+            <small class="p-error">{{ getText('auth.errors.password_too_short') }}</small>
+          }
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div class="field">
+          <label for="confirmPassword">{{ getText('auth.register.confirm_password') }}</label>
+          <p-password
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            [placeholder]="getText('auth.register.confirm_password_placeholder')"
+            [toggleMask]="true"
+            [feedback]="false"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          ></p-password>
+          @if (hasError('confirmPassword', 'required')) {
+            <small class="p-error">{{ getText('auth.validation.confirm_password_required') }}</small>
+          }
+          @if (hasError('confirmPassword', 'passwordMismatch')) {
+            <small class="p-error">{{ getText('auth.errors.passwords_not_match') }}</small>
+          }
+        </div>
+
+        <!-- Submit Button -->
+        <div class="field">
+          <p-button
+            type="submit"
+            [label]="isLoading() ? getText('auth.register.registering') : getText('auth.register.submit')"
+            [loading]="isLoading()"
+            [disabled]="isLoading()"
+            styleClass="w-full"
+          ></p-button>
+        </div>
+      </form>
+
+      <!-- Login Link -->
+      <div class="register-footer">
+        <p>
+          {{ getText('auth.register.have_account') }}
+          <a routerLink="/login" class="login-link">
+            {{ getText('auth.register.login_link') }}
+          </a>
+        </p>
+      </div>
+    </p-card>
+  </div>
+</div>
+
