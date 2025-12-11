@@ -1,7 +1,15 @@
 /**
  * Development environment configuration
- * This file contains configuration values for the development environment.
- * DO NOT commit sensitive credentials to version control.
+ *
+ * This file contains configuration values for local development.
+ * The Supabase credentials point to the DEVELOPMENT database instance.
+ *
+ * IMPORTANT:
+ * - Use `ng serve` or `npm start` to run with this configuration
+ * - Replace the placeholder Supabase values with your development database credentials
+ * - DO NOT use production credentials in this file
+ *
+ * @see environment.prod.ts for production configuration
  */
 export const environment = {
   production: false,
@@ -18,8 +26,18 @@ export const environment = {
     minimumFetchIntervalMillis: 1000,
   },
   supabase: {
-    url: 'https://wzmppksgwtdffnxhkljh.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6bXBwa3Nnd3RkZmZueGhrbGpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0NDYzMzAsImV4cCI6MjA3NjAyMjMzMH0.1Kl_fh6AlNo0vKc_-a2Vxh07WYQs3EDJVthuLhwjZ8A',
+    /**
+     * Development Supabase Configuration (eon-invoice-backend-wip)
+     * Project ID: rrmjetsmwookypdtpvna
+     * Region: eu-central-1
+     */
+    url: 'https://rrmjetsmwookypdtpvna.supabase.co',
+    anonKey:
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJybWpldHNtd29va3lwZHRwdm5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzI2MTEsImV4cCI6MjA4MDQ0ODYxMX0.DyWt56SoBQ1lDb6OvAr69JWTgzXxVPdYI7CexcI509M',
+  },
+  auth: {
+    /** Enable user registration in development */
+    registrationEnabled: true,
   },
 };
 
