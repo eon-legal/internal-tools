@@ -1,4 +1,58 @@
 {
+    "auth": {
+        "login": {
+            "title": "Sign In",
+            "subtitle": "Sign in to access your account",
+            "email": "Email",
+            "email_placeholder": "Enter your email",
+            "password": "Password",
+            "password_placeholder": "Enter your password",
+            "submit": "Sign In",
+            "signing_in": "Signing in...",
+            "no_account": "Don't have an account?",
+            "register_link": "Register here",
+            "forgot_password": "Forgot password?"
+        },
+        "register": {
+            "title": "Create Account",
+            "subtitle": "Register to create a new account",
+            "email": "Email",
+            "email_placeholder": "Enter your email",
+            "password": "Password",
+            "password_placeholder": "Enter your password (min. 6 characters)",
+            "confirm_password": "Confirm Password",
+            "confirm_password_placeholder": "Confirm your password",
+            "submit": "Register",
+            "registering": "Registering...",
+            "have_account": "Already have an account?",
+            "login_link": "Sign in here"
+        },
+        "logout": {
+            "button": "Sign Out",
+            "confirm": "Are you sure you want to sign out?"
+        },
+        "errors": {
+            "invalid_credentials": "Invalid email or password",
+            "email_not_confirmed": "Please confirm your email address before signing in",
+            "email_already_registered": "This email is already registered",
+            "password_too_short": "Password must be at least 6 characters",
+            "invalid_email": "Please enter a valid email address",
+            "passwords_not_match": "Passwords do not match",
+            "registration_disabled": "Registration is currently disabled",
+            "unknown": "An unexpected error occurred. Please try again."
+        },
+        "messages": {
+            "login_success": "Welcome back!",
+            "logout_success": "You have been signed out",
+            "register_success": "Account created successfully!",
+            "check_email_confirmation": "Please check your email to confirm your account"
+        },
+        "validation": {
+            "email_required": "Email is required",
+            "password_required": "Password is required",
+            "confirm_password_required": "Please confirm your password"
+        }
+    },
     "common": {
         "buttons": {
             "save": "Save",
