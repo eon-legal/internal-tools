@@ -194,11 +194,11 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
 
     it('should show error when form is invalid', async () => {
       component.combinedFormComponent = {
+        isValidSenderAndTable: jest.fn().mockReturnValue(false),
         isValidDestination: jest.fn().mockReturnValue(false),
         markAllAsTouched: jest.fn(),
         getSelectedDestination: jest.fn(),
       } as any;
-      mockInvoicesStore.getIsValidFirstForm.mockReturnValue(false);
 
       await component.generateInvoice();
 

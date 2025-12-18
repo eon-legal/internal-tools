@@ -3,6 +3,7 @@ import { ConfirmationComponent } from '../../components/confirmation/confirmatio
 import { TestBed } from '@angular/core/testing';
 import { CustomModalService } from '../custom-modal/custom-modal.service';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('ConfirmationService', () => {
   let service: ConfirmationService;
@@ -17,6 +18,7 @@ describe('ConfirmationService', () => {
     } as unknown as DynamicDialogRef;
 
     TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
       providers: [
         ConfirmationService,
         {
@@ -44,11 +46,13 @@ describe('ConfirmationService', () => {
       ConfirmationComponent,
       expect.objectContaining({
         title: '',
-        data: { message: '¿Estás seguro de que deseas realizar esta acción?' },
+        data: { message: 'common.messages.confirm_action' },
       })
     );
     //verificacion adiconal botones
-    const call = customModalService.open.mock.calls[0];
+    const calls = customModalService.open.mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    const call = calls[0]!;
     expect(call).toBeDefined();
     const buttonsConfig = call[1]?.buttons;
     expect(buttonsConfig).toBeDefined();
@@ -82,7 +86,9 @@ describe('ConfirmationService', () => {
   describe('Button actions', () => {
     it('should close with false when Cancel button is clicked', () => {
       service.openConfirmation();
-      const existButtons = customModalService.open.mock.calls[0][1]?.buttons;
+      const calls = customModalService.open.mock.calls;
+      expect(calls.length).toBeGreaterThan(0);
+      const existButtons = calls[0]![1]?.buttons;
       expect(existButtons).toBeDefined();
       expect(existButtons?.buttons).toHaveLength(2);
       expect(existButtons?.buttons?.[0]).toBeDefined();
@@ -92,7 +98,9 @@ describe('ConfirmationService', () => {
 
     it('should close with true when Accept button is clicked', () => {
       service.openConfirmation();
-      const existButtons = customModalService.open.mock.calls[0][1]?.buttons;
+      const calls = customModalService.open.mock.calls;
+      expect(calls.length).toBeGreaterThan(0);
+      const existButtons = calls[0]![1]?.buttons;
       expect(existButtons).toBeDefined();
       expect(existButtons?.buttons).toHaveLength(2);
       expect(existButtons?.buttons?.[1]).toBeDefined();

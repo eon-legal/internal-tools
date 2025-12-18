@@ -80,12 +80,12 @@ describe('TableGenericComponent', () => {
       // PrimeNG tables may add extra columns, so we check for at least our headers
       expect(headerCells.length).toBeGreaterThanOrEqual(mockHeaders.length);
       expect(dataRows.length).toBe(mockUsers.length);
-      
+
       // Verify the content of the first data row
       if (dataRows.length > 0) {
-        const firstRowCells = dataRows[0].querySelectorAll('td');
+        const firstRowCells = dataRows[0]!.querySelectorAll('td');
         expect(firstRowCells.length).toBeGreaterThanOrEqual(mockHeaders.length);
-        expect(firstRowCells[0].textContent).toContain(mockUsers[0].id.toString());
+        expect(firstRowCells[0]!.textContent).toContain(mockUsers[0]!.id.toString());
       }
     });
 
@@ -105,18 +105,18 @@ describe('TableGenericComponent', () => {
     });
 
     it('should reorder items when drag and drop is enabled', () => {
-      const originalFirst = component.dataTable[0];
+      const originalFirst = component.dataTable[0]!;
       component.onDragStart(originalFirst);
-      component.onDrop(component.dataTable[1]);
+      component.onDrop(component.dataTable[1]!);
 
-      expect(component.dataTable[0].id).toBe(2);
-      expect(component.dataTable[1].id).toBe(1);
+      expect(component.dataTable[0]?.id).toBe(2);
+      expect(component.dataTable[1]?.id).toBe(1);
     });
 
     it('should emit reordered event after drop', () => {
       jest.spyOn(component.reordered, 'emit');
-      component.onDragStart(component.dataTable[0]);
-      component.onDrop(component.dataTable[1]);
+      component.onDragStart(component.dataTable[0]!);
+      component.onDrop(component.dataTable[1]!);
 
       expect(component.reordered.emit).toHaveBeenCalledWith(component.dataTable);
     });
@@ -124,9 +124,9 @@ describe('TableGenericComponent', () => {
     it('should not reorder when drag and drop is disabled', () => {
       component.enableDragDrop = false;
       const originalOrder = [...component.dataTable];
-      
-      component.onDragStart(component.dataTable[0]);
-      component.onDrop(component.dataTable[1]);
+
+      component.onDragStart(component.dataTable[0]!);
+      component.onDrop(component.dataTable[1]!);
 
       expect(component.dataTable).toEqual(originalOrder);
     });
@@ -143,15 +143,15 @@ describe('TableGenericComponent', () => {
         }
       };
 
-      const activeFormatted = component.getFormattedValue('active', mockUsers[0]);
-      const emailFormatted = component.getFormattedValue('email', mockUsers[1]);
+      const activeFormatted = component.getFormattedValue('active', mockUsers[0]!);
+      const emailFormatted = component.getFormattedValue('email', mockUsers[1]!);
 
       expect(activeFormatted).toBe('✅ Active');
       expect(emailFormatted).toBe('N/A');
     });
 
     it('should return raw value when no formatFunction is provided', () => {
-      const nameFormatted = component.getFormattedValue('name', mockUsers[0]);
+      const nameFormatted = component.getFormattedValue('name', mockUsers[0]!);
       expect(nameFormatted).toBe('John Doe');
     });
   });
@@ -164,13 +164,13 @@ describe('TableGenericComponent', () => {
 
     it('should call action when button is clicked', () => {
       const mockAction = jest.fn();
-      const testButton: ButtonConfig = { 
-        ...baseButton, 
-        action: mockAction 
+      const testButton: ButtonConfig = {
+        ...baseButton,
+        action: mockAction
       };
-      
-      component.handleOperation(testButton, mockUsers[0]);
-      expect(mockAction).toHaveBeenCalledWith(mockUsers[0]);
+
+      component.handleOperation(testButton, mockUsers[0]!);
+      expect(mockAction).toHaveBeenCalledWith(mockUsers[0]!);
     });
 
     it('should disable button based on condition', () => {
@@ -179,8 +179,8 @@ describe('TableGenericComponent', () => {
         disabledDependsFunction: (row: unknown) => !(row as User).active
       };
 
-      const activeUserDisabled = component.isDisabled(disabledButton, mockUsers[0]);
-      const inactiveUserDisabled = component.isDisabled(disabledButton, mockUsers[1]);
+      const activeUserDisabled = component.isDisabled(disabledButton, mockUsers[0]!);
+      const inactiveUserDisabled = component.isDisabled(disabledButton, mockUsers[1]!);
 
       expect(activeUserDisabled).toBe(false);
       expect(inactiveUserDisabled).toBe(true);
@@ -192,8 +192,8 @@ describe('TableGenericComponent', () => {
         hideDependsFunction: (row: unknown) => !(row as User).active
       };
 
-      const activeUserVisible = component.showButtonOpeartion(hiddenButton, mockUsers[0]);
-      const inactiveUserVisible = component.showButtonOpeartion(hiddenButton, mockUsers[1]);
+      const activeUserVisible = component.showButtonOpeartion(hiddenButton, mockUsers[0]!);
+      const inactiveUserVisible = component.showButtonOpeartion(hiddenButton, mockUsers[1]!);
 
       expect(activeUserVisible).toBe(true);
       expect(inactiveUserVisible).toBe(false);
@@ -205,7 +205,7 @@ describe('TableGenericComponent', () => {
         icon: undefined
       };
 
-      const config = component.getButtons(buttonWithoutIcon, mockUsers[0]);
+      const config = component.getButtons(buttonWithoutIcon, mockUsers[0]!);
       expect(config.buttons?.[0]?.icon).toBe('pi pi-question-circle');
     });
 
@@ -215,7 +215,7 @@ describe('TableGenericComponent', () => {
         icon: 'pi pi-check'
       };
 
-      const config = component.getButtons(customIconButton, mockUsers[0]);
+      const config = component.getButtons(customIconButton, mockUsers[0]!);
       expect(config.buttons?.[0]?.icon).toBe('pi pi-check');
     });
   });
@@ -234,13 +234,13 @@ describe('TableGenericComponent', () => {
       fixture.detectChanges();
 
       expect(() => {
-        component.handleOperation(baseButton, mockUsers[0]);
+        component.handleOperation(baseButton, mockUsers[0]!);
       }).not.toThrow();
     });
 
     it('should handle missing formatOptions', () => {
       component.formatOptions = undefined;
-      const value = component.getFormattedValue('name', mockUsers[0]);
+      const value = component.getFormattedValue('name', mockUsers[0]!);
       expect(value).toBe('John Doe');
     });
 
@@ -251,8 +251,8 @@ describe('TableGenericComponent', () => {
         }
       };
 
-      const withEmail = component.getFormattedValue('email', mockUsers[0]);
-      const withoutEmail = component.getFormattedValue('email', mockUsers[1]);
+      const withEmail = component.getFormattedValue('email', mockUsers[0]!);
+      const withoutEmail = component.getFormattedValue('email', mockUsers[1]!);
 
       expect(withEmail).toBe('JOHN@EXAMPLE.COM');
       expect(withoutEmail).toBe('NO EMAIL');

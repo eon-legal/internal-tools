@@ -14,6 +14,7 @@ import { ModalRef } from '../../../../shared/components/button-generic/interface
 import { ConfirmationComponent } from '../../../../shared/components/confirmation/confirmation.component';
 import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Mock PDFDocument from pdf-lib
 jest.mock('pdf-lib', () => {
@@ -60,6 +61,7 @@ describe('PdfMergeComponent', () => {
         MessagesComponent,
         DragDropAreaComponent,
         FormGenericComponent,
+        TranslateModule.forRoot(),
       ],
       providers: [
         provideHttpClient(),
@@ -70,22 +72,22 @@ describe('PdfMergeComponent', () => {
             mergeAndOpenPdfs: jest.fn(() => Promise.resolve())
           }
         },
-        { 
-          provide: ConfirmationService, 
+        {
+          provide: ConfirmationService,
           useValue: {
             openConfirmation: jest.fn(() => createMockModalRef(true))
           }
         },
-        { 
-          provide: ToastrService, 
+        {
+          provide: ToastrService,
           useValue: {
             warning: jest.fn(),
             error: jest.fn(),
             success: jest.fn()
           }
         },
-        { 
-          provide: DomSanitizer, 
+        {
+          provide: DomSanitizer,
           useValue: {
             bypassSecurityTrustHtml: jest.fn((html) => html)
           }
@@ -108,8 +110,8 @@ describe('PdfMergeComponent', () => {
   it('should initialize formConfig correctly', () => {
     expect(component.formConfig).toBeDefined();
     expect(component.formConfig.length).toBe(1);
-    expect(component.formConfig[0].name).toBe('file');
-    expect(component.formConfig[0].primeNgConfig?.fileOptions?.accept).toEqual(['pdf']);
+    expect(component.formConfig[0]?.name).toBe('file');
+    expect(component.formConfig[0]?.primeNgConfig?.fileOptions?.accept).toEqual(['pdf']);
   });
 
   it('should validate and assign PDF files correctly', () => {

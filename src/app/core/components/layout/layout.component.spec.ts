@@ -5,6 +5,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of, Subject } from 'rxjs';
 import { MenuItem } from 'primeng/api';
 import { jest } from '@jest/globals';
+import { TranslateModule } from '@ngx-translate/core';
 
 class MockRouter {
   private subject = new Subject<NavigationEnd>();
@@ -44,7 +45,8 @@ describe('LayoutComponent', () => {
       imports: [
         LayoutComponent,
         RouterModule,
-        NoopAnimationsModule
+        NoopAnimationsModule,
+        TranslateModule.forRoot()
       ],
       providers: [
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
