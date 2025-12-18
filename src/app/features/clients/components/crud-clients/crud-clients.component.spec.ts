@@ -5,8 +5,9 @@ import { CustomModalService } from '../../../../shared/services/custom-modal/cus
 import { LoadingService } from '../../../../shared/services/loading/loading.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { Client, IndividualClient, CompanyClient } from '../../../invoices/interfaces/database-models';
+import { LanguageService } from '../../../../shared/services/language/language.service';
 
 const mockIndividualClient: IndividualClient = {
   id: '1',
@@ -41,11 +42,15 @@ describe('CrudClientsComponent', () => {
   let mockLoadingService: jest.Mocked<LoadingService>;
   let mockTranslateService: jest.Mocked<TranslateService>;
   let mockToastrService: jest.Mocked<ToastrService>;
+  let mockLanguageService: Partial<LanguageService>;
+  let langChangeSubject: Subject<{ lang: string; translations: unknown }>;
 
   beforeEach(async () => {
+    langChangeSubject = new Subject();
+
     mockClientsDataService = {
       getClients: jest.fn(() => of([mockIndividualClient, mockCompanyClient])),
-      getClientById: jest.fn((id: string) => 
+      getClientById: jest.fn((id: string) =>
         of(id === '1' ? mockIndividualClient : mockCompanyClient)
       ),
       createClient: jest.fn((client: any) => of({ ...client, id: '3' } as Client)),
@@ -84,6 +89,11 @@ describe('CrudClientsComponent', () => {
       warning: jest.fn(),
     } as unknown as jest.Mocked<ToastrService>;
 
+    mockLanguageService = {
+      getText: jest.fn((key: string) => key),
+      onLanguageChange: jest.fn(() => langChangeSubject.asObservable()),
+    };
+
     await TestBed.configureTestingModule({
       imports: [CrudClientsComponent],
       providers: [
@@ -92,6 +102,7 @@ describe('CrudClientsComponent', () => {
         { provide: LoadingService, useValue: mockLoadingService },
         { provide: TranslateService, useValue: mockTranslateService },
         { provide: ToastrService, useValue: mockToastrService },
+        { provide: LanguageService, useValue: mockLanguageService },
       ],
     }).compileComponents();
 

@@ -1,51 +1,58 @@
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CrudAddresseeComponent } from './crud-addressee.component';
 import { ToastrService } from 'ngx-toastr';
 import { CustomModalService } from '../../../shared/services/custom-modal/custom-modal.service';
-import { GenericFirestoreService } from '../../../shared/services/generic-firestore/generic-firestore.service';
+import { AddresseesDataService } from '../../../data-access/addressees/addressees-data.service';
 import { LoadingService } from '../../../shared/services/loading/loading.service';
-import { Observable, of, throwError } from 'rxjs';
+import { LanguageService } from '../../../shared/services/language/language.service';
+import { of, Subject, throwError } from 'rxjs';
 import { SecondForm } from '../../invoices/interfaces/second-form';
 import { MESSAGE_ERROR } from '../../../shared/constants/message-error';
+import { Addressee } from '../interfaces/addressee';
 
-const datosMock: SecondForm[] = [
+const addresseesMock: Addressee[] = [
   {
-    nameDestination: 'Italia',
-    accountDestination: 'cuenta 5',
-    addressDestination: 'direccion 1',
-    nameBank: 'banco 1',
-    addressBank: 'direccion banco 1',
-    nif: '123',
     id: '1',
+    name_destination: 'Italia',
+    account_destination: 'cuenta 5',
+    address_destination: 'direccion 1',
+    name_bank: 'banco 1',
+    address_bank: 'direccion banco 1',
+    nif: '123',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
   },
   {
-    nameDestination: 'Noruega',
-    accountDestination: 'cuenta 10',
-    addressDestination: 'direccion 2',
-    nameBank: 'banco 2',
-    addressBank: 'direccion banco 2',
-    nif: '456',
     id: '2',
+    name_destination: 'Noruega',
+    account_destination: 'cuenta 10',
+    address_destination: 'direccion 2',
+    name_bank: 'banco 2',
+    address_bank: 'direccion banco 2',
+    nif: '456',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
   },
 ];
+
 describe('CrudAddresseeComponent', () => {
   let component: CrudAddresseeComponent;
   let fixture: ComponentFixture<CrudAddresseeComponent>;
-  let mockGenericFirestoreService: {
-    getAll: jest.Mock<Observable<SecondForm[]>>;
-    //jest.fn().mockReturnValue(of[]), update: jest.fn(), delete: jest.fn(), add: jest.fn()
+  let mockAddresseesDataService: {
+    getAddressees: jest.Mock;
   };
   let mockToastService: jest.Mocked<ToastrService>;
   let mockLoadingService: { show: jest.Mock; hide: jest.Mock };
   let customModalService: { open: jest.Mock };
+  let mockLanguageService: Partial<LanguageService>;
+  let langChangeSubject: Subject<{ lang: string; translations: unknown }>;
 
   beforeEach(async () => {
-    mockGenericFirestoreService = {
-      getAll: jest.fn(),
+    langChangeSubject = new Subject();
+
+    mockAddresseesDataService = {
+      getAddressees: jest.fn(() => of(addresseesMock)),
     };
 
     mockToastService = {
@@ -56,8 +63,14 @@ describe('CrudAddresseeComponent', () => {
       show: jest.fn(),
       hide: jest.fn(),
     };
+
     customModalService = {
       open: jest.fn(),
+    };
+
+    mockLanguageService = {
+      getText: jest.fn((key: string) => key),
+      onLanguageChange: jest.fn(() => langChangeSubject.asObservable()),
     };
 
     await TestBed.configureTestingModule({
@@ -65,11 +78,9 @@ describe('CrudAddresseeComponent', () => {
       providers: [
         { provide: ToastrService, useValue: mockToastService },
         { provide: CustomModalService, useValue: customModalService },
-        {
-          provide: GenericFirestoreService,
-          useValue: mockGenericFirestoreService,
-        },
+        { provide: AddresseesDataService, useValue: mockAddresseesDataService },
         { provide: LoadingService, useValue: mockLoadingService },
+        { provide: LanguageService, useValue: mockLanguageService },
       ],
     }).compileComponents();
 
@@ -81,50 +92,37 @@ describe('CrudAddresseeComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load addressees on ngOnInit', 
-    //fakeAsync(
-      () => {
+  it('should load addressees on ngOnInit', () => {
     // Arrange
-    mockGenericFirestoreService.getAll.mockReturnValue(of(datosMock));
+    mockAddresseesDataService.getAddressees.mockReturnValue(of(addresseesMock));
 
     // Act
     component.ngOnInit();
-    //fixture.detectChanges(); // Trigger change detection to start the data loading
-    //tick(); // Simulate the asynchronous operation completing
-    //fixture.detectChanges(); // Update the view with the loaded data
 
     // Assert
-    expect(mockGenericFirestoreService.getAll).toHaveBeenCalled();
+    expect(mockAddresseesDataService.getAddressees).toHaveBeenCalled();
     expect(component.dataTable.length).toBe(2);
-  }
-//)
-);
+  });
 
-  it('should handle error when loading addressees fails', 
-    //fakeAsync(
-      () => {
+  it('should handle error when loading addressees fails', () => {
     // Arrange
-    mockGenericFirestoreService.getAll.mockReturnValue(
+    mockAddresseesDataService.getAddressees.mockReturnValue(
       throwError(() => new Error('Simulated error'))
     );
 
     // Act
     component.ngOnInit();
-    //fixture.detectChanges();
-    /*tick();
-    fixture.detectChanges();*/
 
     // Assert
-    expect(mockGenericFirestoreService.getAll).toHaveBeenCalled();
+    expect(mockAddresseesDataService.getAddressees).toHaveBeenCalled();
     expect(component.dataTable.length).toBe(0);
-    expect(mockToastService.error).toHaveBeenCalledWith(MESSAGE_ERROR, 'Error');
-  }
-//)
-);
-  it('should call the addressee', () => {
+    expect(mockToastService.error).toHaveBeenCalledWith(MESSAGE_ERROR, 'common.labels.error');
+  });
+
+  it('should call the addressee modal', () => {
     const row = { id: '1', nameDestination: 'test' } as SecondForm;
     const mockModalServiceRef = {
-      onClose: jest.fn().mockReturnValue(of(undefined)), // Simula un observable
+      onClose: jest.fn().mockReturnValue(of(undefined)),
       close: jest.fn(),
       getInstance: jest.fn(),
     };
@@ -136,5 +134,4 @@ describe('CrudAddresseeComponent', () => {
     component.opneAddEditAddressee(row);
     expect(customModalService.open).toHaveBeenCalled();
   });
-
 });

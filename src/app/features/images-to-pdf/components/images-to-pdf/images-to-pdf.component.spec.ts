@@ -12,6 +12,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { ModalRef } from '../../../../shared/components/button-generic/interfaces/buttons';
 import { ConfirmationComponent } from '../../../../shared/components/confirmation/confirmation.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Mock jsPDF
 jest.mock('jspdf', () => {
@@ -65,6 +66,7 @@ describe('ImagesToPdfComponent', () => {
         MessagesComponent,
         DragDropAreaComponent,
         FormGenericComponent,
+        TranslateModule.forRoot(),
       ],
       providers: [
         provideHttpClient(),
@@ -90,7 +92,7 @@ describe('ImagesToPdfComponent', () => {
   it('should initialize formConfig correctly', () => {
     expect(component.formConfig).toBeDefined();
     expect(component.formConfig.length).toBe(1);
-    expect(component.formConfig[0].name).toBe('file');
+    expect(component.formConfig[0]?.name).toBe('file');
   });
 
   it('should validate and assign files correctly', () => {

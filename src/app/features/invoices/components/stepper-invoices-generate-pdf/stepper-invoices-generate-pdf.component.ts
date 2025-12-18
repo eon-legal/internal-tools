@@ -110,7 +110,9 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
       return;
     }
 
-    const isValidFirstForm = this.store.getIsValidFirstForm(); // Check if sender form is valid
+    // Validate sender form and table directly from the component (not store)
+    // The store value is only updated on component destroy, so we need real-time validation
+    const isValidFirstForm = this.combinedFormComponent.isValidSenderAndTable();
     const isValidDestination = this.combinedFormComponent.isValidDestination();
     const messages = this.translate.instant('invoices.validation.step1_invalid');
 

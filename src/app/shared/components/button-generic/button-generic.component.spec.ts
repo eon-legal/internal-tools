@@ -3,18 +3,26 @@ import { ButtonGenericComponent } from './button-generic.component';
 import { ButtonModule } from 'primeng/button';
 import { NgClass } from '@angular/common';
 import { ButtonGenericInterface, ButtonConfig } from './interfaces/buttons';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('ButtonGenericComponent', () => {
   let component: ButtonGenericComponent;
   let fixture: ComponentFixture<ButtonGenericComponent>;
 
+  const defaultButtonsConfig: ButtonGenericInterface = {
+    css: 'flex justify-content-center gap-3',
+    buttons: [],
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ButtonModule, NgClass, ButtonGenericComponent], // Importa el componente standalone
+      imports: [ButtonModule, NgClass, ButtonGenericComponent, TranslateModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ButtonGenericComponent);
     component = fixture.componentInstance;
+    // Set default buttons config before detectChanges to avoid undefined errors
+    component.buttons = defaultButtonsConfig;
     fixture.detectChanges();
   });
 

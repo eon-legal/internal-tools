@@ -14,6 +14,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormInvoicesDataComponent } from '../form-invoices-data/form-invoices-data.component';
 import { CustomModalService } from '../../../../../shared/services/custom-modal/custom-modal.service';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Mocks
 class MockInvoicesStore {
@@ -46,6 +47,7 @@ describe('ContainInvoicesComponent', () => {
         TableGenericComponent,
         ButtonGenericComponent,
         ContainInvoicesComponent,
+        TranslateModule.forRoot(),
       ],
       providers: [
         { provide: InvoicesStore, useValue: new MockInvoicesStore() },
@@ -78,8 +80,8 @@ describe('ContainInvoicesComponent', () => {
 
   it('should initialize with empty table if store is empty', () => {
     expect(component.rowTable.length).toBe(2);
-    expect(component.rowTable[0].perCentIva).toBe(DataInvoicesConstant.IVA);
-    expect(component.rowTable[1].perCentIva).toBe(DataInvoicesConstant.TOTAL);
+    expect(component.rowTable[0]?.perCentIva).toBe(DataInvoicesConstant.IVA);
+    expect(component.rowTable[1]?.perCentIva).toBe(DataInvoicesConstant.TOTAL);
   });
 
   it('should initialize with existing data from store', () => {
@@ -183,7 +185,7 @@ describe('ContainInvoicesComponent', () => {
     component.deleteRow({ indexDelete: 1 } as DataInvoicesTable);
 
     expect(component.rowTable.length).toBe(3);
-    expect(component.rowTable[0].description).toBe('Item 2');
+    expect(component.rowTable[0]?.description).toBe('Item 2');
     expect(component.updateFieldTableSumAllExcepIVA).toHaveBeenCalled();
   });
 
@@ -194,7 +196,7 @@ describe('ContainInvoicesComponent', () => {
     expect(customModalService.open).toHaveBeenCalledWith(
       FormInvoicesDataComponent,
       expect.objectContaining({
-        title: 'Inserte Datos Factura',
+        title: 'invoices.table.modal_title',
         width: '60vw',
         data: {},
       })
@@ -228,16 +230,17 @@ describe('ContainInvoicesComponent', () => {
     tick();
 
     const newItem = component.rowTable[0];
-    expect(newItem.description).toBe('Test Item');
-    expect(newItem.total).toBe(100);
-    expect(newItem.sTotal).toBeCloseTo(82.64);
-    expect(newItem.perCentIva).toBe(21);
-    expect(newItem.total).toBe(100);
+    expect(newItem).toBeDefined();
+    expect(newItem!.description).toBe('Test Item');
+    expect(newItem!.total).toBe(100);
+    expect(newItem!.sTotal).toBeCloseTo(82.64);
+    expect(newItem!.perCentIva).toBe(21);
+    expect(newItem!.total).toBe(100);
 
-    expect(component.rowTable[1].perCentIva).toBe(DataInvoicesConstant.IVA);
-    expect(component.rowTable[1].total).toBeCloseTo(17.36);
-    expect(component.rowTable[2].perCentIva).toBe(DataInvoicesConstant.TOTAL);
-    expect(component.rowTable[2].total).toBe(100);
+    expect(component.rowTable[1]?.perCentIva).toBe(DataInvoicesConstant.IVA);
+    expect(component.rowTable[1]?.total).toBeCloseTo(17.36);
+    expect(component.rowTable[2]?.perCentIva).toBe(DataInvoicesConstant.TOTAL);
+    expect(component.rowTable[2]?.total).toBe(100);
 
     expect(component.updateFieldTableSumAllExcepIVA).toHaveBeenCalled();
   }));
@@ -276,8 +279,8 @@ describe('ContainInvoicesComponent', () => {
 
     component.updateFieldTableSumAllExcepIVA();
 
-    expect(component.rowTable[2].total).toBeCloseTo(52.08);
-    expect(component.rowTable[3].total).toBe(300);
+    expect(component.rowTable[2]?.total).toBeCloseTo(52.08);
+    expect(component.rowTable[3]?.total).toBe(300);
   });
 
   it('should assign unique indexDelete values', () => {
