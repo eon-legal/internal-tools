@@ -131,9 +131,19 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
       return;
     }
 
-    // Get data from the forms and table
-    const first = this.store.getFirstForm();
-    const table = this.store.getTableContain();
+    // Get data from the forms and table directly from components (not store)
+    // The store values are only updated on component destroy, so we need real-time data
+    const first = this.combinedFormComponent.getSenderFormData();
+    const table = this.combinedFormComponent.getTableData();
+
+    // Validate sender form data is available
+    if (!first) {
+      this.toastr.error(
+        this.translate.instant('invoices.validation.step1_invalid'),
+        this.translate.instant('common.labels.error')
+      );
+      return;
+    }
 
     // Get selected destination from the combined form
     const selectedDestination = this.combinedFormComponent.getSelectedDestination();

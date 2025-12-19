@@ -14,6 +14,8 @@ import { ToastrService } from 'ngx-toastr';
 import { forkJoin, map, Subscription } from 'rxjs';
 import { getClientDisplayName } from '../../interfaces/database-models';
 import { SecondForm } from '../../interfaces/second-form';
+import { FisrtForm } from '../../interfaces/first-form';
+import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
 
 /**
  * Combined component that merges the sender form, invoice table, and destination selector
@@ -194,6 +196,23 @@ export class InvoiceCombinedFormComponent implements OnInit, OnDestroy {
    */
   getSelectedDestination(): { label: string; value: string } | undefined {
     return this.destinationFormComponent?.getForm?.get('chooseDestination')?.value;
+  }
+
+  /**
+   * Gets the sender form data directly from the form (not from store).
+   * This ensures we get the current form values, not stale store data.
+   * @returns The sender form data, or undefined if the form is not available.
+   */
+  getSenderFormData(): FisrtForm | undefined {
+    return this.senderFormComponent?.formSenderGenericComponent?.getDataFormComplete();
+  }
+
+  /**
+   * Gets the invoice table data directly from the component.
+   * @returns The invoice table data array, or empty array if not available.
+   */
+  getTableData(): DataInvoicesTable[] {
+    return this.invoiceTableComponent?.rowTable ?? [];
   }
 }
 
