@@ -53,6 +53,7 @@
         }
     },
     "menu": {
+        "tools": "Tools",
         "images_to_pdf": "Image - PDF",
         "pdf_merge": "Merge PDFs",
         "invoices": "Invoices",
@@ -255,6 +256,10 @@
             "bank_name": "Bank Name",
             "bank_address": "Bank Address",
             "nif": "NIF"
+        },
+        "actions": {
+            "edit": "Edit",
+            "delete": "Delete"
         }
     },
     "clients": {
@@ -272,6 +277,11 @@
             "national": "National",
             "is_default": "Default",
             "actions": "Actions"
+        },
+        "actions": {
+            "edit": "Edit",
+            "delete": "Delete",
+            "set_default": "Set as Default"
         },
         "form": {
             "title_add_individual": "Add Individual Client",
