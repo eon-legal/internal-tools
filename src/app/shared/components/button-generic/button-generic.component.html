@@ -24,6 +24,8 @@
     [outlined]="button.outlined"
     [text]="button.text"
     [size]="button.size"
+    [pTooltip]="button.tooltip"
+    [tooltipPosition]="button.tooltipPosition ?? 'top'"
     (click)="button.action ? button.action() : undefined"
   >
   </p-button>
