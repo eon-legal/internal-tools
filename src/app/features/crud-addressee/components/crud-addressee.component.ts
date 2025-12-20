@@ -208,7 +208,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
       InvoicesDestinationFormComponent,
       {
         title: this.languageService.getText('addressee.buttons.add_addressee'),
-        width: '60vw',
+        width: '800px',
         data: { isModal: true, initialField: row },
         buttons: {
           css: 'flex flex-column md:flex-row md:justify-content-between gap-2',

@@ -229,7 +229,7 @@ export class CrudClientsComponent implements OnInit, OnDestroy {
       ClientFormComponent,
       {
         title: this.languageService.getText(titleKey),
-        width: '60vw',
+        width: '800px',
         data: { isModal: true, initialData: existingClient },
         buttons: {
           css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
