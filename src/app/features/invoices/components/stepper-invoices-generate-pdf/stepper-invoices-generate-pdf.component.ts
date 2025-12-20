@@ -2,7 +2,7 @@ import {
   AfterViewInit,
   Component,
   inject,
-  signal,
+  OnDestroy,
   ViewChild,
 } from '@angular/core';
 import { InvoiceCombinedFormComponent } from '../invoice-combined-form/invoice-combined-form.component';
@@ -12,11 +12,8 @@ import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { InvoicesStore } from '../../../../store/app.store';
 import { DataInvoicesConstant } from '../../constants/data-invoices';
-import {
-  ButtonConfig,
-} from '../../../../shared/components/button-generic/interfaces/buttons';
 import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InvoicesDataService } from '../../../../data-access/invoices/invoices-data.service';
 import { ClientsDataService } from '../../../../data-access/clients/clients-data.service';
 import { AddresseesDataService } from '../../../../data-access/addressees/addressees-data.service';
@@ -24,7 +21,6 @@ import { generateNextInvoiceNumberFromArray } from '../../../../domain/invoices/
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { getClientDisplayName } from '../../interfaces/database-models';
-import { ButtonGenericComponent } from '../../../../shared/components/button-generic/button-generic.component';
 
 /**
  * Single-page invoice creation component that combines all invoice data entry
@@ -33,11 +29,11 @@ import { ButtonGenericComponent } from '../../../../shared/components/button-gen
 @Component({
   selector: 'app-stepper-invoices-generate-pdf',
   standalone: true,
-  imports: [CommonModule, InvoiceCombinedFormComponent, ButtonModule, ButtonGenericComponent],
+  imports: [CommonModule, InvoiceCombinedFormComponent, ButtonModule, TranslateModule],
   templateUrl: './stepper-invoices-generate-pdf.component.html',
   styleUrl: './stepper-invoices-generate-pdf.component.scss',
 })
-export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
+export class StepperInvoicesGeneratePdfComponent implements AfterViewInit, OnDestroy {
   /** Reference to the combined form component */
   @ViewChild(InvoiceCombinedFormComponent)
   combinedFormComponent!: InvoiceCombinedFormComponent;
@@ -52,39 +48,25 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
   private readonly addresseesDataService = inject(AddresseesDataService);
   private readonly router = inject(Router);
 
-  /** Signal to track if invoice is being saved */
-  isSaving = signal(false);
-
-  /** Array of action buttons */
-  actionButtons: ButtonConfig[] = [
-    {
-      id: 1,
-      label: this.translate.instant('invoices.stepper.buttons.clear_all'),
-      icon: 'pi pi-times',
-      severity: 'warn',
-      iconPos: 'right',
-      action: () => this.cleanDataStep(),
-    },
-    {
-      id: 2,
-      label: this.translate.instant('invoices.stepper.buttons.generate_invoice'),
-      icon: 'pi pi-file-pdf',
-      iconPos: 'right',
-      action: () => this.generateInvoice(),
-    },
-  ];
-
-  /** Configuration for the button group */
-  buttonGroupConfig = {
-    css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
-    buttons: this.actionButtons,
-  };
-
   /**
    * Lifecycle hook that runs after the view is initialized.
    */
   ngAfterViewInit() {
     // Component is ready
+  }
+
+  /**
+   * Sets the saving state on the child component
+   */
+  private setSaving(saving: boolean): void {
+    this.combinedFormComponent?.setSaving(saving);
+  }
+
+  /**
+   * Navigates to the invoice history page.
+   */
+  navigateToHistory(): void {
+    this.router.navigate(['/invoices']);
   }
 
   /**
@@ -161,7 +143,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
       : undefined;
 
     try {
-      this.isSaving.set(true);
+      this.setSaving(true);
 
       // Fetch destination data based on selection
       let destinationData;
@@ -238,7 +220,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
       };
 
       // Save to Supabase
-      const savedInvoice = await firstValueFrom(
+      await firstValueFrom(
         this.invoicesDataService.createInvoice(invoiceData)
       );
 
@@ -271,7 +253,7 @@ export class StepperInvoicesGeneratePdfComponent implements AfterViewInit {
         this.translate.instant('common.labels.error')
       );
     } finally {
-      this.isSaving.set(false);
+      this.setSaving(false);
     }
   }
 
