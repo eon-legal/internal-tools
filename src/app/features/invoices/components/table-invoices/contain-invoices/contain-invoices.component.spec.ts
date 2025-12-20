@@ -197,7 +197,7 @@ describe('ContainInvoicesComponent', () => {
       FormInvoicesDataComponent,
       expect.objectContaining({
         title: 'invoices.table.modal_title',
-        width: '60vw',
+        width: '800px',
         data: {},
       })
     );
