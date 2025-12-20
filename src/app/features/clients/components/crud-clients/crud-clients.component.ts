@@ -69,34 +69,8 @@ export class CrudClientsComponent implements OnInit, OnDestroy {
 
   headerData: HeaderTable<ClientTableRow>[] = [];
 
-  operation: ButtonGenericInterface = {
-    buttons: [
-      {
-        id: 1,
-        icon: 'pi pi-trash',
-        severity: 'danger',
-        action: (row: ClientTableRow) => {
-          this.deleteClient(row.id);
-        },
-      },
-      {
-        id: 2,
-        icon: 'pi pi-pencil',
-        severity: 'primary',
-        action: (row: ClientTableRow) => {
-          this.loadAndEditClient(row.id);
-        },
-      },
-      {
-        id: 3,
-        icon: 'pi pi-star',
-        severity: 'info',
-        action: (row: ClientTableRow) => {
-          this.setDefaultClient(row.id);
-        },
-      },
-    ],
-  };
+  /** Configuration for table operations - initialized in updateTranslations */
+  operation: ButtonGenericInterface = { buttons: [] };
 
   dataTable: ClientTableRow[] = [];
 
@@ -168,6 +142,40 @@ export class CrudClientsComponent implements OnInit, OnDestroy {
         header: this.languageService.getText('clients.table.is_default'),
       },
     ];
+
+    // Update table operations with Invoice History style (rounded, text, tooltips)
+    this.operation = {
+      css: 'flex gap-1 justify-content-center',
+      buttons: [
+        {
+          id: 1,
+          icon: 'pi pi-pencil',
+          severity: 'success',
+          rounded: true,
+          text: true,
+          tooltip: this.languageService.getText('clients.actions.edit'),
+          action: (row: ClientTableRow) => this.loadAndEditClient(row.id),
+        },
+        {
+          id: 2,
+          icon: 'pi pi-star',
+          severity: 'info',
+          rounded: true,
+          text: true,
+          tooltip: this.languageService.getText('clients.actions.set_default'),
+          action: (row: ClientTableRow) => this.setDefaultClient(row.id),
+        },
+        {
+          id: 3,
+          icon: 'pi pi-trash',
+          severity: 'danger',
+          rounded: true,
+          text: true,
+          tooltip: this.languageService.getText('clients.actions.delete'),
+          action: (row: ClientTableRow) => this.deleteClient(row.id),
+        },
+      ],
+    };
   }
 
   ngOnDestroy(): void {
@@ -221,7 +229,7 @@ export class CrudClientsComponent implements OnInit, OnDestroy {
       ClientFormComponent,
       {
         title: this.languageService.getText(titleKey),
-        width: '60vw',
+        width: '800px',
         data: { isModal: true, initialData: existingClient },
         buttons: {
           css: 'flex flex-column md:flex-row md:justify-content-between gap-2',

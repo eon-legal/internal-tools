@@ -212,7 +212,7 @@ export class ContainInvoicesComponent implements OnDestroy, OnInit {
       FormInvoicesDataComponent,
       {
         title: this.translate.instant('invoices.table.modal_title'),
-        width: '60vw',
+        width: '800px',
         data: {},
         buttons: {
           css: 'flex flex-column md:flex-row md:justify-content-between gap-2',

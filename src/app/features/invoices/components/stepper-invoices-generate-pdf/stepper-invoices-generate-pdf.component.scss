@@ -1,0 +1,33 @@
+.invoice-create-page {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .page-header {
+    .header-content {
+      h1 {
+        color: var(--text-color);
+      }
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    padding: 1rem;
+
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+
+      .header-content {
+        h1 {
+          font-size: 1.5rem;
+        }
+      }
+
+      p-button {
+        align-self: flex-start;
+      }
+    }
+  }
+}

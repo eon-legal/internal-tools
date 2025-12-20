@@ -120,20 +120,22 @@ describe('LayoutComponent', () => {
     });
 
     it('should mark parent menu item as active when child route matches', () => {
+      const childItem: MenuItem = {
+        label: 'Child',
+        routerLink: ['/child'],
+        styleClass: ''
+      };
       const testParent: MenuItem = {
         label: 'Parent',
         styleClass: '',
-        items: [{
-          label: 'Child',
-          routerLink: ['/child'],
-          styleClass: ''
-        }]
+        items: [childItem]
       };
       component.menuItems = [testParent];
-      
+
       component['updateMenuState']('/child');
       expect(testParent.styleClass).toContain('p-menuitem-parent-active');
       expect(testParent.expanded).toBe(true);
+      expect(childItem.styleClass).toContain('p-menuitem-active');
     });
 
     it('should not mark menu item as active when route does not match', () => {

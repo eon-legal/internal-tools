@@ -169,6 +169,17 @@ export class InvoiceEditComponent implements OnInit, OnDestroy {
    * Populate form with invoice data
    */
   private populateForm(invoice: Invoice): void {
+    // Debug: Log the invoice data to see what's coming from the database
+    console.log('Invoice data received:', invoice);
+    console.log('Destination fields:', {
+      destination_name: invoice.destination_name,
+      destination_account: invoice.destination_account,
+      destination_address: invoice.destination_address,
+      destination_bank_name: invoice.destination_bank_name,
+      destination_bank_address: invoice.destination_bank_address,
+      destination_nif: invoice.destination_nif,
+    });
+
     const idType = (invoice.sender_identification_type || 'DNI') as IdentificationType;
 
     // Update validators before patching values
@@ -188,6 +199,9 @@ export class InvoiceEditComponent implements OnInit, OnDestroy {
       destination_nif: invoice.destination_nif,
       paid: invoice.paid,
     });
+
+    // Debug: Log form values after patching
+    console.log('Form values after patch:', this.invoiceForm.getRawValue());
   }
 
   /**

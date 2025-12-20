@@ -10,6 +10,11 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        redirectTo: 'images-to-pdf',
+        pathMatch: 'full',
+      },
+      {
+        path: 'images-to-pdf',
         loadComponent: () =>
           import(
             './features/images-to-pdf/components/images-to-pdf/images-to-pdf.component'

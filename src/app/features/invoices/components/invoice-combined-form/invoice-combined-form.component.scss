@@ -1,35 +1,41 @@
+@use '../../styles/invoice-section' as section;
+
 .invoice-combined-form {
-  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 
-  .destination-section {
-    background-color: var(--surface-card);
-    padding: 1.5rem;
-    border-radius: 8px;
-    border: 1px solid var(--surface-border);
+  .form-section { @include section.invoice-section-card; }
+  .section-header { @include section.invoice-section-header; }
+  .section-icon { @include section.invoice-section-icon; }
+  .section-title-wrapper { flex: 1; min-width: 0; }
+  .section-title { @include section.invoice-section-title; }
+  .section-description { @include section.invoice-section-description; }
+  .section-content { padding: 1.5rem; }
+
+  // Section-specific icon colors
+  .destination-section .section-icon { background-color: #3b82f6; }
+  .sender-section .section-icon { background-color: #10b981; }
+  .table-section .section-icon { background-color: #8b5cf6; }
+
+  // Action buttons section
+  .action-section {
+    .action-buttons {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 1rem;
+    }
   }
 
-  .sender-section {
-    background-color: var(--surface-card);
-    padding: 1.5rem;
-    border-radius: 8px;
-    border: 1px solid var(--surface-border);
-  }
+  @include section.invoice-section-mobile;
 
-  .divider {
-    height: 1px;
-    background-color: var(--surface-border);
-  }
+  @media (max-width: 768px) {
+    gap: 1rem;
 
-  .table-section {
-    background-color: var(--surface-card);
-    padding: 1.5rem;
-    border-radius: 8px;
-    border: 1px solid var(--surface-border);
-  }
-
-  h3 {
-    color: var(--text-color);
-    margin-bottom: 1rem;
+    .action-section .action-buttons {
+      flex-direction: column;
+    }
   }
 }
 

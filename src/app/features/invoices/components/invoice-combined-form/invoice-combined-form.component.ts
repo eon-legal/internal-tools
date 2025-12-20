@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Validators } from '@angular/forms';
 import { InvoicesSenderFormComponent } from '../invoices-sender-form/invoices-sender-form.component';
@@ -8,14 +8,13 @@ import { FormGenericComponent } from '../../../../shared/components/form-generic
 import { FormField } from '../../../../shared/components/form-generic/interfaces/form-field';
 import { InvoicesStore } from '../../../../store/app.store';
 import { AddresseesDataService } from '../../../../data-access/addressees/addressees-data.service';
-import { ClientsDataService } from '../../../../data-access/clients/clients-data.service';
 import { LoadingService } from '../../../../shared/services/loading/loading.service';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin, map, Subscription } from 'rxjs';
-import { getClientDisplayName } from '../../interfaces/database-models';
+import { map, Subscription } from 'rxjs';
 import { SecondForm } from '../../interfaces/second-form';
 import { FisrtForm } from '../../interfaces/first-form';
 import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
+import { ButtonModule } from 'primeng/button';
 
 /**
  * Combined component that merges the sender form, invoice table, and destination selector
@@ -25,7 +24,7 @@ import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
 @Component({
   selector: 'app-invoice-combined-form',
   standalone: true,
-  imports: [CommonModule, InvoicesSenderFormComponent, ContainInvoicesComponent, TranslateModule, FormGenericComponent],
+  imports: [CommonModule, InvoicesSenderFormComponent, ContainInvoicesComponent, TranslateModule, FormGenericComponent, ButtonModule],
   templateUrl: './invoice-combined-form.component.html',
   styleUrl: './invoice-combined-form.component.scss',
 })
@@ -34,10 +33,13 @@ export class InvoiceCombinedFormComponent implements OnInit, OnDestroy {
   private readonly translate = inject(TranslateService);
   readonly store = inject(InvoicesStore);
   private readonly addresseesDataService = inject(AddresseesDataService);
-  private readonly clientsDataService = inject(ClientsDataService);
   private readonly toastr = inject(ToastrService);
   private readonly loadingService = inject(LoadingService);
   private readonly cdr = inject(ChangeDetectorRef);
+
+  /** Event emitters for parent communication */
+  @Output() clearAll = new EventEmitter<void>();
+  @Output() generateInvoice = new EventEmitter<void>();
 
   /** Subscription for cleanup */
   private subscriptions: Subscription[] = [];
@@ -60,6 +62,9 @@ export class InvoiceCombinedFormComponent implements OnInit, OnDestroy {
   /** Flag to track if destinations are loaded */
   destinationsLoaded = false;
 
+  /** Flag to track if the invoice is being saved */
+  isSaving = false;
+
   ngOnInit(): void {
     this.loadDestinations();
   }
@@ -75,31 +80,19 @@ export class InvoiceCombinedFormComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Loads addressees and clients from Supabase and populates the dropdown.
+   * Loads addressees (destinatarios) from Supabase and populates the dropdown.
    */
   loadDestinations(): void {
     this.loadingService.show();
     this.subscriptions.push(
-      forkJoin({
-        addressees: this.addresseesDataService.getAddressees(),
-        clients: this.clientsDataService.getClients(),
-      })
+      this.addresseesDataService.getAddressees()
         .pipe(
-          map(({ addressees, clients }) => {
-            // Transform clients to dropdown options
-            const clientOptions = clients.map((client) => ({
-              label: `👤 ${getClientDisplayName(client)}`,
-              value: `client_${client.id}`,
-            }));
-
-            // Transform addressees to dropdown options
-            const addresseeOptions = addressees.map((addressee) => ({
+          map((addressees) => {
+            // Transform addressees to dropdown options (only destinatarios)
+            return addressees.map((addressee) => ({
               label: `📧 ${addressee.name_destination}`,
               value: `addressee_${addressee.id}`,
             }));
-
-            // Combine both lists
-            return [...clientOptions, ...addresseeOptions];
           })
         )
         .subscribe({
@@ -213,6 +206,30 @@ export class InvoiceCombinedFormComponent implements OnInit, OnDestroy {
    */
   getTableData(): DataInvoicesTable[] {
     return this.invoiceTableComponent?.rowTable ?? [];
+  }
+
+  /**
+   * Handles the clear all button click.
+   * Emits an event to the parent component.
+   */
+  onClearAll(): void {
+    this.clearAll.emit();
+  }
+
+  /**
+   * Handles the generate invoice button click.
+   * Emits an event to the parent component.
+   */
+  onGenerateInvoice(): void {
+    this.generateInvoice.emit();
+  }
+
+  /**
+   * Sets the saving state (used by parent component).
+   */
+  setSaving(saving: boolean): void {
+    this.isSaving = saving;
+    this.cdr.detectChanges();
   }
 }
 

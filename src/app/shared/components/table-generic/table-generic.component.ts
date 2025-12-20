@@ -181,10 +181,18 @@ export class TableGenericComponent<T extends object> {
       buttons: [
         {
           id: op.id,
-          icon: icon, // Aseguramos que siempre tenga valor
+          icon: icon,
           label: op.label,
           severity: op.severity,
           disabled: this.isDisabled(op, row),
+          rounded: op.rounded,
+          text: op.text,
+          outlined: op.outlined,
+          raised: op.raised,
+          size: op.size,
+          styleClass: op.styleClass,
+          tooltip: op.tooltip,
+          tooltipPosition: op.tooltipPosition,
           action: () => {
             if (!this.isDisabled(op, row) && op.action) {
               op.action(row);

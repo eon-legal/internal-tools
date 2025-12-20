@@ -28,6 +28,8 @@ export interface ButtonConfigBase {
   outlined?: boolean;
   text?: boolean;
   size?: 'small' | 'large';
+  tooltip?: string;
+  tooltipPosition?: 'top' | 'bottom' | 'left' | 'right';
   action?: FlexibleFunction;
   disabledDependsFunction?: FlexibleBooleanFunction;
   hideDependsFunction?: FlexibleBooleanFunction;

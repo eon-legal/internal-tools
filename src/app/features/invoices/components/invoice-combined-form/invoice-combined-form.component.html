@@ -1,31 +1,80 @@
 <div class="invoice-combined-form">
-  <!-- Destination Selector Section -->
-  <div class="destination-section mb-4">
-    <h3 class="text-xl font-semibold mb-3">{{ 'invoices.destination_form.choose_destination' | translate }}</h3>
-    <p class="mb-3 text-color-secondary">
-      {{ 'invoices.destination_selector.description' | translate }}
-    </p>
-    @if (destinationFormConfig.length > 0) {
-      <app-form-generic #destinationForm [formConfig]="destinationFormConfig"></app-form-generic>
-    }
+  <!-- Sender/Client Selection Section -->
+  <div class="form-section destination-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="pi pi-building"></i>
+      </div>
+      <div class="section-title-wrapper">
+        <h3 class="section-title">{{ 'invoices.destination_form.choose_destination' | translate }}</h3>
+        <p class="section-description">
+          {{ 'invoices.destination_selector.description' | translate }}
+        </p>
+      </div>
+    </div>
+    <div class="section-content">
+      @if (destinationFormConfig.length > 0) {
+        <app-form-generic #destinationForm [formConfig]="destinationFormConfig"></app-form-generic>
+      }
+    </div>
   </div>
 
-  <!-- Divider -->
-  <div class="divider my-4"></div>
-
-  <!-- Sender Form Section -->
-  <div class="sender-section mb-4">
-    <h3 class="text-xl font-semibold mb-3">{{ 'invoices.combined_form.sender_info' | translate }}</h3>
-    <app-invoices-sender-form></app-invoices-sender-form>
+  <!-- Recipient Information Section -->
+  <div class="form-section sender-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="pi pi-user"></i>
+      </div>
+      <div class="section-title-wrapper">
+        <h3 class="section-title">{{ 'invoices.combined_form.sender_info' | translate }}</h3>
+        <p class="section-description">
+          {{ 'invoices.combined_form.sender_info_description' | translate }}
+        </p>
+      </div>
+    </div>
+    <div class="section-content">
+      <app-invoices-sender-form></app-invoices-sender-form>
+    </div>
   </div>
 
-  <!-- Divider -->
-  <div class="divider my-4"></div>
+  <!-- Invoice Items Section -->
+  <div class="form-section table-section">
+    <div class="section-header">
+      <div class="section-icon">
+        <i class="pi pi-list"></i>
+      </div>
+      <div class="section-title-wrapper">
+        <h3 class="section-title">{{ 'invoices.combined_form.invoice_items' | translate }}</h3>
+        <p class="section-description">
+          {{ 'invoices.combined_form.invoice_items_description' | translate }}
+        </p>
+      </div>
+    </div>
+    <div class="section-content">
+      <app-contain-invoices></app-contain-invoices>
+    </div>
+  </div>
 
-  <!-- Invoice Table Section -->
-  <div class="table-section">
-    <h3 class="text-xl font-semibold mb-3">{{ 'invoices.combined_form.invoice_items' | translate }}</h3>
-    <app-contain-invoices></app-contain-invoices>
+  <!-- Action Buttons Section -->
+  <div class="form-section action-section">
+    <div class="section-content action-buttons">
+      <p-button
+        [label]="'invoices.stepper.buttons.clear_all' | translate"
+        icon="pi pi-times"
+        iconPos="right"
+        severity="warn"
+        [disabled]="isSaving"
+        (onClick)="onClearAll()"
+      ></p-button>
+      <p-button
+        [label]="'invoices.stepper.buttons.generate_invoice' | translate"
+        icon="pi pi-file-pdf"
+        iconPos="right"
+        [disabled]="!isValid() || isSaving"
+        [loading]="isSaving"
+        (onClick)="onGenerateInvoice()"
+      ></p-button>
+    </div>
   </div>
 </div>
 
