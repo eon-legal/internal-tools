@@ -6,6 +6,7 @@
  * - Manage authentication state as reactive signals
  * - Persist and restore session across page reloads
  * - Provide user profile information
+ * - Enforce 24h maximum session lifetime (client-side fallback)
  *
  * Dependencies:
  * - SupabaseService for Supabase client access
@@ -13,11 +14,16 @@
  *
  * Side Effects:
  * - Stores session in Supabase's localStorage
+ * - Stores session start timestamp in localStorage for 24h cap enforcement
  * - Emits auth state changes via signals
  *
  * Invariants:
  * - Registration is only allowed when environment.auth.registrationEnabled is true
  * - Login is always available regardless of registration flag
+ * - Sessions are capped at 24h via client-side enforcement (server-side sessions_timebox
+ *   requires Supabase Pro Plan). Access tokens (JWT) expire every 12h and are auto-refreshed
+ *   by the Supabase client. The 24h cap is a best-effort client-side check — the real
+ *   security boundary is the server-enforced 12h JWT expiry.
  */
 
 import { Injectable, inject, signal, computed } from '@angular/core';
@@ -38,6 +44,11 @@ import { User, Session, AuthError } from '@supabase/supabase-js';
 })
 export class AuthService {
   private readonly supabase = inject(SupabaseService).getClient();
+
+  /** Maximum session duration: 24 hours in milliseconds */
+  private readonly SESSION_MAX_DURATION_MS = 24 * 60 * 60 * 1000;
+  /** localStorage key for tracking when the session started */
+  private readonly SESSION_START_KEY = 'sessionStartedAt';
 
   /** Internal auth state signal */
   private readonly authState = signal<AuthState>({
@@ -73,15 +84,28 @@ export class AuthService {
   }
 
   /**
-   * Initialize auth state by checking current session and subscribing to auth changes
+   * Initialize auth state by checking current session and subscribing to auth changes.
+   * Enforces the 24h session cap on startup and on every token refresh.
    */
   private async initializeAuth(): Promise<void> {
     // Get current session
     const { data: { session } } = await this.supabase.auth.getSession();
+
+    // Enforce 24h session cap on app startup
+    if (session && this.isSessionExpiredByTimeCap()) {
+      await this.signOut();
+      return;
+    }
+
     this.updateAuthState(session);
 
     // Subscribe to auth state changes
-    this.supabase.auth.onAuthStateChange((_event, session) => {
+    this.supabase.auth.onAuthStateChange((event, session) => {
+      // On token refresh, re-check the 24h cap
+      if (event === 'TOKEN_REFRESHED' && this.isSessionExpiredByTimeCap()) {
+        this.signOut();
+        return;
+      }
       this.updateAuthState(session);
     });
   }
@@ -128,6 +152,9 @@ export class AuthService {
         const parsed = this.parseAuthError(error);
         return { success: false, error: parsed.message, errorCode: parsed.code };
       }
+
+      // Record session start time for 24h cap enforcement
+      localStorage.setItem(this.SESSION_START_KEY, Date.now().toString());
 
       return { success: true, user: data.user, session: data.session };
     } catch (err) {
@@ -176,10 +203,11 @@ export class AuthService {
   }
 
   /**
-   * Sign out the current user
+   * Sign out the current user and clear session tracking data
    */
   async signOut(): Promise<AuthResult> {
     try {
+      localStorage.removeItem(this.SESSION_START_KEY);
       const { error } = await this.supabase.auth.signOut();
 
       if (error) {
@@ -199,6 +227,18 @@ export class AuthService {
   async checkSession(): Promise<boolean> {
     const { data: { session } } = await this.supabase.auth.getSession();
     return !!session;
+  }
+
+  /**
+   * Check whether the current session has exceeded the 24h maximum lifetime.
+   * This is a client-side fallback since Supabase sessions_timebox requires Pro Plan.
+   * Returns false if no session start timestamp is found (e.g. pre-existing sessions).
+   */
+  private isSessionExpiredByTimeCap(): boolean {
+    const sessionStart = localStorage.getItem(this.SESSION_START_KEY);
+    if (!sessionStart) return false;
+    const elapsed = Date.now() - parseInt(sessionStart, 10);
+    return elapsed > this.SESSION_MAX_DURATION_MS;
   }
 
   /**

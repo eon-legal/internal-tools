@@ -15,16 +15,17 @@
  * - Router for navigation
  */
 
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { CheckboxModule } from 'primeng/checkbox';
 
 import { AuthService } from '../../../../data-access/auth/auth.service';
 import { LanguageService } from '../../../../shared/services/language/language.service';
@@ -41,17 +42,22 @@ import { LanguageSwitcherComponent } from '../../../../core/components/language-
     PasswordModule,
     ButtonModule,
     CardModule,
+    CheckboxModule,
     LanguageSwitcherComponent,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly languageService = inject(LanguageService);
   private readonly toastr = inject(ToastrService);
+
+  /** localStorage key for the remembered email */
+  private readonly REMEMBER_EMAIL_KEY = 'rememberedEmail';
 
   /** Whether registration is enabled */
   readonly isRegistrationEnabled = this.authService.isRegistrationEnabled;
@@ -63,7 +69,15 @@ export class LoginComponent {
   readonly loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
+    rememberMe: [false],
   });
+
+  ngOnInit(): void {
+    const savedEmail = localStorage.getItem(this.REMEMBER_EMAIL_KEY);
+    if (savedEmail) {
+      this.loginForm.patchValue({ email: savedEmail, rememberMe: true });
+    }
+  }
 
   /**
    * Get translated text
@@ -91,11 +105,20 @@ export class LoginComponent {
     this.isLoading.set(false);
 
     if (result.success) {
+      // Persist or clear the remembered email based on checkbox state
+      if (this.loginForm.value.rememberMe) {
+        localStorage.setItem(this.REMEMBER_EMAIL_KEY, this.loginForm.value.email);
+      } else {
+        localStorage.removeItem(this.REMEMBER_EMAIL_KEY);
+      }
+
       this.toastr.success(
         this.getText('auth.messages.login_success'),
         this.getText('common.labels.success')
       );
-      this.router.navigate(['/']);
+      // Navigate to the intended destination or default to home
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+      this.router.navigateByUrl(returnUrl);
     } else {
       this.toastr.error(
         this.getText(result.error ?? 'auth.errors.unknown'),

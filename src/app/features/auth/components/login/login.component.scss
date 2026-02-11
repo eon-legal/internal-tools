@@ -24,16 +24,17 @@
   text-align: center;
   margin-bottom: 2rem;
 
-  .logo {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
+  .login-logo {
+    height: 64px;
+    width: auto;
+    margin-bottom: 0.5rem;
+    object-fit: contain;
   }
 
   h2 {
     font-size: 1.5rem;
     font-weight: 600;
+    margin-top: 0;
     margin-bottom: 0.5rem;
     color: var(--text-color);
   }
@@ -59,6 +60,18 @@
       display: block;
       margin-top: 0.25rem;
       font-size: 0.875rem;
+    }
+
+    &.remember-me-field {
+      margin-bottom: 1rem;
+
+      label {
+        display: inline;
+        margin-bottom: 0;
+        font-weight: 400;
+        color: var(--text-color-secondary);
+        user-select: none;
+      }
     }
   }
 }

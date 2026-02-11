@@ -11,7 +11,8 @@
             "signing_in": "Signing in...",
             "no_account": "Don't have an account?",
             "register_link": "Register here",
-            "forgot_password": "Forgot password?"
+            "forgot_password": "Forgot password?",
+            "remember_me": "Remember me"
         },
         "register": {
             "title": "Create Account",

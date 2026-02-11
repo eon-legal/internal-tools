@@ -7,7 +7,11 @@
 
     <p-card>
       <div class="login-header">
-        <h1 class="logo">DocPro</h1>
+        <img
+          src="assets/square_logo.png"
+          alt="Logo"
+          class="login-logo"
+        />
         <h2>{{ getText('auth.login.title') }}</h2>
         <p>{{ getText('auth.login.subtitle') }}</p>
       </div>
@@ -48,6 +52,20 @@
           @if (hasError('password', 'required')) {
             <small class="p-error">{{ getText('auth.validation.password_required') }}</small>
           }
+        </div>
+
+        <!-- Remember Me Checkbox -->
+        <div class="field remember-me-field">
+          <div class="flex align-items-center">
+            <p-checkbox
+              formControlName="rememberMe"
+              [binary]="true"
+              inputId="rememberMe"
+            ></p-checkbox>
+            <label for="rememberMe" class="ml-2 cursor-pointer">
+              {{ getText('auth.login.remember_me') }}
+            </label>
+          </div>
         </div>
 
         <!-- Submit Button -->
