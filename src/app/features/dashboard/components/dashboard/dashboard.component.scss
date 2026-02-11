@@ -1,0 +1,40 @@
+.dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Line chart container - ensures full width expansion
+.line-chart-container {
+  position: relative;
+  width: 100%;
+  min-height: 350px;
+
+  // Use ::ng-deep to penetrate PrimeNG component encapsulation
+  ::ng-deep {
+    p-chart {
+      display: block;
+      width: 100% !important;
+    }
+
+    .p-chart {
+      width: 100% !important;
+    }
+
+    canvas {
+      width: 100% !important;
+      max-width: 100%;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem !important;
+  }
+
+  .line-chart-container {
+    min-height: 280px;
+  }
+}
+

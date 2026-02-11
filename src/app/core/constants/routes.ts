@@ -11,8 +11,14 @@ import { TranslateService } from '@ngx-translate/core';
 export function getMenuItems(translate: TranslateService): MenuItem[] {
   return [
     {
+      label: translate.instant('menu.dashboard'),
+      icon: 'pi pi-home',
+      routerLink: ['/dashboard'],
+      styleClass: '',
+    },
+    {
       label: translate.instant('menu.invoices'),
-      icon: 'pi pi-chart-bar',
+      icon: 'pi pi-file',
       routerLink: ['/invoices'],
       styleClass: '',
     },
@@ -57,8 +63,14 @@ export function getMenuItems(translate: TranslateService): MenuItem[] {
  */
 export const MENU_ITEMS: MenuItem[] = [
   {
+    label: 'Panel',
+    icon: 'pi pi-home',
+    routerLink: ['/dashboard'],
+    styleClass: '',
+  },
+  {
     label: 'Facturas',
-    icon: 'pi pi-chart-bar',
+    icon: 'pi pi-file',
     routerLink: ['/invoices'],
     styleClass: '',
   },

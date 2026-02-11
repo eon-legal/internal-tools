@@ -53,6 +53,7 @@
         }
     },
     "menu": {
+        "dashboard": "Dashboard",
         "tools": "Tools",
         "images_to_pdf": "Image - PDF",
         "pdf_merge": "Merge PDFs",
@@ -62,6 +63,36 @@
     },
     "routes": {
         "images_to_pdf_title": "Image to PDF Converter"
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "subtitle": "Overview of your invoicing activity",
+        "buttons": {
+            "view_invoices": "View Invoices",
+            "create_invoice": "Create Invoice"
+        },
+        "filters": {
+            "date_range": "Date Range",
+            "start_date": "Start Date",
+            "end_date": "End Date",
+            "to": "to",
+            "reset": "Reset"
+        },
+        "metrics": {
+            "total_invoiced": "Total Invoiced",
+            "total_iva": "Total VAT",
+            "total_paid": "Total Collected",
+            "total_pending": "Total Pending",
+            "invoices": "invoices"
+        },
+        "charts": {
+            "amounts_title": "Amounts by Status",
+            "counts_title": "Invoice Count by Status",
+            "monthly_title": "Monthly Breakdown",
+            "invoiced": "Invoiced",
+            "paid": "Collected",
+            "pending": "Pending"
+        }
     },
     "images_to_pdf": {
         "note": "Drag and drop images here.",

@@ -53,6 +53,7 @@
         }
     },
     "menu": {
+        "dashboard": "Panel",
         "tools": "Herramientas",
         "images_to_pdf": "Imagen - PDF",
         "pdf_merge": "Mezclar PDFs",
@@ -61,7 +62,37 @@
         "clients": "Clientes"
     },
     "routes": {
-        "images_to_pdf_title": "Convertidor Im\u00e1genes a PDF"
+        "images_to_pdf_title": "Convertidor Imágenes a PDF"
+    },
+    "dashboard": {
+        "title": "Panel de Control",
+        "subtitle": "Resumen de tu actividad de facturación",
+        "buttons": {
+            "view_invoices": "Ver Facturas",
+            "create_invoice": "Crear Factura"
+        },
+        "filters": {
+            "date_range": "Rango de Fechas",
+            "start_date": "Fecha Inicio",
+            "end_date": "Fecha Fin",
+            "to": "a",
+            "reset": "Restablecer"
+        },
+        "metrics": {
+            "total_invoiced": "Total Facturado",
+            "total_iva": "Total IVA",
+            "total_paid": "Total Cobrado",
+            "total_pending": "Total Pendiente",
+            "invoices": "facturas"
+        },
+        "charts": {
+            "amounts_title": "Importes por Estado",
+            "counts_title": "Cantidad de Facturas por Estado",
+            "monthly_title": "Desglose Mensual",
+            "invoiced": "Facturado",
+            "paid": "Cobrado",
+            "pending": "Pendiente"
+        }
     },
     "images_to_pdf": {
         "note": "Arrastre y suelte im\u00e1genes aqu\u00ed.",

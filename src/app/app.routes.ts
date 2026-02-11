@@ -10,8 +10,16 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'images-to-pdf',
+        redirectTo: 'dashboard',
         pathMatch: 'full',
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import(
+            './features/dashboard/components/dashboard/dashboard.component'
+          ).then((m) => m.DashboardComponent),
+        title: 'Dashboard',
       },
       {
         path: 'images-to-pdf',
@@ -73,7 +81,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'images-pdf',
+    redirectTo: 'dashboard',
     pathMatch: 'full',
   },
 ];
