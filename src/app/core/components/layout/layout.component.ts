@@ -86,31 +86,40 @@ export class LayoutComponent implements OnInit, OnDestroy {
    */
   private updateMenuState(currentUrl: string): void {
     this.menuItems.forEach((item) => {
-      // Checks if the menu item matches the current URL
-      const isActive = item.routerLink && currentUrl.startsWith(item.routerLink[0]);
-
-      // Adds or removes the 'p-menuitem-active' class to highlight the active menu item
-      if (isActive) {
-        item.styleClass = 'p-menuitem-active';
-      } else {
-        item.styleClass = '';
-      }
-
-      // Checks if any child menu item matches the current URL
+      // Check if this is a parent item with children
       if (item.items) {
-        const isChildActive = item.items.some(
-          (child) =>
-            child.routerLink && currentUrl.startsWith(child.routerLink[0])
-        );
-        item.expanded = isChildActive; // Expands or collapses the parent menu item
+        let isChildActive = false;
 
-        // Adds or removes the 'p-menuitem-parent-active' class for active parent items
-        if (isChildActive) {
-          item.styleClass = 'p-menuitem-parent-active';
-        } else {
-          item.styleClass = '';
-        }
+        // Update child items' styleClass
+        item.items.forEach((child) => {
+          const childIsActive =
+            child.routerLink && this.isRouteActive(currentUrl, child.routerLink[0]);
+          child.styleClass = childIsActive ? 'p-menuitem-active' : '';
+          if (childIsActive) {
+            isChildActive = true;
+          }
+        });
+
+        // Expand parent if child is active and apply parent-active style
+        item.expanded = isChildActive;
+        item.styleClass = isChildActive ? 'p-menuitem-parent-active' : '';
+      } else {
+        // Direct menu item without children
+        const isActive =
+          item.routerLink && this.isRouteActive(currentUrl, item.routerLink[0]);
+        item.styleClass = isActive ? 'p-menuitem-active' : '';
       }
     });
+  }
+
+  /**
+   * Checks if the current URL matches the given route.
+   * Uses exact matching for better accuracy.
+   */
+  private isRouteActive(currentUrl: string, route: string): boolean {
+    // Remove query params and fragments from current URL
+    const cleanUrl = currentUrl.split('?')[0]?.split('#')[0] ?? currentUrl;
+    // Check exact match or if it's a child route
+    return cleanUrl === route || cleanUrl.startsWith(route + '/');
   }
 }

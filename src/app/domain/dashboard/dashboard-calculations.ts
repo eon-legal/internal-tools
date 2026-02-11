@@ -1,0 +1,261 @@
+/**
+ * Dashboard Calculations
+ *
+ * Responsibilities:
+ * - Calculate invoice statistics (totals, counts, by status)
+ * - Aggregate data for charts (monthly breakdown)
+ * - Filter invoices by date range
+ *
+ * Business Rules:
+ * - Total invoiced = sum of all invoice total_amount
+ * - Total paid = sum of total_amount where paid = true
+ * - Total pending = sum of total_amount where paid = false
+ * - Monthly data is grouped by invoice_date month
+ *
+ * Dependencies: None (pure TypeScript, framework-agnostic)
+ * Side Effects: None (pure functions)
+ */
+
+/**
+ * Invoice data structure (minimal interface for calculations)
+ */
+export interface InvoiceData {
+  id: string;
+  invoice_date: string; // ISO 8601 timestamp
+  total_amount: number;
+  iva_amount: number;
+  paid: boolean;
+}
+
+/**
+ * Summary statistics for invoices
+ */
+export interface InvoiceSummary {
+  totalInvoiced: number;
+  totalPaid: number;
+  totalPending: number;
+  totalIva: number;
+  countTotal: number;
+  countPaid: number;
+  countPending: number;
+}
+
+/**
+ * Monthly data point for time-series charts
+ */
+export interface MonthlyData {
+  month: string; // Format: "YYYY-MM"
+  monthLabel: string; // Localized month name
+  totalInvoiced: number;
+  totalPaid: number;
+  totalPending: number;
+  countTotal: number;
+  countPaid: number;
+  countPending: number;
+}
+
+/**
+ * Date range filter
+ */
+export interface DateRange {
+  startDate: Date | null;
+  endDate: Date | null;
+}
+
+/**
+ * Filters invoices by date range
+ *
+ * @param invoices - Array of invoices to filter
+ * @param dateRange - Date range filter (null dates are ignored)
+ * @returns Filtered invoices
+ */
+export function filterInvoicesByDateRange(
+  invoices: InvoiceData[],
+  dateRange: DateRange
+): InvoiceData[] {
+  return invoices.filter((invoice) => {
+    const invoiceDate = new Date(invoice.invoice_date);
+
+    if (dateRange.startDate && invoiceDate < dateRange.startDate) {
+      return false;
+    }
+
+    if (dateRange.endDate) {
+      const endOfDay = new Date(dateRange.endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      if (invoiceDate > endOfDay) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+/**
+ * Calculates invoice summary statistics
+ *
+ * @param invoices - Array of invoices to summarize
+ * @returns Summary statistics
+ */
+export function calculateInvoiceSummary(invoices: InvoiceData[]): InvoiceSummary {
+  const summary: InvoiceSummary = {
+    totalInvoiced: 0,
+    totalPaid: 0,
+    totalPending: 0,
+    totalIva: 0,
+    countTotal: invoices.length,
+    countPaid: 0,
+    countPending: 0,
+  };
+
+  for (const invoice of invoices) {
+    summary.totalInvoiced += invoice.total_amount;
+    summary.totalIva += invoice.iva_amount;
+
+    if (invoice.paid) {
+      summary.totalPaid += invoice.total_amount;
+      summary.countPaid++;
+    } else {
+      summary.totalPending += invoice.total_amount;
+      summary.countPending++;
+    }
+  }
+
+  return summary;
+}
+
+/**
+ * Gets month key from date (YYYY-MM format)
+ */
+function getMonthKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  return `${year}-${month}`;
+}
+
+/**
+ * Gets localized month label
+ */
+function getMonthLabel(monthKey: string, locale: string = 'es-ES'): string {
+  const [year, month] = monthKey.split('-');
+  const date = new Date(parseInt(year!), parseInt(month!) - 1, 1);
+  return date.toLocaleDateString(locale, { month: 'short', year: 'numeric' });
+}
+
+/**
+ * Generates all months between two dates
+ */
+function generateMonthRange(startDate: Date, endDate: Date): string[] {
+  const months: string[] = [];
+  const current = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  const end = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+
+  while (current <= end) {
+    months.push(getMonthKey(current));
+    current.setMonth(current.getMonth() + 1);
+  }
+
+  return months;
+}
+
+/**
+ * Calculates monthly breakdown of invoice data
+ *
+ * @param invoices - Array of invoices
+ * @param locale - Locale for month labels (default: 'es-ES')
+ * @returns Array of monthly data sorted by date
+ */
+export function calculateMonthlyData(
+  invoices: InvoiceData[],
+  locale: string = 'es-ES'
+): MonthlyData[] {
+  if (invoices.length === 0) {
+    return [];
+  }
+
+  // Find date range from invoices
+  const dates = invoices.map((inv) => new Date(inv.invoice_date));
+  const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+  const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
+
+  // Generate all months in range
+  const monthKeys = generateMonthRange(minDate, maxDate);
+
+  // Initialize monthly data map
+  const monthlyMap = new Map<string, MonthlyData>();
+  for (const monthKey of monthKeys) {
+    monthlyMap.set(monthKey, {
+      month: monthKey,
+      monthLabel: getMonthLabel(monthKey, locale),
+      totalInvoiced: 0,
+      totalPaid: 0,
+      totalPending: 0,
+      countTotal: 0,
+      countPaid: 0,
+      countPending: 0,
+    });
+  }
+
+  // Aggregate invoice data by month
+  for (const invoice of invoices) {
+    const invoiceDate = new Date(invoice.invoice_date);
+    const monthKey = getMonthKey(invoiceDate);
+    const data = monthlyMap.get(monthKey);
+
+    if (data) {
+      data.totalInvoiced += invoice.total_amount;
+      data.countTotal++;
+
+      if (invoice.paid) {
+        data.totalPaid += invoice.total_amount;
+        data.countPaid++;
+      } else {
+        data.totalPending += invoice.total_amount;
+        data.countPending++;
+      }
+    }
+  }
+
+  // Convert to array and sort by month
+  return Array.from(monthlyMap.values()).sort((a, b) =>
+    a.month.localeCompare(b.month)
+  );
+}
+
+/**
+ * Gets the default date range (last 12 months)
+ *
+ * @returns Date range for the last 12 months
+ */
+export function getDefaultDateRange(): DateRange {
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setMonth(startDate.getMonth() - 11);
+  startDate.setDate(1);
+
+  return {
+    startDate,
+    endDate,
+  };
+}
+
+/**
+ * Formats currency amount for display
+ *
+ * @param amount - Amount to format
+ * @param locale - Locale for formatting (default: 'es-ES')
+ * @param currency - Currency code (default: 'EUR')
+ * @returns Formatted currency string
+ */
+export function formatCurrency(
+  amount: number,
+  locale: string = 'es-ES',
+  currency: string = 'EUR'
+): string {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+  }).format(amount);
+}
+

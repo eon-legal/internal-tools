@@ -11,31 +11,48 @@ import { TranslateService } from '@ngx-translate/core';
 export function getMenuItems(translate: TranslateService): MenuItem[] {
   return [
     {
-      label: translate.instant('menu.images_to_pdf'),
+      label: translate.instant('menu.dashboard'),
       icon: 'pi pi-home',
-      routerLink: ['/'],
-      expanded: false,
+      routerLink: ['/dashboard'],
       styleClass: '',
     },
     {
-      label: translate.instant('menu.pdf_merge'),
-      icon: 'pi pi-file-pdf',
-      routerLink: ['/pdf-merge'],
-    },
-    {
       label: translate.instant('menu.invoices'),
-      icon: 'pi pi-chart-bar',
+      icon: 'pi pi-file',
       routerLink: ['/invoices'],
+      styleClass: '',
     },
     {
       label: translate.instant('menu.addressee'),
       icon: 'pi pi-id-card',
       routerLink: ['/addressee'],
+      styleClass: '',
     },
     {
       label: translate.instant('menu.clients'),
       icon: 'pi pi-users',
       routerLink: ['/clients'],
+      styleClass: '',
+    },
+    {
+      label: translate.instant('menu.tools'),
+      icon: 'pi pi-wrench',
+      expanded: false,
+      styleClass: '',
+      items: [
+        {
+          label: translate.instant('menu.images_to_pdf'),
+          icon: 'pi pi-image',
+          routerLink: ['/images-to-pdf'],
+          styleClass: '',
+        },
+        {
+          label: translate.instant('menu.pdf_merge'),
+          icon: 'pi pi-file-pdf',
+          routerLink: ['/pdf-merge'],
+          styleClass: '',
+        },
+      ],
     },
   ];
 }
@@ -46,25 +63,47 @@ export function getMenuItems(translate: TranslateService): MenuItem[] {
  */
 export const MENU_ITEMS: MenuItem[] = [
   {
-    label: 'Imagen - PDF',
+    label: 'Panel',
     icon: 'pi pi-home',
-    routerLink: ['/'],
-    expanded: false,
+    routerLink: ['/dashboard'],
     styleClass: '',
   },
   {
-    label: 'Mezclar PDFs',
-    icon: 'pi pi-file-pdf',
-    routerLink: ['/pdf-merge'],
-  },
-  {
     label: 'Facturas',
-    icon: 'pi pi-chart-bar',
+    icon: 'pi pi-file',
     routerLink: ['/invoices'],
+    styleClass: '',
   },
   {
     label: 'Destinarios',
     icon: 'pi pi-id-card',
     routerLink: ['/addressee'],
+    styleClass: '',
+  },
+  {
+    label: 'Clientes',
+    icon: 'pi pi-users',
+    routerLink: ['/clients'],
+    styleClass: '',
+  },
+  {
+    label: 'Herramientas',
+    icon: 'pi pi-wrench',
+    expanded: false,
+    styleClass: '',
+    items: [
+      {
+        label: 'Imagen - PDF',
+        icon: 'pi pi-image',
+        routerLink: ['/images-to-pdf'],
+        styleClass: '',
+      },
+      {
+        label: 'Mezclar PDFs',
+        icon: 'pi pi-file-pdf',
+        routerLink: ['/pdf-merge'],
+        styleClass: '',
+      },
+    ],
   },
 ];

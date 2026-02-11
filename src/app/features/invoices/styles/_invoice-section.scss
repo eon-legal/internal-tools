@@ -1,0 +1,76 @@
+// Shared invoice form section styles
+// Used by invoice-combined-form, invoice-edit, and similar components
+
+@mixin invoice-section-card {
+  background-color: var(--surface-card);
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  overflow: visible;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  &:focus-within {
+    border-color: var(--primary-color);
+  }
+}
+
+@mixin invoice-section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, var(--surface-50) 0%, var(--surface-card) 100%);
+  border-bottom: 1px solid var(--surface-border);
+}
+
+@mixin invoice-section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  color: white;
+  flex-shrink: 0;
+
+  i { font-size: 1.1rem; }
+}
+
+@mixin invoice-section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0 0 0.25rem 0;
+  line-height: 1.4;
+}
+
+@mixin invoice-section-description {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+// Responsive mixin for mobile adjustments
+@mixin invoice-section-mobile {
+  @media (max-width: 768px) {
+    .section-header {
+      padding: 1rem;
+      flex-direction: column;
+      align-items: stretch;
+      text-align: center;
+    }
+    .section-icon {
+      align-self: center;
+      margin-bottom: 0.5rem;
+    }
+    .section-content { padding: 1rem; }
+    .section-title { font-size: 1rem; }
+    .section-description { font-size: 0.8125rem; }
+  }
+}
+

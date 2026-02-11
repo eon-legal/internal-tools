@@ -11,6 +11,7 @@ $sidebar-width: 250px;
   transition: transform 0.3s ease;
   box-shadow: 2px 0 5px rgba(0,0,0,0.1);
   overflow-y: auto;
+  padding: 16px 8px 0;
 
   &.active {
     transform: translateX($sidebar-width);
@@ -45,26 +46,37 @@ $sidebar-width: 250px;
   }
 }
 
-/* Estilo para el ítem activo */
-.p-menuitem-active {
-  background-color: #007bff; /* Color de fondo azul */
-  color: white; /* Texto en blanco */
-  border-radius: 4px; /* Bordes redondeados */
-}
+/* Estilos para el PanelMenu */
+::ng-deep {
+  /* Estilo para el ítem activo */
+  .p-menuitem-active > .p-panelmenu-header-content,
+  .p-menuitem-active > .p-menuitem-content {
+    background-color: var(--p-button-secondary-active-background, #007bff) !important;
+    border-radius: 4px;
 
-/* Estilo para el ítem padre activo */
-.p-menuitem-parent-active {
-  background-color: #0056b3; /* Color de fondo azul más oscuro */
-  color: white; /* Texto en blanco */
-  border-radius: 4px; /* Bordes redondeados */
-}
+    .p-menuitem-link {
+      color: white !important;
 
-/* Estilo para el ícono del ítem activo */
-.p-menuitem-active .pi {
-  color: white; /* Color del ícono en blanco */
-}
+      .p-menuitem-text,
+      .p-menuitem-icon {
+        color: white !important;
+      }
+    }
+  }
 
-/* Estilo para el ícono del ítem padre activo */
-.p-menuitem-parent-active .pi {
-  color: white; /* Color del ícono en blanco */
+  /* Estilo para el ítem padre con hijo activo */
+  .p-menuitem-parent-active > .p-panelmenu-header-content {
+    background-color: var(--p-button-secondary-active-background, #0056b3) !important;
+    border-radius: 4px;
+
+    .p-menuitem-link {
+      color: white !important;
+
+      .p-menuitem-text,
+      .p-menuitem-icon,
+      .p-submenu-icon {
+        color: white !important;
+      }
+    }
+  }
 }

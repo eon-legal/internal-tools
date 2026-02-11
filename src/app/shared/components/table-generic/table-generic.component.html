@@ -35,14 +35,17 @@
           {{ getFormattedValue(objHeader.field, row) }}
           }
         </td>
-        } @for(op of operation.buttons; track op; let i = $index) {
-        @if(showButtonOpeartion(op, row)) {
+        } @if(operation.buttons?.length) {
         <td data-label>
-          <app-button-generic [buttons]="getButtons(op, row)" />
+          <div [ngClass]="operation.css || 'flex gap-1 justify-content-center'">
+            @for(op of operation.buttons; track op.id) {
+              @if(showButtonOpeartion(op, row)) {
+                <app-button-generic [buttons]="getButtons(op, row)" />
+              }
+            }
+          </div>
         </td>
-        } @else {
-        <td data-label></td>
-        } }
+        }
       </tr>
     </ng-template>
   </p-table>

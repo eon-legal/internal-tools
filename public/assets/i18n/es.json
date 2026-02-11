@@ -107,6 +107,8 @@
         }
     },
     "menu": {
+        "dashboard": "Panel",
+        "tools": "Herramientas",
         "images_to_pdf": "Imagen - PDF",
         "pdf_merge": "Mezclar PDFs",
         "invoices": "Facturas",
@@ -114,7 +116,37 @@
         "clients": "Clientes"
     },
     "routes": {
-        "images_to_pdf_title": "Convertidor Im\u00e1genes a PDF"
+        "images_to_pdf_title": "Convertidor Imágenes a PDF"
+    },
+    "dashboard": {
+        "title": "Panel de Control",
+        "subtitle": "Resumen de tu actividad de facturación",
+        "buttons": {
+            "view_invoices": "Ver Facturas",
+            "create_invoice": "Crear Factura"
+        },
+        "filters": {
+            "date_range": "Rango de Fechas",
+            "start_date": "Fecha Inicio",
+            "end_date": "Fecha Fin",
+            "to": "a",
+            "reset": "Restablecer"
+        },
+        "metrics": {
+            "total_invoiced": "Total Facturado",
+            "total_iva": "Total IVA",
+            "total_paid": "Total Cobrado",
+            "total_pending": "Total Pendiente",
+            "invoices": "facturas"
+        },
+        "charts": {
+            "amounts_title": "Importes por Estado",
+            "counts_title": "Cantidad de Facturas por Estado",
+            "monthly_title": "Desglose Mensual",
+            "invoiced": "Facturado",
+            "paid": "Cobrado",
+            "pending": "Pendiente"
+        }
     },
     "images_to_pdf": {
         "note": "Arrastre y suelte im\u00e1genes aqu\u00ed.",
@@ -168,6 +200,7 @@
                 "last_download": "Última Descarga",
                 "actions": "Acciones",
                 "no_data": "No se encontraron facturas",
+                "no_data_description": "Cree su primera factura para comenzar",
                 "loading": "Cargando facturas..."
             },
             "actions": {
@@ -207,8 +240,16 @@
             }
         },
         "combined_form": {
+            "title": "Crear Nueva Factura",
             "sender_info": "Información del Destinatario",
-            "invoice_items": "Artículos de la Factura"
+            "sender_info_description": "Ingrese los datos del destinatario de la factura.",
+            "invoice_items": "Artículos de la Factura",
+            "invoice_items_description": "Agregue los servicios o productos a facturar.",
+            "step_numbers": {
+                "sender": "1",
+                "recipient": "2",
+                "items": "3"
+            }
         },
         "destination_selector": {
             "description": "Seleccione el remitente de esta factura de sus clientes o remitentes guardados."
@@ -309,6 +350,10 @@
             "bank_name": "Nombre del Banco",
             "bank_address": "Direcci\u00f3n del Banco",
             "nif": "NIF"
+        },
+        "actions": {
+            "edit": "Editar",
+            "delete": "Eliminar"
         }
     },
     "clients": {
@@ -326,6 +371,11 @@
             "national": "Nacional",
             "is_default": "Predeterminado",
             "actions": "Acciones"
+        },
+        "actions": {
+            "edit": "Editar",
+            "delete": "Eliminar",
+            "set_default": "Establecer como Predeterminado"
         },
         "form": {
             "title_add_individual": "Agregar Cliente Individual",

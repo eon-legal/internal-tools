@@ -32,6 +32,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 // Services and Store
@@ -61,6 +62,7 @@ import { IdentificationType } from '../../interfaces/first-form';
     TooltipModule,
     IconFieldModule,
     InputIconModule,
+    TagModule,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './invoice-history.component.html',

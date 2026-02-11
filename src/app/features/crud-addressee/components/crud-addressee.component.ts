@@ -58,27 +58,8 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
   /** Header configuration for the table */
   headerData: HeaderTable<SecondForm>[] = [];
 
-  /** Configuration for table operations (e.g., delete) */
-  operation: ButtonGenericInterface = {
-    buttons: [
-      {
-        id: 1,
-        icon: 'pi pi-trash',
-        severity: 'danger',
-        action: (row: DestinationBDReal) => {
-          this.deleteAddressee(row.id);
-        },
-      },
-      {
-        id: 2,
-        icon: 'pi pi-pencil',
-        severity: 'primary',
-        action: (row: SecondForm) => {
-          this.opneAddEditAddressee(row);
-        },
-      },
-    ],
-  };
+  /** Configuration for table operations (e.g., delete, edit) */
+  operation: ButtonGenericInterface = { buttons: [] };
   dataTable: SecondForm[] = [];
 
   ngOnInit(): void {
@@ -122,6 +103,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
       {
         field: 'accountDestination',
         header: this.languageService.getText('addressee.table.destination_account'),
+        customContent: (row: SecondForm) => this.maskAccountNumber(row.accountDestination),
       },
       {
         field: 'addressDestination',
@@ -140,6 +122,31 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
         header: this.languageService.getText('addressee.table.nif'),
       },
     ];
+
+    // Update table operations with Invoice History style (rounded, text, tooltips)
+    this.operation = {
+      css: 'flex gap-1 justify-content-center',
+      buttons: [
+        {
+          id: 1,
+          icon: 'pi pi-pencil',
+          severity: 'success',
+          rounded: true,
+          text: true,
+          tooltip: this.languageService.getText('addressee.actions.edit'),
+          action: (row: SecondForm) => this.opneAddEditAddressee(row),
+        },
+        {
+          id: 2,
+          icon: 'pi pi-trash',
+          severity: 'danger',
+          rounded: true,
+          text: true,
+          tooltip: this.languageService.getText('addressee.actions.delete'),
+          action: (row: DestinationBDReal) => this.deleteAddressee(row.id),
+        },
+      ],
+    };
   }
 
   loadAddressee() {
@@ -201,7 +208,7 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
       InvoicesDestinationFormComponent,
       {
         title: this.languageService.getText('addressee.buttons.add_addressee'),
-        width: '60vw',
+        width: '800px',
         data: { isModal: true, initialField: row },
         buttons: {
           css: 'flex flex-column md:flex-row md:justify-content-between gap-2',
@@ -335,6 +342,20 @@ export class CrudAddresseeComponent implements OnInit, OnDestroy {
         )
         .subscribe()
     );
+  }
+
+  /**
+   * Masks an account number showing only first 4 and last 4 digits.
+   * Example: "ES1234567890123456" -> "ES12************3456"
+   */
+  private maskAccountNumber(account: string | undefined): string {
+    if (!account) return '';
+    const cleanAccount = account.replace(/\s/g, '');
+    if (cleanAccount.length <= 8) return cleanAccount;
+    const firstFour = cleanAccount.slice(0, 4);
+    const lastFour = cleanAccount.slice(-4);
+    const maskedLength = cleanAccount.length - 8;
+    return `${firstFour}${'*'.repeat(maskedLength)}${lastFour}`;
   }
 
   ngOnDestroy(): void {
