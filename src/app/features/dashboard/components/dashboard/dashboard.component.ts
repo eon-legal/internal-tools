@@ -14,7 +14,10 @@
  * Business Rules:
  * - Shows totals for invoiced, paid, and pending amounts
  * - Shows counts for total, paid, and pending invoices
- * - Monthly breakdown chart shows trends over time
+ * - Monthly invoice count bar chart shows activity volume over time
+ * - Collection rate line chart shows payment health over time
+ * - Average invoice value line chart shows deal size trends
+ * - Monthly revenue breakdown line chart shows amount trends over time
  */
 
 import { Component, OnInit, OnDestroy, inject, computed, signal, effect } from '@angular/core';
@@ -27,7 +30,7 @@ import { Subscription } from 'rxjs';
 import { ChartModule } from 'primeng/chart';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 // Services and Store
@@ -39,10 +42,12 @@ import {
   InvoiceData,
   InvoiceSummary,
   MonthlyData,
+  MonthlyAverageValue,
   DateRange,
   filterInvoicesByDateRange,
   calculateInvoiceSummary,
   calculateMonthlyData,
+  calculateMonthlyAverageValue,
   getDefaultDateRange,
   formatCurrency,
 } from '../../../../domain/dashboard/dashboard-calculations';
@@ -56,7 +61,7 @@ import {
     ChartModule,
     CardModule,
     ButtonModule,
-    CalendarModule,
+    DatePickerModule,
     ProgressSpinnerModule,
   ],
   templateUrl: './dashboard.component.html',
@@ -80,11 +85,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private endDateSignal = signal<Date | null>(null);
 
   // Chart data
-  amountChartData: any = null;
-  countChartData: any = null;
+  monthlyCountChartData: any = null;
+  collectionRateChartData: any = null;
+  avgInvoiceValueChartData: any = null;
   monthlyChartData: any = null;
-  chartOptions: any = null;
+  barChartOptions: any = null;
   lineChartOptions: any = null;
+  invoicedVsCollectedChartOptions: any = null;
+  currencyChartOptions: any = null;
 
   // Computed summary from filtered invoices
   summary = computed<InvoiceSummary>(() => {
@@ -123,6 +131,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       total_amount: inv.total_amount,
       iva_amount: inv.iva_amount,
       paid: inv.paid,
+      paid_at: inv.paid_at,
     }));
 
     // Filter by date range
@@ -183,22 +192,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary') || '#6c757d';
     const surfaceBorder = documentStyle.getPropertyValue('--surface-border') || '#dfe7ef';
 
-    // Pie/Doughnut chart options
-    this.chartOptions = {
+    // Bar chart options (monthly invoice count)
+    this.barChartOptions = {
       responsive: true,
-      maintainAspectRatio: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'bottom',
-          labels: {
-            color: textColor,
-            padding: 16,
+          labels: { color: textColor },
+        },
+      },
+      scales: {
+        x: {
+          ticks: { color: textColorSecondary },
+          grid: { color: surfaceBorder },
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: textColorSecondary,
+            stepSize: 1,
+            precision: 0,
           },
+          grid: { color: surfaceBorder },
         },
       },
     };
 
-    // Line chart options
+    // Line chart options (monthly revenue breakdown)
     this.lineChartOptions = {
       responsive: true,
       maintainAspectRatio: false,
@@ -218,6 +238,56 @@ export class DashboardComponent implements OnInit, OnDestroy {
         },
       },
     };
+
+    // Invoiced vs Collected bar chart options
+    this.invoicedVsCollectedChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: textColor },
+        },
+      },
+      scales: {
+        x: {
+          ticks: { color: textColorSecondary },
+          grid: { color: surfaceBorder },
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: textColorSecondary,
+            callback: (value: number) => formatCurrency(value),
+          },
+          grid: { color: surfaceBorder },
+        },
+      },
+    };
+
+    // Currency chart options (average invoice value)
+    this.currencyChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: textColor },
+        },
+      },
+      scales: {
+        x: {
+          ticks: { color: textColorSecondary },
+          grid: { color: surfaceBorder },
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: textColorSecondary,
+            callback: (value: number) => formatCurrency(value),
+          },
+          grid: { color: surfaceBorder },
+        },
+      },
+    };
   }
 
   /**
@@ -226,46 +296,66 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private updateCharts(summary: InvoiceSummary, monthly: MonthlyData[]): void {
     // Pastel color palette
     const pastelGreen = '#A8E6CF';      // Pastel green (paid)
-    const pastelGreenHover = '#7DD3B0';
     const pastelOrange = '#FFD3B6';     // Pastel orange (pending)
-    const pastelOrangeHover = '#FFBE99';
-    const pastelBlue = '#A8D8EA';       // Pastel blue (paid count)
-    const pastelBlueHover = '#7FC4D8';
-    const pastelPink = '#FFB6C1';       // Pastel pink (pending count)
-    const pastelPinkHover = '#FF9AA8';
+    const pastelBlue = '#A8D8EA';       // Pastel blue (invoice count)
+    const pastelPink = '#FFB6C1';       // Pastel pink (collection rate)
     const pastelPurple = '#D4A5FF';     // Pastel purple (invoiced)
+    const pastelTeal = '#B2DFDB';       // Pastel teal (avg value)
 
-    // Amount chart (doughnut)
-    this.amountChartData = {
-      labels: [
-        this.getText('dashboard.charts.paid'),
-        this.getText('dashboard.charts.pending'),
-      ],
+    // Derived data
+    const averageValues = calculateMonthlyAverageValue(monthly);
+
+    // Monthly invoice count (bar chart)
+    this.monthlyCountChartData = {
+      labels: monthly.map((m) => m.monthLabel),
       datasets: [
         {
-          data: [summary.totalPaid, summary.totalPending],
-          backgroundColor: [pastelGreen, pastelOrange],
-          hoverBackgroundColor: [pastelGreenHover, pastelOrangeHover],
+          label: this.getText('dashboard.charts.invoice_count'),
+          data: monthly.map((m) => m.countTotal),
+          backgroundColor: pastelBlue,
+          borderColor: pastelBlue,
+          borderWidth: 1,
         },
       ],
     };
 
-    // Count chart (pie)
-    this.countChartData = {
-      labels: [
-        this.getText('dashboard.charts.paid'),
-        this.getText('dashboard.charts.pending'),
-      ],
+    // Invoiced vs Collected per month (grouped bar chart)
+    this.collectionRateChartData = {
+      labels: monthly.map((m) => m.monthLabel),
       datasets: [
         {
-          data: [summary.countPaid, summary.countPending],
-          backgroundColor: [pastelBlue, pastelPink],
-          hoverBackgroundColor: [pastelBlueHover, pastelPinkHover],
+          label: this.getText('dashboard.charts.invoiced'),
+          data: monthly.map((m) => m.totalInvoiced),
+          backgroundColor: pastelPurple,
+          borderColor: pastelPurple,
+          borderWidth: 1,
+        },
+        {
+          label: this.getText('dashboard.charts.collected'),
+          data: monthly.map((m) => m.totalPaid),
+          backgroundColor: pastelGreen,
+          borderColor: pastelGreen,
+          borderWidth: 1,
         },
       ],
     };
 
-    // Monthly chart (line)
+    // Average invoice value over time (line chart)
+    this.avgInvoiceValueChartData = {
+      labels: averageValues.map((m) => m.monthLabel),
+      datasets: [
+        {
+          label: this.getText('dashboard.charts.avg_value'),
+          data: averageValues.map((m) => m.averageValue),
+          fill: false,
+          borderColor: pastelTeal,
+          backgroundColor: pastelTeal,
+          tension: 0.4,
+        },
+      ],
+    };
+
+    // Monthly revenue breakdown (line chart - kept unchanged)
     this.monthlyChartData = {
       labels: monthly.map((m) => m.monthLabel),
       datasets: [
@@ -283,14 +373,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           fill: false,
           borderColor: pastelGreen,
           backgroundColor: pastelGreen,
-          tension: 0.4,
-        },
-        {
-          label: this.getText('dashboard.charts.pending'),
-          data: monthly.map((m) => m.totalPending),
-          fill: false,
-          borderColor: pastelOrange,
-          backgroundColor: pastelOrange,
           tension: 0.4,
         },
       ],
