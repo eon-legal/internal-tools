@@ -39,5 +39,10 @@ export const environment = {
     /** Enable user registration in development */
     registrationEnabled: true,
   },
+  captcha: {
+    /** CAPTCHA disabled in development */
+    enabled: false,
+    turnstileSiteKey: '',
+  },
 };
 
