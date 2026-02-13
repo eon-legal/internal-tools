@@ -37,7 +37,7 @@ export const environment = {
   },
   auth: {
     /** Disable user registration in production by default */
-    registrationEnabled: false,
+    registrationEnabled: true,
   },
   captcha: {
     /** Cloudflare Turnstile CAPTCHA enabled in production */
