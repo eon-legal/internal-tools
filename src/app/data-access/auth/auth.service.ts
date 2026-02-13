@@ -146,6 +146,9 @@ export class AuthService {
       const { data, error } = await this.supabase.auth.signInWithPassword({
         email: credentials.email,
         password: credentials.password,
+        options: credentials.captchaToken
+          ? { captchaToken: credentials.captchaToken }
+          : undefined,
       });
 
       if (error) {
@@ -179,6 +182,9 @@ export class AuthService {
       const { data, error } = await this.supabase.auth.signUp({
         email: credentials.email,
         password: credentials.password,
+        options: credentials.displayName
+          ? { data: { display_name: credentials.displayName } }
+          : undefined,
       });
 
       if (error) {

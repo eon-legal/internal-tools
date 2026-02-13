@@ -16,6 +16,8 @@ export interface LoginCredentials {
   email: string;
   /** User's password */
   password: string;
+  /** Optional CAPTCHA token from Cloudflare Turnstile (production only) */
+  captchaToken?: string;
 }
 
 /**
@@ -28,6 +30,8 @@ export interface RegisterCredentials {
   password: string;
   /** Optional: Password confirmation for UI validation */
   confirmPassword?: string;
+  /** Optional: User's display name (stored in Supabase user_metadata) */
+  displayName?: string;
 }
 
 /**
