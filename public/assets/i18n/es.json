@@ -17,6 +17,8 @@
         "register": {
             "title": "Crear Cuenta",
             "subtitle": "Regístrate para crear una nueva cuenta",
+            "display_name": "Nombre para mostrar",
+            "display_name_placeholder": "Ingresa tu nombre para mostrar (opcional)",
             "email": "Correo electrónico",
             "email_placeholder": "Ingresa tu correo electrónico",
             "password": "Contraseña",
@@ -40,6 +42,8 @@
             "invalid_email": "Por favor ingresa un correo electrónico válido",
             "passwords_not_match": "Las contraseñas no coinciden",
             "registration_disabled": "El registro está deshabilitado actualmente",
+            "captcha_required": "Por favor completa la verificación CAPTCHA.",
+            "captcha_failed": "La verificación CAPTCHA falló. Por favor intenta de nuevo.",
             "unknown": "Ocurrió un error inesperado. Por favor intenta de nuevo."
         },
         "messages": {
@@ -51,7 +55,12 @@
         "validation": {
             "email_required": "El correo electrónico es requerido",
             "password_required": "La contraseña es requerida",
+            "password_min_length": "La contraseña debe tener al menos 6 caracteres",
             "confirm_password_required": "Por favor confirma tu contraseña"
+        },
+        "login_errors": {
+            "account_locked": "Demasiados intentos fallidos. Por favor intenta de nuevo en {{seconds}} segundos.",
+            "attempts_remaining": "{{count}} intento(s) restante(s) antes del bloqueo temporal."
         }
     },
     "common": {
@@ -138,15 +147,21 @@
             "total_iva": "Total IVA",
             "total_paid": "Total Cobrado",
             "total_pending": "Total Pendiente",
-            "invoices": "facturas"
+            "invoices": "facturas",
+            "invoices_with_iva": "facturas con IVA"
         },
         "charts": {
-            "amounts_title": "Importes por Estado",
-            "counts_title": "Cantidad de Facturas por Estado",
-            "monthly_title": "Desglose Mensual",
+            "monthly_count_title": "Cantidad de Facturas por Mes",
+            "collection_rate_title": "Facturado vs Cobrado por Mes",
+            "avg_invoice_value_title": "Valor Promedio de Factura en el Tiempo",
+            "monthly_title": "Desglose Mensual de Ingresos",
             "invoiced": "Facturado",
             "paid": "Cobrado",
-            "pending": "Pendiente"
+            "pending": "Pendiente",
+            "invoice_count": "Facturas",
+            "collection_rate": "Tasa de Cobro (%)",
+            "collected": "Cobrado",
+            "avg_value": "Valor Prom. (€)"
         }
     },
     "images_to_pdf": {
