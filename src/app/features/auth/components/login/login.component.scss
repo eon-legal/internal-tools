@@ -46,6 +46,14 @@
 }
 
 .login-form {
+  .login-error-banner {
+    margin-bottom: 1.5rem;
+
+    :host ::ng-deep p-message {
+      width: 100%;
+    }
+  }
+
   .field {
     margin-bottom: 1.5rem;
 
@@ -60,6 +68,11 @@
       display: block;
       margin-top: 0.25rem;
       font-size: 0.875rem;
+    }
+
+    &.captcha-field {
+      display: flex;
+      justify-content: center;
     }
 
     &.remember-me-field {

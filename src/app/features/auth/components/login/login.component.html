@@ -17,6 +17,13 @@
       </div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Inline Error Banner -->
+        @if (loginError()) {
+          <div class="login-error-banner">
+            <p-message severity="error" [text]="loginError()"></p-message>
+          </div>
+        }
+
         <!-- Email Field -->
         <div class="field">
           <label for="email">{{ getText('auth.login.email') }}</label>
@@ -52,6 +59,9 @@
           @if (hasError('password', 'required')) {
             <small class="p-error">{{ getText('auth.validation.password_required') }}</small>
           }
+          @if (hasError('password', 'minlength')) {
+            <small class="p-error">{{ getText('auth.validation.password_min_length') }}</small>
+          }
         </div>
 
         <!-- Remember Me Checkbox -->
@@ -68,13 +78,24 @@
           </div>
         </div>
 
+        <!-- Cloudflare Turnstile CAPTCHA (production only) -->
+        @if (environment.captcha.enabled) {
+          <div class="field captcha-field">
+            <ngx-turnstile
+              [siteKey]="environment.captcha.turnstileSiteKey"
+              (resolved)="captchaToken.set($event ?? '')"
+              theme="auto"
+            ></ngx-turnstile>
+          </div>
+        }
+
         <!-- Submit Button -->
         <div class="field">
           <p-button
             type="submit"
-            [label]="isLoading() ? getText('auth.login.signing_in') : getText('auth.login.submit')"
+            [label]="isLockedOut() ? getText('auth.login.signing_in') : (isLoading() ? getText('auth.login.signing_in') : getText('auth.login.submit'))"
             [loading]="isLoading()"
-            [disabled]="isLoading()"
+            [disabled]="isLoading() || isLockedOut()"
             styleClass="w-full"
           ></p-button>
         </div>
