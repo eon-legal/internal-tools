@@ -90,6 +90,17 @@
           }
         </div>
 
+        <!-- Cloudflare Turnstile CAPTCHA (production only) -->
+        @if (environment.captcha.enabled) {
+          <div class="field captcha-field">
+            <ngx-turnstile
+              [siteKey]="environment.captcha.turnstileSiteKey"
+              (resolved)="captchaToken.set($event ?? '')"
+              theme="auto"
+            ></ngx-turnstile>
+          </div>
+        }
+
         <!-- Submit Button -->
         <div class="field">
           <p-button

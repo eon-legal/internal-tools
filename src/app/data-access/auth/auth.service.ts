@@ -179,12 +179,18 @@ export class AuthService {
     }
 
     try {
+      const signUpOptions: Record<string, unknown> = {};
+      if (credentials.displayName) {
+        signUpOptions['data'] = { display_name: credentials.displayName };
+      }
+      if (credentials.captchaToken) {
+        signUpOptions['captchaToken'] = credentials.captchaToken;
+      }
+
       const { data, error } = await this.supabase.auth.signUp({
         email: credentials.email,
         password: credentials.password,
-        options: credentials.displayName
-          ? { data: { display_name: credentials.displayName } }
-          : undefined,
+        options: Object.keys(signUpOptions).length > 0 ? signUpOptions : undefined,
       });
 
       if (error) {

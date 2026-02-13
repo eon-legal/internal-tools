@@ -28,6 +28,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { NgxTurnstileModule } from 'ngx-turnstile';
 
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -37,6 +38,7 @@ import { CardModule } from 'primeng/card';
 import { AuthService } from '../../../../data-access/auth/auth.service';
 import { LanguageService } from '../../../../shared/services/language/language.service';
 import { LanguageSwitcherComponent } from '../../../../core/components/language-switcher/language-switcher.component';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-register',
@@ -50,6 +52,7 @@ import { LanguageSwitcherComponent } from '../../../../core/components/language-
     ButtonModule,
     CardModule,
     LanguageSwitcherComponent,
+    NgxTurnstileModule,
   ],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
@@ -63,6 +66,12 @@ export class RegisterComponent implements OnInit {
 
   /** Loading state */
   readonly isLoading = signal(false);
+
+  /** Environment config exposed for template (CAPTCHA settings) */
+  readonly environment = environment;
+
+  /** CAPTCHA token received from Cloudflare Turnstile widget */
+  readonly captchaToken = signal<string>('');
 
   /** Registration form */
   readonly registerForm: FormGroup = this.fb.group(
@@ -113,12 +122,22 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
+    // Require CAPTCHA token when enabled (production)
+    if (this.environment.captcha.enabled && !this.captchaToken()) {
+      this.toastr.error(
+        this.getText('auth.errors.captcha_required'),
+        this.getText('common.labels.error')
+      );
+      return;
+    }
+
     this.isLoading.set(true);
 
     const result = await this.authService.signUp({
       displayName: this.registerForm.value.displayName || undefined,
       email: this.registerForm.value.email,
       password: this.registerForm.value.password,
+      captchaToken: this.captchaToken() || undefined,
     });
 
     this.isLoading.set(false);
@@ -138,6 +157,8 @@ export class RegisterComponent implements OnInit {
       }
       this.router.navigate(['/login']);
     } else {
+      // Reset CAPTCHA token so user must re-verify on retry
+      this.captchaToken.set('');
       this.toastr.error(
         this.getText(result.error ?? 'auth.errors.unknown'),
         this.getText('common.labels.error')

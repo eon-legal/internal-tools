@@ -32,6 +32,8 @@ export interface RegisterCredentials {
   confirmPassword?: string;
   /** Optional: User's display name (stored in Supabase user_metadata) */
   displayName?: string;
+  /** Optional CAPTCHA token from Cloudflare Turnstile (production only) */
+  captchaToken?: string;
 }
 
 /**
