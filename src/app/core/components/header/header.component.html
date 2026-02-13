@@ -13,7 +13,7 @@
         @if (authService.userProfile(); as profile) {
           <span class="user-email" [pTooltip]="profile.email">
             <i class="pi pi-user"></i>
-            {{ profile.email }}
+            {{ profile.displayName || profile.email }}
           </span>
         }
         <button
