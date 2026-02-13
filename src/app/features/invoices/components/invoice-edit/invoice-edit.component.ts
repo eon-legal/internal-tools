@@ -26,7 +26,7 @@ import { Subscription } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextarea } from 'primeng/inputtextarea';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
@@ -49,7 +49,7 @@ import { spanishIdValidator } from '../../../../shared/validators/spanish-id.val
     ButtonModule,
     InputTextModule,
     InputTextarea,
-    CalendarModule,
+    DatePickerModule,
     CheckboxModule,
     ProgressSpinnerModule,
     ToastModule,
@@ -216,6 +216,19 @@ export class InvoiceEditComponent implements OnInit, OnDestroy {
     this.isSaving = true;
     const formValue = this.invoiceForm.getRawValue();
 
+    // Determine paid_at based on paid status change
+    const wasPaid = this.invoice?.paid ?? false;
+    const isPaid = formValue.paid;
+    let paidAt: string | null | undefined;
+    if (isPaid && !wasPaid) {
+      // Newly marked as paid → set timestamp
+      paidAt = new Date().toISOString();
+    } else if (!isPaid && wasPaid) {
+      // Unmarked as paid → clear timestamp
+      paidAt = null;
+    }
+    // If paid status didn't change, don't touch paid_at
+
     const updateData: UpdateInvoiceDto = {
       invoice_date: formValue.invoice_date.toISOString(),
       sender_name: formValue.sender_name,
@@ -228,6 +241,7 @@ export class InvoiceEditComponent implements OnInit, OnDestroy {
       destination_bank_address: formValue.destination_bank_address,
       destination_nif: formValue.destination_nif,
       paid: formValue.paid,
+      ...(paidAt !== undefined ? { paid_at: paidAt } : {}),
     };
 
     this.invoicesService.updateInvoice(this.invoiceId, updateData).subscribe({

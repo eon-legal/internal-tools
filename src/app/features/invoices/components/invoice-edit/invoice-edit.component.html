@@ -53,13 +53,13 @@
               <label for="invoice_date" class="block font-medium mb-2">
                 {{ getText('invoices.sender_form.date') }}
               </label>
-              <p-calendar
+              <p-datepicker
                 id="invoice_date"
                 formControlName="invoice_date"
                 dateFormat="dd/mm/yy"
                 [showIcon]="true"
                 styleClass="w-full"
-              ></p-calendar>
+              ></p-datepicker>
             </div>
           </div>
         </div>
