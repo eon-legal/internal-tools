@@ -51,7 +51,8 @@ export class InvoicesDataService {
     let query = this.supabase
       .from('invoices')
       .select('*')
-      .order('invoice_date', { ascending: false });
+      .order('invoice_date', { ascending: false })
+      .order('invoice_number', { ascending: false });
 
     // Apply filters
     if (filters) {
