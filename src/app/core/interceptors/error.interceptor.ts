@@ -1,31 +1,38 @@
 /**
  * Global HTTP Error Interceptor
- * 
+ *
  * Responsibilities:
  * - Centralized error handling for all HTTP requests
  * - User-friendly error notifications via ToastrService
  * - Error logging for debugging and monitoring
  * - Consistent error response handling
- * 
+ * - Auto-logout and redirect to login on 401 Unauthorized responses
+ *
  * Side Effects:
  * - Displays toast notifications for HTTP errors
  * - Logs errors to console (can be extended to external logging service)
- * 
+ * - Signs out user and redirects to /login on 401
+ *
  * Invariants:
  * - All HTTP errors pass through this interceptor
  * - Network errors are handled gracefully
  * - User receives feedback for all error scenarios
+ * - Expired/invalid sessions are cleaned up automatically
  */
 
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, throwError } from 'rxjs';
+import { AuthService } from '../../data-access/auth/auth.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const toastr = inject(ToastrService);
   const translate = inject(TranslateService);
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -52,6 +59,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             break;
           case 401:
             errorMessage = translate.instant('common.messages.unauthorized');
+            // Auto-logout: clear session and redirect to login
+            authService.signOut().then(() => {
+              router.navigate(['/login']);
+            });
             break;
           case 403:
             errorMessage = translate.instant('common.messages.forbidden');

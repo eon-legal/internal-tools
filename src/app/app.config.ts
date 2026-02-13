@@ -24,6 +24,7 @@ import {
 } from '@angular/common/http';
 
 import { environment } from '../environments/environment';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 
 /**
@@ -64,7 +65,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimationsAsync(),
     provideToastr({ timeOut: 2000, preventDuplicates: true }),
-    provideHttpClient(withInterceptors([errorInterceptor]), withInterceptorsFromDi()),
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor]), withInterceptorsFromDi()),
     DialogService,
     providePrimeNG({
       theme: {

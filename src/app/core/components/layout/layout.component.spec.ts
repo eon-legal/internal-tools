@@ -6,6 +6,9 @@ import { of, Subject } from 'rxjs';
 import { MenuItem } from 'primeng/api';
 import { jest } from '@jest/globals';
 import { TranslateModule } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../../../data-access/auth/auth.service';
+import { LanguageService } from '../../../shared/services/language/language.service';
 
 class MockRouter {
   private subject = new Subject<NavigationEnd>();
@@ -50,7 +53,10 @@ describe('LayoutComponent', () => {
       ],
       providers: [
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
-        { provide: Router, useClass: MockRouter }
+        { provide: Router, useClass: MockRouter },
+        { provide: ToastrService, useValue: { success: jest.fn(), error: jest.fn() } },
+        { provide: AuthService, useValue: { signOut: jest.fn<() => Promise<{ success: boolean }>>().mockResolvedValue({ success: true }), isAuthenticated: jest.fn<() => boolean>().mockReturnValue(false), userProfile: jest.fn<() => null>().mockReturnValue(null) } },
+        { provide: LanguageService, useValue: { getText: jest.fn((key: string) => key), getCurrentLanguage: jest.fn<() => string>().mockReturnValue('es'), onLanguageChange: jest.fn() } },
       ]
     }).compileComponents();
 

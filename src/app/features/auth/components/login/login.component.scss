@@ -1,0 +1,132 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%);
+  padding: 1rem;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+}
+
+.language-switcher-wrapper {
+  position: absolute;
+  top: -3rem;
+  right: 0;
+  z-index: 10;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  .login-logo {
+    height: 64px;
+    width: auto;
+    margin-bottom: 0.5rem;
+    object-fit: contain;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+  }
+
+  p {
+    color: var(--text-color-secondary);
+    margin: 0;
+  }
+}
+
+.login-form {
+  .login-error-banner {
+    margin-bottom: 1.5rem;
+
+    :host ::ng-deep p-message {
+      width: 100%;
+    }
+  }
+
+  .field {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .p-error {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+    }
+
+    &.captcha-field {
+      display: flex;
+      justify-content: center;
+    }
+
+    &.remember-me-field {
+      margin-bottom: 1rem;
+
+      label {
+        display: inline;
+        margin-bottom: 0;
+        font-weight: 400;
+        color: var(--text-color-secondary);
+        user-select: none;
+      }
+    }
+  }
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--surface-border);
+
+  p {
+    margin: 0;
+    color: var(--text-color-secondary);
+  }
+
+  .register-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+:host ::ng-deep {
+  .p-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .p-card-body {
+    padding: 2rem;
+  }
+
+  .p-inputtext {
+    width: 100%;
+  }
+
+  .p-password {
+    width: 100%;
+  }
+}
+

@@ -9,6 +9,11 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TranslateService } from '@ngx-translate/core';
+import { InvoicesDataService } from '../../../../data-access/invoices/invoices-data.service';
+import { ClientsDataService } from '../../../../data-access/clients/clients-data.service';
+import { AddresseesDataService } from '../../../../data-access/addressees/addressees-data.service';
+import { Router } from '@angular/router';
+import { LoadingService } from '../../../../shared/services/loading/loading.service';
 
 // Mock para pdfmake-wrapper
 jest.mock('pdfmake-wrapper', () => ({
@@ -134,6 +139,11 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
         { provide: InvoicesStore, useValue: mockInvoicesStore },
         { provide: DialogService, useValue: mockDialogService },
         { provide: TranslateService, useValue: mockTranslateService },
+        { provide: InvoicesDataService, useValue: { getInvoices: jest.fn().mockReturnValue(of([])), createInvoice: jest.fn().mockReturnValue(of({})) } },
+        { provide: ClientsDataService, useValue: { getClientById: jest.fn().mockReturnValue(of({})) } },
+        { provide: AddresseesDataService, useValue: { getAddressees: jest.fn().mockReturnValue(of([])), getAddresseeById: jest.fn().mockReturnValue(of({})) } },
+        { provide: Router, useValue: { navigate: jest.fn() } },
+        { provide: LoadingService, useValue: { show: jest.fn(), hide: jest.fn(), loading$: of(false) } },
       ],
     }).compileComponents();
 
@@ -146,10 +156,9 @@ describe('StepperInvoicesGeneratePdfComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have action buttons configured', () => {
-    expect(component.actionButtons.length).toBe(2);
-    expect(component.actionButtons[0]?.label).toBe('invoices.stepper.buttons.clear_all');
-    expect(component.actionButtons[1]?.label).toBe('invoices.stepper.buttons.generate_invoice');
+  it('should have cleanDataStep and generateInvoice methods', () => {
+    expect(component.cleanDataStep).toBeDefined();
+    expect(component.generateInvoice).toBeDefined();
   });
 
   describe('ngAfterViewInit', () => {

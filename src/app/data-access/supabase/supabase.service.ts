@@ -19,6 +19,12 @@
  * - Configuration comes from environment files (dev or prod based on build)
  * - Throws error if Supabase configuration is missing or invalid
  *
+ * Auth Configuration (server-side, set via Supabase Management API):
+ * - jwt_exp: 43200 (12h) — Access tokens expire every 12h; auto-refreshed by the client
+ * - sessions_timebox: requires Pro Plan — enforced client-side in AuthService (24h cap)
+ * - autoRefreshToken: true — Supabase JS client refreshes the JWT before expiry
+ * - persistSession: true — Session is persisted in localStorage across page reloads
+ *
  * Environment Configuration:
  * - Development: Uses src/environments/environment.ts
  * - Production: Uses src/environments/environment.prod.ts
@@ -39,7 +45,13 @@ export class SupabaseService {
 
     this.supabase = createClient(
       environment.supabase.url,
-      environment.supabase.anonKey
+      environment.supabase.anonKey,
+      {
+        auth: {
+          autoRefreshToken: true,   // Refresh JWT before it expires (12h server-side expiry)
+          persistSession: true,     // Persist session in localStorage across page reloads
+        },
+      }
     );
 
     if (isDevMode()) {

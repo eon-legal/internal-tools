@@ -39,5 +39,10 @@ export const environment = {
     /** Disable user registration in production by default */
     registrationEnabled: false,
   },
+  captcha: {
+    /** Cloudflare Turnstile CAPTCHA enabled in production */
+    enabled: true,
+    turnstileSiteKey: '0x4AAAAAACaxcvxoaGWwDNK-',
+  },
 };
 

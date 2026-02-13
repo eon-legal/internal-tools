@@ -38,5 +38,13 @@ export interface Environment {
     /** Whether user registration is enabled. When false, only login is available. */
     registrationEnabled: boolean;
   };
+
+  /** CAPTCHA configuration (Cloudflare Turnstile) */
+  captcha: {
+    /** Whether CAPTCHA verification is enabled on auth forms */
+    enabled: boolean;
+    /** Cloudflare Turnstile site key (public, used client-side) */
+    turnstileSiteKey: string;
+  };
 }
 

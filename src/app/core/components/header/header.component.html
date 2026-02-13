@@ -6,5 +6,25 @@
   <h1 class="logo">DocPro</h1>
   <div class="header-actions">
     <app-language-switcher></app-language-switcher>
+
+    <!-- User Info & Logout -->
+    @if (authService.isAuthenticated()) {
+      <div class="user-info">
+        @if (authService.userProfile(); as profile) {
+          <span class="user-email" [pTooltip]="profile.email">
+            <i class="pi pi-user"></i>
+            {{ profile.displayName || profile.email }}
+          </span>
+        }
+        <button
+          pButton
+          icon="pi pi-sign-out"
+          class="p-button-text p-button-secondary logout-btn"
+          [pTooltip]="getText('auth.logout.button')"
+          tooltipPosition="bottom"
+          (click)="logout()">
+        </button>
+      </div>
+    }
   </div>
 </header>

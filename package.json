@@ -29,6 +29,7 @@
     "chart.js": "^4.5.1",
     "jspdf": "^2.5.2",
     "ngx-toastr": "^19.0.0",
+    "ngx-turnstile": "^0.2.5",
     "pdf-lib": "^1.17.1",
     "pdfmake": "^0.1.72",
     "pdfmake-wrapper": "^2.1.3",

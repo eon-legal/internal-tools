@@ -30,7 +30,7 @@
 
       <!-- Start Date -->
       <div class="col-12 md:col-2">
-        <p-calendar
+        <p-datepicker
           [(ngModel)]="startDate"
           [placeholder]="getText('invoices.history.filters.start_date')"
           dateFormat="dd/mm/yy"
@@ -39,12 +39,12 @@
           (onClear)="loadInvoices()"
           [showClear]="true"
           styleClass="w-full"
-        ></p-calendar>
+        ></p-datepicker>
       </div>
 
       <!-- End Date -->
       <div class="col-12 md:col-2">
-        <p-calendar
+        <p-datepicker
           [(ngModel)]="endDate"
           [placeholder]="getText('invoices.history.filters.end_date')"
           dateFormat="dd/mm/yy"
@@ -53,7 +53,7 @@
           (onClear)="loadInvoices()"
           [showClear]="true"
           styleClass="w-full"
-        ></p-calendar>
+        ></p-datepicker>
       </div>
 
       <!-- Paid Status -->

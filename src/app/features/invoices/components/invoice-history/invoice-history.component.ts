@@ -23,7 +23,7 @@ import { Subscription } from 'rxjs';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -53,7 +53,7 @@ import { IdentificationType } from '../../interfaces/first-form';
     TableModule,
     ButtonModule,
     InputTextModule,
-    CalendarModule,
+    DatePickerModule,
     DropdownModule,
     CheckboxModule,
     ConfirmDialogModule,
