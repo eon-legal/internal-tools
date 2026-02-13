@@ -12,6 +12,11 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     max-width: 1400px;
     margin: 0 auto;
+
+    &--transparent {
+      background: transparent;
+      box-shadow: none;
+    }
   }
 
   &.menu-open {
