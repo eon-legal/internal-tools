@@ -1,0 +1,14 @@
+# Angular SPA - Redirect all requests to index.html
+# Required for client-side routing to work on Apache (Hostinger)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # If an existing asset or directory is requested, serve it directly
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Otherwise, redirect all requests to index.html for Angular routing
+  RewriteRule ^ index.html [L]
+</IfModule>
+
