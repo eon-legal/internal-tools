@@ -67,6 +67,7 @@ export class RegisterComponent implements OnInit {
   /** Registration form */
   readonly registerForm: FormGroup = this.fb.group(
     {
+      displayName: [''],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
@@ -115,6 +116,7 @@ export class RegisterComponent implements OnInit {
     this.isLoading.set(true);
 
     const result = await this.authService.signUp({
+      displayName: this.registerForm.value.displayName || undefined,
       email: this.registerForm.value.email,
       password: this.registerForm.value.password,
     });

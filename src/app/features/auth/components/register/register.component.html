@@ -7,12 +7,29 @@
 
     <p-card>
       <div class="register-header">
-        <h1 class="logo">DocPro</h1>
+        <img
+          src="assets/square_logo.png"
+          alt="Logo"
+          class="register-logo"
+        />
         <h2>{{ getText('auth.register.title') }}</h2>
         <p>{{ getText('auth.register.subtitle') }}</p>
       </div>
 
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        <!-- Display Name Field -->
+        <div class="field">
+          <label for="displayName">{{ getText('auth.register.display_name') }}</label>
+          <input
+            pInputText
+            id="displayName"
+            type="text"
+            formControlName="displayName"
+            [placeholder]="getText('auth.register.display_name_placeholder')"
+            class="w-full"
+          />
+        </div>
+
         <!-- Email Field -->
         <div class="field">
           <label for="email">{{ getText('auth.register.email') }}</label>
