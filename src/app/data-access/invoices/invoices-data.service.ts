@@ -158,6 +158,7 @@ export class InvoicesDataService {
           invoice_number: invoiceNumber,
           sender_name: this.capitalizeName(invoiceData.sender_name),
           paid: false,
+          paid_at: null,
         };
 
         return from(
@@ -219,12 +220,14 @@ export class InvoicesDataService {
 
   /**
    * Mark multiple invoices as paid
+   * Sets paid_at to the current timestamp
    */
   markInvoicesAsPaid(invoiceIds: string[]): Observable<Invoice[]> {
+    const now = new Date().toISOString();
     return from(
       this.supabase
         .from('invoices')
-        .update({ paid: true })
+        .update({ paid: true, paid_at: now })
         .in('id', invoiceIds)
         .select()
     ).pipe(

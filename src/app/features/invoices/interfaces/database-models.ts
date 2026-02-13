@@ -140,6 +140,7 @@ export interface Invoice {
 
   // Status and metadata
   paid: boolean;
+  paid_at?: string; // ISO 8601 timestamp — when the invoice was marked as paid
   created_at: string; // ISO 8601 timestamp
   updated_at: string; // ISO 8601 timestamp
   last_download_at?: string; // ISO 8601 timestamp
@@ -203,6 +204,7 @@ export interface UpdateInvoiceDto {
   iva_amount?: number;
   total_amount?: number;
   paid?: boolean;
+  paid_at?: string | null; // Set when marking paid, null when unmarking
   last_download_at?: string;
 }
 
