@@ -61,39 +61,28 @@ export class RocketChatNotificationService {
 
   /**
    * Build the Rocket.Chat webhook payload with alias and attachments.
+   * Each invoice line follows the format: - NUMBER | TOTAL | RECIPIENT
+   * The attachment title is written in Spanish.
    */
   private buildPayload(invoices: Invoice[]): RocketChatPayload {
-    const isSingle = invoices.length === 1;
-    const headerText = isSingle
-      ? ':white_check_mark: Invoice marked as paid'
-      : `:white_check_mark: ${invoices.length} invoices marked as paid`;
+    const count = invoices.length;
+    const titleText = count === 1
+      ? '1 factura marcada como pagada'
+      : `${count} facturas marcadas como pagadas`;
 
-    const attachmentLines: string[] = [];
-
-    if (isSingle) {
-      const inv = invoices[0]!;
-      attachmentLines.push(`*Number:* ${inv.invoice_number}`);
-      if (inv.sender_name) attachmentLines.push(`*Recipient:* ${inv.sender_name}`);
-      if (inv.destination_name) attachmentLines.push(`*Sender:* ${inv.destination_name}`);
-      attachmentLines.push(`*Total:* ${this.formatCurrency(inv.total_amount)}`);
-    } else {
-      for (const inv of invoices) {
-        const parts = [`*${inv.invoice_number}*`];
-        if (inv.sender_name) parts.push(inv.sender_name);
-        parts.push(this.formatCurrency(inv.total_amount));
-        attachmentLines.push(`• ${parts.join(' — ')}`);
-      }
-      const total = invoices.reduce((sum, inv) => sum + inv.total_amount, 0);
-      attachmentLines.push('');
-      attachmentLines.push(`*Total collected:* ${this.formatCurrency(total)}`);
-    }
+    const attachmentLines = invoices.map((inv) => {
+      const number = inv.invoice_number;
+      const total = this.formatCurrency(inv.total_amount);
+      const recipient = inv.sender_name ?? '';
+      return `- ${number} | ${total} | ${recipient}`;
+    });
 
     return {
       alias: '[EON Invoices]',
-      text: headerText,
+      text: ':white_check_mark: Facturas marcadas como pagadas',
       attachments: [
         {
-          title: isSingle ? `Invoice ${invoices[0]!.invoice_number}` : `${invoices.length} Invoices`,
+          title: titleText,
           text: attachmentLines.join('\n'),
           color: '#2ECC71',
         },
