@@ -238,7 +238,11 @@
                 "load_error": "Failed to load invoices",
                 "delete_error": "Failed to delete invoice(s)",
                 "mark_paid_error": "Failed to mark invoice(s) as paid",
-                "no_selection": "Please select at least one invoice"
+                "no_selection": "Please select at least one invoice",
+                "rocketchat_confirm": "Do you want to send a Rocket.Chat notification for the {count} paid invoice(s)?",
+                "rocketchat_header": "Send Rocket.Chat Notification",
+                "rocketchat_success": "Rocket.Chat notification sent successfully",
+                "rocketchat_error": "Failed to send Rocket.Chat notification"
             },
             "status": {
                 "paid": "Paid",

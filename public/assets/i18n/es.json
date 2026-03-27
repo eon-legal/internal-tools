@@ -238,7 +238,11 @@
                 "load_error": "Error al cargar las facturas",
                 "delete_error": "Error al eliminar factura(s)",
                 "mark_paid_error": "Error al marcar factura(s) como pagada(s)",
-                "no_selection": "Por favor seleccione al menos una factura"
+                "no_selection": "Por favor seleccione al menos una factura",
+                "rocketchat_confirm": "¿Desea enviar una notificación de Rocket.Chat para {count} factura(s) pagada(s)?",
+                "rocketchat_header": "Enviar Notificación a Rocket.Chat",
+                "rocketchat_success": "Notificación de Rocket.Chat enviada exitosamente",
+                "rocketchat_error": "Error al enviar la notificación a Rocket.Chat"
             },
             "status": {
                 "paid": "Pagada",

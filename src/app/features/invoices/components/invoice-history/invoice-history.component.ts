@@ -43,6 +43,7 @@ import { CreateInvoicePdfService } from '../../services/create-invoice-pdf.servi
 import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
 import { DataInvoicesConstant } from '../../constants/data-invoices';
 import { IdentificationType } from '../../interfaces/first-form';
+import { RocketChatNotificationService } from '../../../../data-access/rocketchat/rocketchat-notification.service';
 
 @Component({
   selector: 'app-invoice-history',
@@ -76,6 +77,7 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly createInvoicePdfService = inject(CreateInvoicePdfService);
+  private readonly rocketChatService = inject(RocketChatNotificationService);
 
   // Subscriptions
   private subscription: Subscription[] = [];
@@ -215,7 +217,8 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Mark selected invoices as paid
+   * Mark selected invoices as paid.
+   * After confirming the DB update, offers to send a Rocket.Chat notification.
    */
   markSelectedAsPaid(): void {
     const selectedCount = this.store.selectedCount();
@@ -229,6 +232,9 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Capture invoices before the store clears the selection
+    const invoicesToNotify = this.store.selectedInvoices();
+
     this.confirmationService.confirm({
       message: this.getText('common.messages.confirm_action'),
       header: this.getText('invoices.history.actions.mark_paid'),
@@ -238,11 +244,39 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
 
         this.messageService.add({
           severity: 'success',
-          summary: this.getText('common.labels.total'),
+          summary: this.getText('common.labels.success'),
           detail: this.getText('invoices.history.messages.mark_paid_success').replace(
             '{count}',
             selectedCount.toString()
           ),
+        });
+
+        // Second confirmation: offer to send Rocket.Chat notification
+        this.confirmationService.confirm({
+          message: this.getText('invoices.history.messages.rocketchat_confirm').replace(
+            '{count}',
+            selectedCount.toString()
+          ),
+          header: this.getText('invoices.history.messages.rocketchat_header'),
+          icon: 'pi pi-bell',
+          accept: () => {
+            this.rocketChatService.notifyInvoicesPaid(invoicesToNotify).subscribe({
+              next: () => {
+                this.messageService.add({
+                  severity: 'success',
+                  summary: this.getText('common.labels.success'),
+                  detail: this.getText('invoices.history.messages.rocketchat_success'),
+                });
+              },
+              error: () => {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: this.getText('common.labels.error'),
+                  detail: this.getText('invoices.history.messages.rocketchat_error'),
+                });
+              },
+            });
+          },
         });
       },
     });
