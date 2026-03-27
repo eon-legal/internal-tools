@@ -44,5 +44,9 @@ export const environment = {
     enabled: true,
     turnstileSiteKey: '0x4AAAAAACaxcvxoaGWwDNK-',
   },
+  rocketchat: {
+    /** Rocket.Chat incoming webhook URL for invoice paid notifications */
+    webhookUrl: 'https://chat.eontechsolutions.com/hooks/69c6efaf371046cf073316a1/AJkrHksbJjAcBZdWR96zCZjvDneCarjAF4YZso8mWpEb7z7f',
+  },
 };
 

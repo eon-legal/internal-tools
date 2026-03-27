@@ -46,5 +46,11 @@ export interface Environment {
     /** Cloudflare Turnstile site key (public, used client-side) */
     turnstileSiteKey: string;
   };
+
+  /** Rocket.Chat integration configuration */
+  rocketchat: {
+    /** Incoming webhook URL for sending notifications. Leave empty to disable. */
+    webhookUrl: string;
+  };
 }
 
