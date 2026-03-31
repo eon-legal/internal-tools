@@ -45,8 +45,8 @@ export const environment = {
     turnstileSiteKey: '0x4AAAAAACaxcvxoaGWwDNK-',
   },
   rocketchat: {
-    /** Rocket.Chat incoming webhook URL for invoice paid notifications */
-    webhookUrl: 'https://chat.eontechsolutions.com/hooks/69c6efaf371046cf073316a1/AJkrHksbJjAcBZdWR96zCZjvDneCarjAF4YZso8mWpEb7z7f',
+    /** Supabase Edge Function proxy to avoid CORS when calling Rocket.Chat webhook */
+    webhookUrl: 'https://wzmppksgwtdffnxhkljh.supabase.co/functions/v1/rocketchat-webhook-proxy',
   },
 };
 
