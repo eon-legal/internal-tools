@@ -217,8 +217,8 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Mark selected invoices as paid.
-   * After confirming the DB update, offers to send a Rocket.Chat notification.
+   * Mark selected invoices as paid and send a Rocket.Chat notification.
+   * Single confirmation dialog; notification is sent automatically on accept.
    */
   markSelectedAsPaid(): void {
     const selectedCount = this.store.selectedCount();
@@ -251,30 +251,20 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
           ),
         });
 
-        // Second confirmation: offer to send Rocket.Chat notification
-        this.confirmationService.confirm({
-          message: this.getText('invoices.history.messages.rocketchat_confirm').replace(
-            '{count}',
-            selectedCount.toString()
-          ),
-          header: this.getText('invoices.history.messages.rocketchat_header'),
-          icon: 'pi pi-bell',
-          accept: () => {
-            this.rocketChatService.notifyInvoicesPaid(invoicesToNotify).subscribe({
-              next: () => {
-                this.messageService.add({
-                  severity: 'success',
-                  summary: this.getText('common.labels.success'),
-                  detail: this.getText('invoices.history.messages.rocketchat_success'),
-                });
-              },
-              error: () => {
-                this.messageService.add({
-                  severity: 'error',
-                  summary: this.getText('common.labels.error'),
-                  detail: this.getText('invoices.history.messages.rocketchat_error'),
-                });
-              },
+        // Send Rocket.Chat notification automatically
+        this.rocketChatService.notifyInvoicesPaid(invoicesToNotify).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: this.getText('common.labels.success'),
+              detail: this.getText('invoices.history.messages.rocketchat_success'),
+            });
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: this.getText('common.labels.error'),
+              detail: this.getText('invoices.history.messages.rocketchat_error'),
             });
           },
         });
