@@ -57,6 +57,28 @@ export class CreateInvoicePdfService {
   }
 
   /**
+   * Generates and returns a PDF invoice as a Blob.
+   * @param nameAddressOrPassport - A tuple containing the name and address/passport information.
+   * @param endPage - The second form data containing destination and bank details.
+   * @param rightInvoice - The first form data containing invoice details.
+   * @param tableData - The table data containing invoice line items.
+   * @returns Promise<Blob> containing the generated PDF
+   */
+  async getPDFBlobInvoice(
+    nameAddressOrPassport: [string, string],
+    endPage: SecondForm,
+    rightInvoice: FisrtForm,
+    tableData: DataInvoicesTable[]
+  ): Promise<Blob> {
+    const pdf = await this.buildPDF(nameAddressOrPassport, endPage, rightInvoice, tableData);
+    return new Promise((resolve) => {
+      pdf.create().getBlob((blob: Blob) => {
+        resolve(blob);
+      });
+    });
+  }
+
+  /**
    * Builds the PDF document structure with the provided data.
    * @param nameAddressOrPassport - A tuple containing the name and address/passport information.
    * @param endPage - The second form data containing destination and bank details.
