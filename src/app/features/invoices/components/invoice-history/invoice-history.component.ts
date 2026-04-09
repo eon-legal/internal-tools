@@ -44,6 +44,7 @@ import { DataInvoicesTable } from '../../interfaces/data-invoices-table';
 import { DataInvoicesConstant } from '../../constants/data-invoices';
 import { IdentificationType } from '../../interfaces/first-form';
 import { RocketChatNotificationService } from '../../../../data-access/rocketchat/rocketchat-notification.service';
+import JSZip from 'jszip';
 
 @Component({
   selector: 'app-invoice-history',
@@ -193,9 +194,9 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Download selected invoices
+   * Download selected invoices as a ZIP file
    */
-  downloadSelected(): void {
+  async downloadSelected(): Promise<void> {
     const selectedInvoices = this.store.selectedInvoices();
 
     if (selectedInvoices.length === 0) {
@@ -207,13 +208,54 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // TODO: Implement batch PDF download
-    // For now, just show success message
-    this.messageService.add({
-      severity: 'success',
-      summary: this.getText('common.labels.total'),
-      detail: this.getText('invoices.history.messages.download_success'),
-    });
+    try {
+      const zip = new JSZip();
+
+      // Generate PDF for each selected invoice and add to zip
+      for (const invoice of selectedInvoices) {
+        // Update download timestamp
+        this.store.updateDownloadTimestamp(invoice.id);
+
+        const { nameAddressOrPassport, secondForm, firstForm, tableData } = this.prepareInvoiceData(invoice);
+
+        const blob = await this.createInvoicePdfService.getPDFBlobInvoice(
+          nameAddressOrPassport,
+          secondForm,
+          firstForm,
+          tableData
+        );
+
+        const filename = `${invoice.invoice_number}.pdf`;
+        zip.file(filename, blob);
+      }
+
+      // Generate the ZIP file
+      const content = await zip.generateAsync({ type: 'blob' });
+
+      // Trigger download
+      const url = window.URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `invoices_${new Date().getTime()}.zip`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      this.messageService.add({
+        severity: 'success',
+        summary: this.getText('common.labels.success'),
+        detail: this.getText('invoices.history.messages.download_success'),
+      });
+
+      // Clear selection after successful download
+      this.store.clearSelection();
+    } catch (error) {
+      console.error('Error generating batch PDFs:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: this.getText('common.labels.error'),
+        detail: this.getText('invoices.history.messages.download_error') || 'Error generating PDF',
+      });
+    }
   }
 
   /**
@@ -318,57 +360,7 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
       // Update download timestamp
       this.store.updateDownloadTimestamp(invoice.id);
 
-      // Convert Invoice to the format expected by PDF service
-      // Use new identification field, fallback to legacy sender_passport for backwards compatibility
-      const identification = invoice.sender_identification || invoice.sender_passport || '';
-      const nameAddressOrPassport: [string, string] = [
-        invoice.sender_name || '',
-        identification
-      ];
-
-      const secondForm = {
-        nameDestination: invoice.destination_name || '',
-        accountDestination: invoice.destination_account || '',
-        addressDestination: invoice.destination_address || '',
-        nameBank: invoice.destination_bank_name || '',
-        addressBank: invoice.destination_bank_address || '',
-        nif: invoice.destination_nif || '',
-      };
-
-      const firstForm = {
-        numberInvoice: invoice.invoice_number,
-        date: new Date(invoice.invoice_date),
-        name: invoice.sender_name || '',
-        identificationType: (invoice.sender_identification_type as IdentificationType) || 'DNI',
-        identification: identification,
-      };
-
-      // Convert invoice items to table data format
-      const tableData: DataInvoicesTable[] = invoice.invoice_items.map(item => ({
-        id: item.id,
-        description: item.description,
-        qtt: item.qtt,
-        price: item.price,
-        total: item.total,
-        sTotal: item.sTotal,
-        perCentIva: item.perCentIva,
-      }));
-
-      // Add IVA and Total rows for PDF generation
-      tableData.push({
-        id: '',
-        description: '',
-        sTotal: '',
-        perCentIva: DataInvoicesConstant.IVA,
-        total: invoice.iva_amount,
-      });
-      tableData.push({
-        id: '',
-        description: '',
-        sTotal: '',
-        perCentIva: DataInvoicesConstant.TOTAL,
-        total: invoice.total_amount,
-      });
+      const { nameAddressOrPassport, secondForm, firstForm, tableData } = this.prepareInvoiceData(invoice);
 
       // Generate and download the PDF
       const filename = `${invoice.invoice_number}.pdf`;
@@ -393,6 +385,65 @@ export class InvoiceHistoryComponent implements OnInit, OnDestroy {
         detail: this.getText('invoices.history.messages.download_error') || 'Error generating PDF',
       });
     }
+  }
+
+  /**
+   * Helper method to map Invoice data to PDF generation format
+   */
+  private prepareInvoiceData(invoice: Invoice) {
+    // Convert Invoice to the format expected by PDF service
+    // Use new identification field, fallback to legacy sender_passport for backwards compatibility
+    const identification = invoice.sender_identification || invoice.sender_passport || '';
+    const nameAddressOrPassport: [string, string] = [
+      invoice.sender_name || '',
+      identification
+    ];
+
+    const secondForm = {
+      nameDestination: invoice.destination_name || '',
+      accountDestination: invoice.destination_account || '',
+      addressDestination: invoice.destination_address || '',
+      nameBank: invoice.destination_bank_name || '',
+      addressBank: invoice.destination_bank_address || '',
+      nif: invoice.destination_nif || '',
+    };
+
+    const firstForm = {
+      numberInvoice: invoice.invoice_number,
+      date: new Date(invoice.invoice_date),
+      name: invoice.sender_name || '',
+      identificationType: (invoice.sender_identification_type as IdentificationType) || 'DNI',
+      identification: identification,
+    };
+
+    // Convert invoice items to table data format
+    const tableData: DataInvoicesTable[] = invoice.invoice_items.map(item => ({
+      id: item.id,
+      description: item.description,
+      qtt: item.qtt,
+      price: item.price,
+      total: item.total,
+      sTotal: item.sTotal,
+      perCentIva: item.perCentIva,
+    }));
+
+    // Add IVA and Total rows for PDF generation
+    tableData.push({
+      id: '',
+      description: '',
+      sTotal: '',
+      perCentIva: DataInvoicesConstant.IVA,
+      total: invoice.iva_amount,
+    });
+    tableData.push({
+      id: '',
+      description: '',
+      sTotal: '',
+      perCentIva: DataInvoicesConstant.TOTAL,
+      total: invoice.total_amount,
+    });
+
+    return { nameAddressOrPassport, secondForm, firstForm, tableData };
   }
 
   /**
