@@ -12,3 +12,17 @@
   RewriteRule ^ index.html [L]
 </IfModule>
 
+# Block indexing by search engines and AI crawlers
+<IfModule mod_headers.c>
+  Header always set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet, noimageindex"
+</IfModule>
+
+# Block known crawler user-agents
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTP_USER_AGENT} (Googlebot|Bingbot|Slurp|DuckDuckBot|Baiduspider|YandexBot) [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} (GPTBot|Google-Extended|CCBot|anthropic-ai|ClaudeBot|PerplexityBot) [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} (Meta-ExternalAgent|FacebookBot|Bytespider|Amazonbot|cohere-ai|Diffbot) [NC]
+  RewriteRule ^ - [F,L]
+</IfModule>
+
