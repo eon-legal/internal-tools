@@ -274,15 +274,14 @@ export function calculateMonthlyData(
 }
 
 /**
- * Gets the default date range (last 12 months)
+ * Gets the default date range: current natural year (Jan 1 → today).
  *
- * @returns Date range for the last 12 months
+ * @returns Date range from January 1st of the current year to today
  */
 export function getDefaultDateRange(): DateRange {
-  const endDate = new Date();
-  const startDate = new Date();
-  startDate.setMonth(startDate.getMonth() - 11);
-  startDate.setDate(1);
+  const now = new Date();
+  const startDate = new Date(now.getFullYear(), 0, 1);
+  const endDate = now;
 
   return {
     startDate,

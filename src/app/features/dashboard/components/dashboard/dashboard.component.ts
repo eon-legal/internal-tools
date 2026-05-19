@@ -32,6 +32,8 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { PopoverModule } from 'primeng/popover';
+import { TooltipModule } from 'primeng/tooltip';
 
 // Services and Store
 import { InvoicesListStore } from '../../../invoices/state/invoices-list.store';
@@ -63,6 +65,8 @@ import {
     ButtonModule,
     DatePickerModule,
     ProgressSpinnerModule,
+    PopoverModule,
+    TooltipModule,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
@@ -76,13 +80,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
-  // Date range filter (using regular properties for ngModel compatibility)
+  // Raw user filter values bound to the datepickers via ngModel.
+  // null on both = no user filter → graphs/totals fall back to natural year.
   filterStartDate: Date | null = null;
   filterEndDate: Date | null = null;
 
-  // Internal signals for reactivity
-  private startDateSignal = signal<Date | null>(null);
-  private endDateSignal = signal<Date | null>(null);
+  // Signal-backed mirrors of the raw filter inputs, used to feed computed signals.
+  private filterStartSignal = signal<Date | null>(null);
+  private filterEndSignal = signal<Date | null>(null);
+
+  // Effective range drives summary + monthlyData computeds. If neither filter
+  // bound is set, fall back to the current natural year (Jan 1 → today).
+  private startDateSignal = computed<Date | null>(() => {
+    const s = this.filterStartSignal();
+    const e = this.filterEndSignal();
+    if (s === null && e === null) {
+      return getDefaultDateRange().startDate;
+    }
+    return s;
+  });
+  private endDateSignal = computed<Date | null>(() => {
+    const s = this.filterStartSignal();
+    const e = this.filterEndSignal();
+    if (s === null && e === null) {
+      return getDefaultDateRange().endDate;
+    }
+    return e;
+  });
+
+  // True when the user has set at least one filter date (badge + reset visibility).
+  hasActiveFilter = computed(() =>
+    this.filterStartSignal() !== null || this.filterEndSignal() !== null
+  );
 
   // Chart data
   monthlyCountChartData: any = null;
@@ -152,12 +181,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Set default date range (last 12 months)
-    const defaultRange = getDefaultDateRange();
-    this.filterStartDate = defaultRange.startDate;
-    this.filterEndDate = defaultRange.endDate;
-    this.startDateSignal.set(defaultRange.startDate);
-    this.endDateSignal.set(defaultRange.endDate);
+    // No initial user filter: graphs/totals default to the current natural year
+    // via the effective-range computeds.
 
     // Initialize chart options
     this.initChartOptions();
@@ -394,25 +419,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handle date filter change
+   * Sync signal mirrors after ngModel updates the raw filter properties.
+   * Called from (ngModelChange) on both datepickers so any change — including
+   * the picker's built-in clear button — propagates to the computed signals.
    */
   onDateFilterChange(): void {
-    // Update signals to trigger reactivity
-    this.startDateSignal.set(this.filterStartDate);
-    this.endDateSignal.set(this.filterEndDate);
-    this.refreshCharts();
+    this.filterStartSignal.set(this.filterStartDate);
+    this.filterEndSignal.set(this.filterEndDate);
   }
 
   /**
-   * Clear date filters
+   * Clear date filters → fall back to natural year via effective-range computeds.
    */
   clearDateFilters(): void {
-    const defaultRange = getDefaultDateRange();
-    this.filterStartDate = defaultRange.startDate;
-    this.filterEndDate = defaultRange.endDate;
-    this.startDateSignal.set(defaultRange.startDate);
-    this.endDateSignal.set(defaultRange.endDate);
-    this.refreshCharts();
+    this.filterStartDate = null;
+    this.filterEndDate = null;
+    this.filterStartSignal.set(null);
+    this.filterEndSignal.set(null);
   }
 
   /**
