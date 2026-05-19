@@ -52,5 +52,15 @@ export interface Environment {
     /** Incoming webhook URL for sending notifications. Leave empty to disable. */
     webhookUrl: string;
   };
+
+  /** Cecabank TPV Virtual integration */
+  tpv: {
+    /**
+     * URL of the send-payment-link Supabase Edge Function. The frontend only
+     * needs to call this; merchant credentials and clave_encriptacion live
+     * server-side as Supabase secrets and never reach the browser bundle.
+     */
+    sendPaymentLinkFnUrl: string;
+  };
 }
 

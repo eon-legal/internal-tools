@@ -21,6 +21,7 @@ export interface BaseClient {
   passport?: string;
   national: boolean;
   nif?: string; // Tax ID (applies to both individuals and companies)
+  email?: string; // Used to deliver Cecabank TPV payment links
   is_default: boolean;
   created_at: string; // ISO 8601 timestamp
   updated_at: string; // ISO 8601 timestamp

@@ -374,6 +374,17 @@
         "actions": {
             "edit": "Editar",
             "delete": "Eliminar"
+        },
+        "tpv": {
+            "section_title": "Enlace de pago",
+            "section_description": "Envía al cliente por email un enlace TPV de Cecabank para pagar esta factura.",
+            "send_button": "Enviar enlace de pago",
+            "will_send_to": "Se enviará a",
+            "no_client": "Asocia un cliente a esta factura primero.",
+            "no_email": "El cliente no tiene email registrado.",
+            "already_paid": "Esta factura ya está marcada como pagada.",
+            "sent_success": "Enlace de pago enviado a {email}.",
+            "sent_error": "No se pudo enviar el enlace de pago."
         }
     },
     "clients": {
@@ -414,6 +425,8 @@
             "passport": "Pasaporte",
             "national": "Cliente Nacional",
             "nif": "NIF/CIF *",
+            "email": "Email",
+            "email_invalid": "Dirección de email no válida",
             "is_default": "Establecer como Cliente Predeterminado"
         },
         "messages": {

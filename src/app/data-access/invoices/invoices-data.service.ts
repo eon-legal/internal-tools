@@ -26,6 +26,7 @@
  * - All timestamps are stored as UTC
  */
 
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '../supabase/supabase.service';
 import {
@@ -37,12 +38,14 @@ import {
 import { generateNextInvoiceNumber } from '../../domain/invoices/invoice-number-generator';
 import { from, Observable, throwError } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class InvoicesDataService {
   private readonly supabase = inject(SupabaseService).getClient();
+  private readonly http = inject(HttpClient);
 
   /**
    * Get all invoices with optional filtering
@@ -265,6 +268,29 @@ export class InvoicesDataService {
         return throwError(() => error);
       })
     );
+  }
+
+  /**
+   * Trigger the Cecabank TPV payment-link email for an invoice.
+   *
+   * Calls the send-payment-link Supabase Edge Function, which loads the
+   * invoice + client.email server-side, allocates a Num_operacion, and emails
+   * the link. Cecabank credentials never reach the browser.
+   */
+  sendPaymentLink(
+    invoiceId: string,
+  ): Observable<{ success: boolean; token: string; sent_to: string }> {
+    return this.http
+      .post<{ success: boolean; token: string; sent_to: string }>(
+        environment.tpv.sendPaymentLinkFnUrl,
+        { invoice_id: invoiceId },
+      )
+      .pipe(
+        catchError((error) => {
+          console.error('Error sending payment link:', error);
+          return throwError(() => error);
+        }),
+      );
   }
 
   /**

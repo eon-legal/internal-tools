@@ -48,5 +48,14 @@ export const environment = {
     /** Supabase Edge Function proxy to avoid CORS when calling Rocket.Chat webhook */
     webhookUrl: 'https://wzmppksgwtdffnxhkljh.supabase.co/functions/v1/rocketchat-webhook-proxy',
   },
+  tpv: {
+    /**
+     * Points at the development Supabase project's send-payment-link function.
+     * For purely local edge-function development, replace with
+     * http://localhost:54321/functions/v1/send-payment-link.
+     */
+    sendPaymentLinkFnUrl:
+      'https://rrmjetsmwookypdtpvna.supabase.co/functions/v1/send-payment-link',
+  },
 };
 

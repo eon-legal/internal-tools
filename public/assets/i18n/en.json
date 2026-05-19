@@ -374,6 +374,17 @@
         "actions": {
             "edit": "Edit",
             "delete": "Delete"
+        },
+        "tpv": {
+            "section_title": "Payment link",
+            "section_description": "Email the client a Cecabank TPV link to pay this invoice.",
+            "send_button": "Send payment link",
+            "will_send_to": "Will be sent to",
+            "no_client": "Attach a client to this invoice first.",
+            "no_email": "The client has no email on file.",
+            "already_paid": "This invoice is already marked as paid.",
+            "sent_success": "Payment link sent to {email}.",
+            "sent_error": "Could not send payment link."
         }
     },
     "clients": {
@@ -414,6 +425,8 @@
             "passport": "Passport",
             "national": "National Client",
             "nif": "NIF/CIF *",
+            "email": "Email",
+            "email_invalid": "Invalid email address",
             "is_default": "Set as Default Client"
         },
         "messages": {

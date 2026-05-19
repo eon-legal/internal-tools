@@ -34,6 +34,7 @@ interface ClientFormData {
   passport?: string;
   national: boolean;
   nif?: string;
+  email?: string;
   is_default: boolean;
 }
 
@@ -179,6 +180,19 @@ export class ClientFormComponent implements OnInit {
         type: 'input',
         cols: 6,
         initialData: this.initialData?.address || '',
+      },
+      {
+        name: 'email',
+        label: this.translate.instant('clients.form.email'),
+        type: 'input',
+        cols: 6,
+        initialData: this.initialData?.email || '',
+        validators: [
+          {
+            validator: Validators.email,
+            message: this.translate.instant('clients.form.email_invalid'),
+          },
+        ],
       },
       {
         name: 'national',

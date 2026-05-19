@@ -35,8 +35,9 @@ import { RadioButton } from 'primeng/radiobutton';
 
 // Services
 import { InvoicesDataService } from '../../../../data-access/invoices/invoices-data.service';
+import { ClientsDataService } from '../../../../data-access/clients/clients-data.service';
 import { LanguageService } from '../../../../shared/services/language/language.service';
-import { Invoice, UpdateInvoiceDto } from '../../interfaces/database-models';
+import { Client, Invoice, UpdateInvoiceDto } from '../../interfaces/database-models';
 import { IdentificationType } from '../../interfaces/first-form';
 import { spanishIdValidator } from '../../../../shared/validators/spanish-id.validator';
 
@@ -64,6 +65,7 @@ export class InvoiceEditComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly invoicesService = inject(InvoicesDataService);
+  private readonly clientsService = inject(ClientsDataService);
   private readonly languageService = inject(LanguageService);
   private readonly messageService = inject(MessageService);
 
@@ -72,8 +74,10 @@ export class InvoiceEditComponent implements OnInit, OnDestroy {
 
   invoiceForm!: FormGroup;
   invoice: Invoice | null = null;
+  client: Client | null = null;
   isLoading = false;
   isSaving = false;
+  isSendingPaymentLink = false;
   invoiceId: string | null = null;
 
   ngOnInit(): void {
@@ -156,11 +160,59 @@ export class InvoiceEditComponent implements OnInit, OnDestroy {
         this.invoice = invoice;
         this.populateForm(invoice);
         this.isLoading = false;
+        // Best-effort: load client so the "Send payment link" button knows
+        // whether it has an email to deliver to.
+        if (invoice.client_id) {
+          this.clientsService.getClientById(invoice.client_id).subscribe({
+            next: (client) => (this.client = client),
+            error: () => (this.client = null),
+          });
+        }
       },
       error: (error) => {
         this.showError('Failed to load invoice: ' + error.message);
         this.isLoading = false;
         this.goBack();
+      },
+    });
+  }
+
+  /**
+   * Whether the operator can send a Cecabank TPV payment link for this invoice.
+   * Disabled when there's no client on file, no email, or the invoice is paid.
+   */
+  canSendPaymentLink(): boolean {
+    return (
+      !!this.invoice &&
+      !this.invoice.paid &&
+      !!this.invoice.client_id &&
+      !!this.client?.email
+    );
+  }
+
+  /** Reason the send button is disabled — surfaced as helper text. */
+  paymentLinkDisabledReason(): string {
+    if (!this.invoice) return '';
+    if (this.invoice.paid) return this.getText('invoices.tpv.already_paid');
+    if (!this.invoice.client_id || !this.client) return this.getText('invoices.tpv.no_client');
+    if (!this.client.email) return this.getText('invoices.tpv.no_email');
+    return '';
+  }
+
+  onSendPaymentLink(): void {
+    if (!this.invoiceId || !this.canSendPaymentLink()) return;
+    this.isSendingPaymentLink = true;
+    this.invoicesService.sendPaymentLink(this.invoiceId).subscribe({
+      next: (res) => {
+        this.isSendingPaymentLink = false;
+        this.showSuccess(
+          this.getText('invoices.tpv.sent_success').replace('{email}', res.sent_to),
+        );
+      },
+      error: (error) => {
+        this.isSendingPaymentLink = false;
+        const detail = error?.error?.error ?? error?.message ?? '';
+        this.showError(`${this.getText('invoices.tpv.sent_error')} ${detail}`.trim());
       },
     });
   }

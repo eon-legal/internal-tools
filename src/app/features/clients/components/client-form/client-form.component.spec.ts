@@ -146,12 +146,32 @@ describe('ClientFormComponent', () => {
       const companyConfig = component.formConfig;
 
       // Common fields that should be in both
-      const commonFieldNames = ['nif', 'address', 'national', 'is_default'];
+      const commonFieldNames = ['nif', 'address', 'email', 'national', 'is_default'];
 
       commonFieldNames.forEach(fieldName => {
         expect(individualConfig.find(f => f.name === fieldName)).toBeDefined();
         expect(companyConfig.find(f => f.name === fieldName)).toBeDefined();
       });
+    });
+
+    it('should expose an email field with an email validator', () => {
+      component.initialData = mockIndividualClient;
+      component['buildFormConfig']();
+
+      const emailField = component.formConfig.find((f) => f.name === 'email');
+      expect(emailField).toBeDefined();
+      expect(emailField?.type).toBe('input');
+      // Email field is optional but validates format when provided.
+      expect(emailField?.validators?.length ?? 0).toBeGreaterThan(0);
+    });
+
+    it('should prefill email from initialData when present', () => {
+      const withEmail = { ...mockIndividualClient, email: 'jane@example.com' };
+      component.initialData = withEmail;
+      component['buildFormConfig']();
+
+      const emailField = component.formConfig.find((f) => f.name === 'email');
+      expect(emailField?.initialData).toBe('jane@example.com');
     });
   });
 

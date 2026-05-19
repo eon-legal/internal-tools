@@ -249,6 +249,37 @@
         </div>
       </div>
 
+      <!-- TPV Payment Link Section -->
+      <div class="form-section mb-4">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="pi pi-send"></i>
+          </div>
+          <div class="section-title-wrapper">
+            <h3 class="section-title">{{ getText('invoices.tpv.section_title') }}</h3>
+            <p class="section-description">{{ getText('invoices.tpv.section_description') }}</p>
+          </div>
+        </div>
+        <div class="section-content">
+          <div class="flex align-items-center gap-3 flex-wrap">
+            <p-button
+              type="button"
+              [label]="getText('invoices.tpv.send_button')"
+              icon="pi pi-envelope"
+              (onClick)="onSendPaymentLink()"
+              [loading]="isSendingPaymentLink"
+              [disabled]="!canSendPaymentLink()"
+            ></p-button>
+            <small *ngIf="!canSendPaymentLink()" class="text-color-secondary">
+              {{ paymentLinkDisabledReason() }}
+            </small>
+            <small *ngIf="canSendPaymentLink() && client?.email" class="text-color-secondary">
+              {{ getText('invoices.tpv.will_send_to') }} {{ client?.email }}
+            </small>
+          </div>
+        </div>
+      </div>
+
       <!-- Debug: Show form validation status (temporary) -->
       <div class="surface-100 p-3 border-round mb-3" style="font-size: 0.75rem;">
         <strong>Debug:</strong> Form valid: {{ !invoiceForm.invalid }} | Dirty: {{ invoiceForm.dirty }} | Paid value: {{ invoiceForm.get('paid')?.value }}
